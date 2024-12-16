@@ -22,7 +22,11 @@ class _SignupPageState extends State<SignupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        backgroundColor: whiteColor,
+        surfaceTintColor: whiteColor,
+      ),
+      backgroundColor: whiteColor,
       body: SingleChildScrollView(
         child: Column(
           children: [
