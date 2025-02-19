@@ -37,6 +37,8 @@ dependencies:
   flutter_screenutil: ^5.9.3
   platform_text: ^0.2.0
   custom_check_box: ^0.0.4
+  google_fonts: ^6.1.0  # ✅ Latest version of google_fonts
+  # flutter_tindercard: ^0.2.0 
 
 dev_dependencies:
   flutter_test:
