@@ -1,0 +1,2 @@
+C:/Users/vlisa/OneDrive/Desktop/Nini+ Sesa (HOME)/android/app/.cxx/Debug/c6c392c4/x86/CMakeFiles/edit_cache.dir
+C:/Users/vlisa/OneDrive/Desktop/Nini+ Sesa (HOME)/android/app/.cxx/Debug/c6c392c4/x86/CMakeFiles/rebuild_cache.dir
