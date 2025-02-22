@@ -7,6 +7,7 @@ import 'package:furrpal/custom/container_custom.dart';
 
 import '../../../../custom/text_custom.dart';
 import '../../../../custom/textfield_custom.dart';
+import '../../../auth/presentation/pages/user_profile.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -122,7 +123,10 @@ class _SignupPageState extends State<SignupPage> {
                   Expanded(child: Container()),
                   ButtonCustom(
                     text: 'Creat Account',
-                    callback: () {},
+                    callback: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) =>  UserProfileScreen()));
+                    },
                     isDisabled: isChecked == false ? true : false,
                     dontApplyMargin: true,
                   ),
