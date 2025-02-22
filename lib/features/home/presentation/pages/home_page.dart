@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_card_swiper/flutter_card_swiper.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -8,8 +10,7 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage>
-    with SingleTickerProviderStateMixin {
+class _HomePageState extends State<HomePage> {
   final List<Map<String, dynamic>> dogs = [
     {
       "name": "Rocky",
@@ -19,31 +20,20 @@ class _HomePageState extends State<HomePage>
       "location": "Kandy",
       "image": "assets/images/german_shepherd.jpg"
     },
+    {
+      "name": "Bella",
+      "breed": "Golden Retriever",
+      "age": "3 years",
+      "gender": "Female",
+      "location": "Colombo",
+      "image": "assets/images/golden_retriever.jpeg"
+    }
   ];
 
-  late AnimationController _buttonAnimationController;
-
-  @override
-  void initState() {
-    super.initState();
-    _buttonAnimationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 150),
-      lowerBound: 1.0,
-      upperBound: 1.1,
-    );
-  }
-
-  @override
-  void dispose() {
-    _buttonAnimationController.dispose();
-    super.dispose();
-  }
+  final CardSwiperController swiperController = CardSwiperController();
 
   @override
   Widget build(BuildContext context) {
-    final dog = dogs[0];
-
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 242, 241, 240),
       body: Column(
@@ -51,14 +41,34 @@ class _HomePageState extends State<HomePage>
           const SizedBox(height: 50),
           _buildTopBar(),
           const Spacer(),
-          Draggable(
-            feedback: DogProfileCard(dog: dog),
-            childWhenDragging: Container(),
-            onDragEnd: (details) {
-              // Future swipe effect - Load next profile
-            },
-            child: DogProfileCard(dog: dog),
+
+          // Replaced static DogProfileCard with CardSwiper
+          SizedBox(
+            // height: MediaQuery.of(context).size.height * 0.88,
+            height: 650,
+            // Ensures only 1 card is visible
+            child: CardSwiper(
+              controller: swiperController,
+              cardsCount: dogs.length,
+              onSwipe: (index, direction, previousIndex) {
+                if (direction == CardSwiperDirection.right) {
+                  print("${dogs[index]['name']} liked! ❤️");
+                } else if (direction == CardSwiperDirection.left) {
+                  print("${dogs[index]['name']} disliked ❌");
+                }
+                return true;
+              },
+              cardBuilder:
+                  (context, index, percentThresholdX, percentThresholdY) {
+                return DogProfileCard(
+                  dog: dogs[index],
+                  isTopCard: index == 0,
+                  swiperController: swiperController,
+                );
+              },
+            ),
           ),
+
           const Spacer(),
         ],
       ),
@@ -79,58 +89,128 @@ class _HomePageState extends State<HomePage>
   }
 }
 
+// Fixes bottom overflow issue by using Flexible & Padding
 class DogProfileCard extends StatelessWidget {
   final Map<String, dynamic> dog;
-  const DogProfileCard({super.key, required this.dog});
+  final bool isTopCard;
+  final CardSwiperController swiperController;
+
+  const DogProfileCard({
+    super.key,
+    required this.dog,
+    required this.isTopCard,
+    required this.swiperController,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.bottomCenter,
-      children: [
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(25),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.12),
-                blurRadius: 20,
-                spreadRadius: 5,
-                offset: const Offset(0, 10),
-              ),
-            ],
+    return Container(
+      // height: MediaQuery.of(context).size.height * 85.0,
+      height: 100,
+      // ✅ Increased height to 85% of screen
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(25),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.12),
+            blurRadius: 20,
+            spreadRadius: 5,
+            offset: const Offset(0, 10),
           ),
-          child: Column(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Image.asset(dog["image"],
-                    height: 300, fit: BoxFit.cover, width: double.infinity),
-              ),
-              const SizedBox(height: 15),
-              Text(
-                dog["name"],
-                style:
-                    const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
-              ),
-              Text(
-                dog["breed"],
-                style: const TextStyle(
-                    fontSize: 18,
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min, //  Keeps things compact
+        children: [
+          Expanded(
+            // Expands content properly without overflow
+            child: Column(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image.asset(
+                    dog["image"],
+                    height: 200, // Adjust image height
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  dog["name"],
+                  style: const TextStyle(
+                      fontSize: 26, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  dog["breed"],
+                  style: const TextStyle(
+                    fontSize: 16,
                     fontStyle: FontStyle.italic,
-                    color: Colors.brown),
+                    color: Colors.brown,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                _infoRow(dog),
+                const SizedBox(height: 15),
+              ],
+            ),
+          ),
+
+          //  Centered Button (Show User Details)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: ElevatedButton(
+              onPressed: () {
+                // Navigate to user details page
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 183, 180, 177),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
               ),
-              const SizedBox(height: 10),
-              _infoRow(dog),
-              const SizedBox(height: 125),
+              child: const Text(
+                "Show User Details",
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white),
+              ),
+            ),
+          ),
+
+          // Floating Buttons (Heart & Cross)
+          const SizedBox(height: 15), // Adjusted spacing
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _floatingButton(
+                icon: Icons.close,
+                color: Colors.redAccent,
+                backgroundColor: Colors.red.withOpacity(0.2),
+                onTap: () {
+                  swiperController.swipe(CardSwiperDirection.left);
+                },
+              ),
+              const SizedBox(width: 30),
+              _floatingButton(
+                icon: Icons.favorite,
+                color: Colors.green,
+                backgroundColor: Colors.green.withOpacity(0.2),
+                onTap: () {
+                  swiperController.swipe(CardSwiperDirection.right);
+                },
+              ),
             ],
           ),
-        ),
-        _buildFloatingButtons(context),
-      ],
+          const SizedBox(height: 20), // Adjusted to prevent bottom overflow
+        ],
+      ),
     );
   }
 
@@ -154,7 +234,7 @@ class DogProfileCard extends StatelessWidget {
           margin: const EdgeInsets.only(top: 5),
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
           decoration: BoxDecoration(
-            color: const Color.fromARGB(255, 165, 168, 163),
+            color: const Color.fromARGB(255, 183, 215, 172),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(value, style: const TextStyle(fontSize: 14)),
@@ -163,46 +243,27 @@ class DogProfileCard extends StatelessWidget {
     );
   }
 
-  Widget _buildFloatingButtons(BuildContext context) {
-    return Positioned(
-      bottom: 25,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          _glassButton(
-              icon: Icons.close, color: Colors.redAccent, onTap: () {}),
-          const SizedBox(width: 30),
-          _glassButton(
-              icon: Icons.favorite,
-              color: const Color.fromARGB(255, 139, 180, 92),
-              onTap: () {}),
-        ],
-      ),
-    );
-  }
-
-  Widget _glassButton(
-      {required IconData icon,
-      required Color color,
-      required VoidCallback onTap}) {
+  // Floating Button Design (Heart & Cross)
+  Widget _floatingButton({
+    required IconData icon,
+    required Color color,
+    required Color backgroundColor,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
       onTapDown: (_) => HapticFeedback.mediumImpact(),
-      onTap: () {
-        onTap();
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        curve: Curves.easeInOut,
+      onTap: onTap,
+      child: Container(
         width: 70,
         height: 70,
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.4),
+          color: backgroundColor,
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
               color: color.withOpacity(0.5),
-              blurRadius: 12,
-              spreadRadius: 3,
+              blurRadius: 20,
+              spreadRadius: 5,
             ),
           ],
         ),
