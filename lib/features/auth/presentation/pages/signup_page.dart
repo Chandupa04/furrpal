@@ -7,7 +7,7 @@ import 'package:furrpal/custom/container_custom.dart';
 
 import '../../../../custom/text_custom.dart';
 import '../../../../custom/textfield_custom.dart';
-import 'package:furrpal/features/auth/presentation/pages/userprofile_page.dart';
+import 'package:furrpal/features/auth/presentation/pages/dogprofile_page.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -125,7 +125,7 @@ class _SignupPageState extends State<SignupPage> {
                     text: 'Creat Account',
                     callback: () {
                       Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => UserProfileScreen()));
+                          MaterialPageRoute(builder: (context) => DogProfileScreen()));
 
                     },
                     isDisabled: isChecked == false ? true : false,
