@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:furrpal/features/home/presentation/pages/payment_page.dart';
+import 'package:furrpal/features/home/presentation/pages/filter_search_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -82,7 +82,15 @@ class _HomePageState extends State<HomePage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Icon(Icons.search, color: Colors.grey.shade800, size: 28),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SearchFilterScreen()),
+              );
+            },
+            child: Icon(Icons.search, color: Colors.grey.shade800, size: 28),
+          ),
           Icon(Icons.person, color: Colors.grey.shade800, size: 28),
         ],
       ),
