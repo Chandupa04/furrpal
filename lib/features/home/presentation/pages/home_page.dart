@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:furrpal/features/home/presentation/pages/home2_page.dart';
+import 'package:furrpal/features/home/presentation/pages/payment_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
