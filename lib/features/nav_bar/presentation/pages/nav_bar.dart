@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:furrpal/features/home/presentation/pages/community_page.dart';
+import 'package:furrpal/features/community/presentation/pages/community_page.dart';
 import 'package:furrpal/features/home/presentation/pages/home_page.dart';
 import 'package:furrpal/features/home/presentation/pages/notification_page.dart';
 import 'package:furrpal/features/home/presentation/pages/pet_shop_page.dart';
