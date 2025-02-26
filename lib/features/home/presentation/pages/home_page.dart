@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:furrpal/features/home/presentation/pages/payment_page.dart';
@@ -86,7 +87,8 @@ class _HomePageState extends State<HomePage> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => SearchFilterScreen()),
+                MaterialPageRoute(
+                    builder: (context) => const SearchFilterScreen()),
               );
             },
             child: Icon(Icons.search, color: Colors.grey.shade800, size: 28),

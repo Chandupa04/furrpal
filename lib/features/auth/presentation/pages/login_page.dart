@@ -6,6 +6,7 @@ import 'package:furrpal/custom/container_custom.dart';
 import 'package:furrpal/custom/text_custom.dart';
 import 'package:furrpal/custom/textfield_custom.dart';
 import 'package:furrpal/features/auth/presentation/pages/signup_page.dart';
+import 'package:furrpal/features/nav_bar/presentation/pages/nav_bar.dart';
 
 import '../../../home/presentation/pages/home_page.dart';
 
@@ -129,9 +130,12 @@ class _LoginPageState extends State<LoginPage> {
                     text: 'Login to FurrPal',
                     callback: () {
                       Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const HomePage()));
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const NavBar(), // Assuming you want NavBar as the main page after login
+                        ),
+                      );
                     },
                     dontApplyMargin: true,
                   ),
