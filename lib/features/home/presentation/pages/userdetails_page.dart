@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // Import Clipboard for copy function
 
 void main() {
   runApp(UserDetailsApp());
@@ -95,11 +96,11 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                   children: [
                     _buildDetailRow("Name", name),
                     SizedBox(height: 50), // Increased space between fields
-                    _buildDetailRow("Email", email),
+                    _buildDetailRow("Email", email, isCopyable: true), // Email is now clickable & copyable
                     SizedBox(height: 50), // Increased space between fields
                     _buildDetailRow("Address", address),
                     SizedBox(height: 50), // Increased space between fields
-                    _buildDetailRow("Contact number", contact),
+                    _buildDetailRow("Contact number", contact, isCopyable: true), // Contact number is now clickable & copyable
                   ],
                 ),
               ),
@@ -110,7 +111,8 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
+  // Updated _buildDetailRow to make Email and Contact clickable & copyable
+  Widget _buildDetailRow(String label, String value, {bool isCopyable = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -119,7 +121,24 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87),
         ),
         SizedBox(height: 5),
-        Text(
+        isCopyable
+            ? GestureDetector(
+          onTap: () {
+            Clipboard.setData(ClipboardData(text: value));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("$label copied!")),
+            );
+          },
+          child: Text(
+            value,
+            style: TextStyle(
+              fontSize: 22,
+              color: Colors.blue,
+              // decoration: TextDecoration.underline, // Makes it look clickable
+            ),
+          ),
+        )
+            : Text(
           value,
           style: TextStyle(fontSize: 22, color: Colors.black87),
         ),
