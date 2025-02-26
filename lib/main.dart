@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:furrpal/constant/constant.dart';
 import 'package:furrpal/features/auth/presentation/pages/start_page.dart';
 
 void main() {
@@ -19,6 +20,11 @@ class MyApp extends StatelessWidget {
         title: 'Flutter Demo',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          appBarTheme: const AppBarTheme(
+            foregroundColor: whiteColor,
+            backgroundColor: blackColor,
+          ),
+          scaffoldBackgroundColor: blackColor,
           useMaterial3: true,
         ),
         home: StartPage(),

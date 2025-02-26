@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:furrpal/constant/constant.dart';
 import 'package:furrpal/features/community/presentation/widgets/community_post_card.dart';
 
 class CommunityPage extends StatelessWidget {
@@ -8,9 +7,9 @@ class CommunityPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: primaryColor,
+      // backgroundColor: primaryColor,
       appBar: AppBar(
-        backgroundColor: primaryColor,
+        // backgroundColor: primaryColor,
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
