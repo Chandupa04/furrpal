@@ -59,6 +59,12 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
       appBar: AppBar(
         title: const Text('Edit Profile'),
         backgroundColor: Colors.white10,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back), // Back arrow icon
+          onPressed: () {
+            Navigator.pop(context); // Go back when pressed
+          },
+        ),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -86,13 +92,20 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
               ),
 
               // Add space between image picker and form fields
-              const SizedBox(height: 50),
+              const SizedBox(height: 60),
 
-              // Profile Fields Section with background color applied only to the container
+              // Profile Fields Section with background gradient applied only to the container
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white, // Keep the field background white
                   borderRadius: BorderRadius.circular(10),
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.deepOrange.shade300,
+                      Colors.deepOrange.shade100,
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.grey.withOpacity(0.3),
@@ -104,58 +117,79 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
-                    // Name Field
-                    TextFormField(
-                      controller: _nameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Name',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.person),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white, // Keep fields background white
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      validator: (value) =>
-                      value!.isEmpty ? 'Please enter your name' : null,
+                      child: TextFormField(
+                        controller: _nameController,
+                        decoration: const InputDecoration(
+                          labelText: 'Name',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.person),
+                        ),
+                        validator: (value) =>
+                        value!.isEmpty ? 'Please enter your name' : null,
+                      ),
                     ),
                     const SizedBox(height: 16),
 
-                    // Email Field
-                    TextFormField(
-                      controller: _emailController,
-                      decoration: const InputDecoration(
-                        labelText: 'Email',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.email),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white, // Keep fields background white
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      keyboardType: TextInputType.emailAddress,
-                      validator: (value) =>
-                      value!.isEmpty ? 'Please enter your email' : null,
+                      child: TextFormField(
+                        controller: _emailController,
+                        decoration: const InputDecoration(
+                          labelText: 'Email',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.email),
+                        ),
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (value) =>
+                        value!.isEmpty ? 'Please enter your email' : null,
+                      ),
                     ),
                     const SizedBox(height: 16),
 
-                    // Phone Field
-                    TextFormField(
-                      controller: _phoneController,
-                      decoration: const InputDecoration(
-                        labelText: 'Phone',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.phone),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white, // Keep fields background white
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      keyboardType: TextInputType.phone,
-                      validator: (value) =>
-                      value!.isEmpty ? 'Please enter your phone number' : null,
+                      child: TextFormField(
+                        controller: _phoneController,
+                        decoration: const InputDecoration(
+                          labelText: 'Phone',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.phone),
+                        ),
+                        keyboardType: TextInputType.phone,
+                        validator: (value) => value!.isEmpty
+                            ? 'Please enter your phone number'
+                            : null,
+                      ),
                     ),
                     const SizedBox(height: 16),
 
-                    // Address Field
-                    TextFormField(
-                      controller: _addressController,
-                      decoration: const InputDecoration(
-                        labelText: 'Address',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.home),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white, // Keep fields background white
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      maxLines: 3,
-                      validator: (value) =>
-                      value!.isEmpty ? 'Please enter your address' : null,
+                      child: TextFormField(
+                        controller: _addressController,
+                        decoration: const InputDecoration(
+                          labelText: 'Address',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.home),
+                        ),
+                        maxLines: 3,
+                        validator: (value) =>
+                        value!.isEmpty ? 'Please enter your address' : null,
+                      ),
                     ),
                     const SizedBox(height: 24),
 
@@ -172,8 +206,10 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                       child: const Text('Save Profile'),
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size(double.infinity, 50),
-                        backgroundColor: Colors.deepOrange.shade100, // Button background color
-                        foregroundColor: Colors.deepOrange.shade300, // Text color
+                        backgroundColor:
+                        Colors.deepOrange.shade100, // Button background color
+                        foregroundColor:
+                        Colors.deepOrange.shade300, // Text color
                       ),
                     ),
                   ],

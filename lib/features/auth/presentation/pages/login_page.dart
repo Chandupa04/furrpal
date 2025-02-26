@@ -128,7 +128,8 @@ class _LoginPageState extends State<LoginPage> {
                     text: 'Login to FurrPal',
                     callback: () {
                       Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => const HomePage()));
+                          MaterialPageRoute(builder: (context) => HomePage()));
+
                     },
                     dontApplyMargin: true,
                   ),
