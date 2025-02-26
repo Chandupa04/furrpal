@@ -1,128 +1,3 @@
-// import 'package:flutter/material.dart';
-// import 'package:image_picker/image_picker.dart';
-// import 'dart:io';
-//
-// class UserProfilePage extends StatefulWidget {
-//   const UserProfilePage({Key? key}) : super(key: key);
-//
-//   @override
-//   _UserProfilePageState createState() => _UserProfilePageState();
-// }
-//
-// class _UserProfilePageState extends State<UserProfilePage> {
-//   final _formKey = GlobalKey<FormState>();
-//   String _name = '';
-//   String _email = '';
-//   String _phone = '';
-//   String _address = '';
-//   File? _image;
-//
-//   Future<void> _pickImage() async {
-//     final picker = ImagePicker();
-//     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-//
-//     setState(() {
-//       if (pickedFile != null) {
-//         _image = File(pickedFile.path);
-//       }
-//     });
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('Edit Profile'),
-//       ),
-//       body: SingleChildScrollView(
-//         child: Padding(
-//           padding: const EdgeInsets.all(16.0),
-//           child: Form(
-//             key: _formKey,
-//             child: Column(
-//               crossAxisAlignment: CrossAxisAlignment.center,
-//               children: [
-//                 GestureDetector(
-//                   onTap: _pickImage,
-//                   child: CircleAvatar(
-//                     radius: 60,
-//                     backgroundImage: _image != null
-//                         ? FileImage(_image!)
-//                         : const AssetImage('assets/placeholder.png') as ImageProvider,
-//                     child: _image == null
-//                         ? const Icon(Icons.add_a_photo, size: 40, color: Colors.white)
-//                         : null,
-//                   ),
-//                 ),
-//                 const SizedBox(height: 20),
-//                 TextFormField(
-//                   decoration: const InputDecoration(
-//                     labelText: 'Name',
-//                     border: OutlineInputBorder(),
-//                   ),
-//                   onSaved: (value) => _name = value ?? '',
-//                   validator: (value) =>
-//                   value!.isEmpty ? 'Please enter your name' : null,
-//                 ),
-//                 const SizedBox(height: 16),
-//                 TextFormField(
-//                   decoration: const InputDecoration(
-//                     labelText: 'Email',
-//                     border: OutlineInputBorder(),
-//                   ),
-//                   keyboardType: TextInputType.emailAddress,
-//                   onSaved: (value) => _email = value ?? '',
-//                   validator: (value) =>
-//                   value!.isEmpty ? 'Please enter your email' : null,
-//                 ),
-//                 const SizedBox(height: 16),
-//                 TextFormField(
-//                   decoration: const InputDecoration(
-//                     labelText: 'Phone',
-//                     border: OutlineInputBorder(),
-//                   ),
-//                   keyboardType: TextInputType.phone,
-//                   onSaved: (value) => _phone = value ?? '',
-//                   validator: (value) =>
-//                   value!.isEmpty ? 'Please enter your phone number' : null,
-//                 ),
-//                 const SizedBox(height: 16),
-//                 TextFormField(
-//                   decoration: const InputDecoration(
-//                     labelText: 'Address',
-//                     border: OutlineInputBorder(),
-//                   ),
-//                   maxLines: 3,
-//                   onSaved: (value) => _address = value ?? '',
-//                   validator: (value) =>
-//                   value!.isEmpty ? 'Please enter your address' : null,
-//                 ),
-//                 const SizedBox(height: 24),
-//                 ElevatedButton(
-//                   onPressed: () {
-//                     if (_formKey.currentState!.validate()) {
-//                       _formKey.currentState!.save();
-//                       // Here you would typically send the data to your backend
-//                       ScaffoldMessenger.of(context).showSnackBar(
-//                         const SnackBar(content: Text('Profile Updated')),
-//                       );
-//                     }
-//                   },
-//                   child: const Text('Save Profile'),
-//                   style: ElevatedButton.styleFrom(
-//                     minimumSize: const Size(double.infinity, 50),
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-//
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -183,91 +58,128 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Profile'),
+        backgroundColor: Colors.white10,
       ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                GestureDetector(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Image Picker Section
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                alignment: Alignment.center,
+                child: GestureDetector(
                   onTap: _pickImage,
                   child: CircleAvatar(
                     radius: 60,
+                    backgroundColor: Colors.deepOrange.shade100, // Background color of the circle
                     backgroundImage: _image != null
                         ? FileImage(_image!)
-                        : const AssetImage('assets/placeholder.jpg') as ImageProvider,
+                        : const AssetImage('assets/images/placeholder.jpg') as ImageProvider,
                     child: _image == null
                         ? const Icon(Icons.add_a_photo, size: 40, color: Colors.white)
                         : null,
                   ),
                 ),
-                const SizedBox(height: 20),
-                TextFormField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Name',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.person),
-                  ),
-                  validator: (value) =>
-                  value!.isEmpty ? 'Please enter your name' : null,
+              ),
+
+              // Add space between image picker and form fields
+              const SizedBox(height: 50),
+
+              // Profile Fields Section with background color applied only to the container
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white, // Keep the field background white
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.3),
+                      spreadRadius: 2,
+                      blurRadius: 8,
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.email),
-                  ),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) =>
-                  value!.isEmpty ? 'Please enter your email' : null,
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    // Name Field
+                    TextFormField(
+                      controller: _nameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Name',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.person),
+                      ),
+                      validator: (value) =>
+                      value!.isEmpty ? 'Please enter your name' : null,
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Email Field
+                    TextFormField(
+                      controller: _emailController,
+                      decoration: const InputDecoration(
+                        labelText: 'Email',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.email),
+                      ),
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (value) =>
+                      value!.isEmpty ? 'Please enter your email' : null,
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Phone Field
+                    TextFormField(
+                      controller: _phoneController,
+                      decoration: const InputDecoration(
+                        labelText: 'Phone',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.phone),
+                      ),
+                      keyboardType: TextInputType.phone,
+                      validator: (value) =>
+                      value!.isEmpty ? 'Please enter your phone number' : null,
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Address Field
+                    TextFormField(
+                      controller: _addressController,
+                      decoration: const InputDecoration(
+                        labelText: 'Address',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.home),
+                      ),
+                      maxLines: 3,
+                      validator: (value) =>
+                      value!.isEmpty ? 'Please enter your address' : null,
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Save Button
+                    ElevatedButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          // Here you would typically send the data to your backend
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Profile Updated')),
+                          );
+                        }
+                      },
+                      child: const Text('Save Profile'),
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 50),
+                        backgroundColor: Colors.deepOrange.shade100, // Button background color
+                        foregroundColor: Colors.deepOrange.shade300, // Text color
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _phoneController,
-                  decoration: const InputDecoration(
-                    labelText: 'Phone',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.phone),
-                  ),
-                  keyboardType: TextInputType.phone,
-                  validator: (value) =>
-                  value!.isEmpty ? 'Please enter your phone number' : null,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _addressController,
-                  decoration: const InputDecoration(
-                    labelText: 'Address',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.home),
-                  ),
-                  maxLines: 3,
-                  validator: (value) =>
-                  value!.isEmpty ? 'Please enter your address' : null,
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      // Here you would typically send the data to your backend
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Profile Updated')),
-                      );
-                    }
-                  },
-                  child: const Text('Save Profile'),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 50),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
