@@ -7,14 +7,12 @@ class Product {
   final String name;
   final String image;
   final double price;
-  final String description;
   int quantity;
 
   Product({
     required this.name,
     required this.image,
     required this.price,
-    required this.description,
     this.quantity = 0,
   });
 }
@@ -27,61 +25,24 @@ class ShopPage extends StatefulWidget {
 class _ShopPageState extends State<ShopPage> {
   List<Product> products = [
     Product(
-      name: "Dog Collar",
-      image: "assets/images/dog_collar.jpg",
-      price: 10.99,
-      description:
-          "A strong and adjustable nylon collar for your dog, featuring a secure buckle.",
-    ),
+        name: "Dog Collar",
+        image: "assets/images/dog_collar.jpg",
+        price: 10.99),
     Product(
-      name: "Pet Food Bowl",
-      image: "assets/images/bowl.jpg",
-      price: 5.99,
-      description:
-          "Stainless steel bowl with anti-slip base, perfect for food and water.",
-    ),
+        name: "Pet Food Bowl", image: "assets/images/bowl.jpg", price: 5.99),
+    Product(name: "Chew Toy", image: "assets/images/chew_toy.jpg", price: 8.99),
     Product(
-      name: "Chew Toy",
-      image: "assets/images/chew_toy.jpg",
-      price: 8.99,
-      description:
-          "Durable rubber chew toy that promotes dental health and keeps dogs engaged.",
-    ),
+        name: "Dog Shampoo", image: "assets/images/shampoo.jpg", price: 12.49),
     Product(
-      name: "Dog Shampoo",
-      image: "assets/images/shampoo.jpg",
-      price: 12.49,
-      description:
-          "Gentle dog shampoo with a fresh scent, ideal for sensitive skin.",
-    ),
+        name: "Dog Food", image: "assets/images/dog_food.jpg", price: 12.49),
     Product(
-      name: "Dog Food",
-      image: "assets/images/dog_food.jpg",
-      price: 12.49,
-      description:
-          "Nutritious and protein-rich dog food to keep your pet healthy.",
-    ),
+        name: "Dog Towel", image: "assets/images/dog_towel.jpg", price: 12.49),
     Product(
-      name: "Dog Towel",
-      image: "assets/images/dog_towel.jpg",
-      price: 12.49,
-      description:
-          "Super absorbent towel designed for quick drying after baths.",
-    ),
+        name: "Dog Muzzle",
+        image: "assets/images/dog_muzzle.jpg",
+        price: 12.49),
     Product(
-      name: "Dog Muzzle",
-      image: "assets/images/dog_muzzle.jpg",
-      price: 12.49,
-      description:
-          "Comfortable and breathable muzzle for safe training and vet visits.",
-    ),
-    Product(
-      name: "Dog Chain",
-      image: "assets/images/dog_chain.jpg",
-      price: 12.49,
-      description:
-          "Heavy-duty metal chain leash with a soft handle for a strong grip.",
-    ),
+        name: "Dog Chain", image: "assets/images/dog_chain.jpg", price: 12.49),
   ];
 
   List<Product> cart = [];
@@ -99,7 +60,9 @@ class _ShopPageState extends State<ShopPage> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => CartPage(cart: cart)),
-    );
+    ).then((_) {
+      setState(() {}); // Refresh the state after returning from cart
+    });
   }
 
   @override
@@ -107,11 +70,11 @@ class _ShopPageState extends State<ShopPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.deepPurple,
-        title: Text(" FurrPal Shop",
+        title: Text("FurrPal Shop",
             style: TextStyle(
-                fontSize: 30.sp,
+                fontSize: 24.sp,
                 fontWeight: FontWeight.bold,
-                color: Colors.white70)),
+                color: Colors.white)),
         centerTitle: true,
         actions: [
           IconButton(
@@ -126,7 +89,7 @@ class _ShopPageState extends State<ShopPage> {
         child: GridView.builder(
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
-            childAspectRatio: 0.7,
+            childAspectRatio: 0.75,
             crossAxisSpacing: 10.w,
             mainAxisSpacing: 10.h,
           ),

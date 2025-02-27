@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'shop_page.dart';
 import 'order_details_page.dart';
+import 'shop_page.dart';
 
 class CartPage extends StatefulWidget {
   final List<Product> cart;
 
-  const CartPage({Key? key, required this.cart}) : super(key: key);
+  CartPage({required this.cart});
 
   @override
   _CartPageState createState() => _CartPageState();
@@ -15,21 +14,20 @@ class CartPage extends StatefulWidget {
 class _CartPageState extends State<CartPage> {
   void removeFromCart(Product product) {
     setState(() {
-      product.quantity--;
-      if (product.quantity <= 0) {
+      if (product.quantity > 1) {
+        product.quantity--;
+      } else {
         widget.cart.remove(product);
       }
     });
   }
 
   void navigateToOrderDetails() {
-    if (widget.cart.isNotEmpty) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => OrderDetailsPage(cart: widget.cart)),
-      );
-    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => OrderDetailsPage(cart: widget.cart)),
+    );
   }
 
   @override
@@ -39,70 +37,69 @@ class _CartPageState extends State<CartPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Shopping Cart", style: TextStyle(fontSize: 22.sp)),
+        title: Text("Your Cart"),
         backgroundColor: Colors.deepPurple,
       ),
-      body: Padding(
-        padding: EdgeInsets.all(10.w),
-        child: widget.cart.isEmpty
-            ? Center(
-                child: Text("Your cart is empty!",
-                    style: TextStyle(
-                        fontSize: 18.sp, fontWeight: FontWeight.bold)),
-              )
-            : Column(
-                children: [
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: widget.cart.length,
-                      itemBuilder: (context, index) {
-                        final product = widget.cart[index];
-                        return Card(
-                          margin: EdgeInsets.symmetric(vertical: 5.h),
-                          child: ListTile(
-                            leading: Image.asset(product.image,
-                                width: 50.w, height: 50.h),
-                            title: Text(product.name,
-                                style: TextStyle(fontSize: 18.sp)),
-                            subtitle: Text("Quantity: ${product.quantity}"),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                    "\$${(product.price * product.quantity).toStringAsFixed(2)}",
-                                    style: TextStyle(
-                                        fontSize: 16.sp, color: Colors.green)),
-                                IconButton(
-                                  icon: Icon(Icons.remove_circle,
-                                      color: Colors.red),
-                                  onPressed: () => removeFromCart(product),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  Divider(thickness: 2),
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 10.h),
-                    child: Text("Total: \$${totalPrice.toStringAsFixed(2)}",
-                        style: TextStyle(
-                            fontSize: 20.sp, fontWeight: FontWeight.bold)),
-                  ),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: widget.cart.isNotEmpty
-                          ? navigateToOrderDetails
-                          : null,
-                      child: Text("Proceed to Checkout"),
-                    ),
-                  ),
-                ],
+      body: widget.cart.isEmpty
+          ? Center(
+              child: Text(
+                "Your cart is empty",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-      ),
+            )
+          : Column(
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: widget.cart.length,
+                    itemBuilder: (context, index) {
+                      final product = widget.cart[index];
+                      return ListTile(
+                        leading:
+                            Image.asset(product.image, width: 50, height: 50),
+                        title: Text(product.name),
+                        subtitle: Text(
+                            "\$${product.price.toStringAsFixed(2)} x ${product.quantity}"),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.remove_circle),
+                              onPressed: () => removeFromCart(product),
+                              color: Colors.red,
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.add_circle),
+                              onPressed: () {
+                                setState(() {
+                                  product.quantity++;
+                                });
+                              },
+                              color: Colors.green,
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      Text("Total: \$${totalPrice.toStringAsFixed(2)}",
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold)),
+                      SizedBox(height: 10),
+                      ElevatedButton(
+                        onPressed: navigateToOrderDetails,
+                        child: Text("Proceed to Checkout"),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }
