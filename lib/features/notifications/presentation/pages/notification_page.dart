@@ -1,26 +1,5 @@
 import 'package:flutter/material.dart';
 
-// void main() {
-//   runApp(const MyApp());
-// }
-
-// class MyApp extends StatelessWidget {
-//   const MyApp({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       title: 'Pet Social Notifications',
-//       theme: ThemeData(
-//         primarySwatch: Colors.blue,
-//         brightness: Brightness.light,
-//         fontFamily: 'Roboto',
-//       ),
-//       home: const NotificationsPage(),
-//     );
-//   }
-// }
-
 class NotificationsPage extends StatelessWidget {
   const NotificationsPage({super.key});
 

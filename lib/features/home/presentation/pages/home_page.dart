@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter/services.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:furrpal/features/home/presentation/pages/payment_page.dart';
 import 'package:furrpal/features/home/presentation/pages/filter_search_page.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -34,6 +34,18 @@ class _HomePageState extends State<HomePage> {
 
   final CardSwiperController swiperController = CardSwiperController();
 
+  // Function to show toast message
+  void _showToast(String dogName, bool isLiked) {
+    Fluttertoast.showToast(
+        msg: "${dogName} ${isLiked ? 'liked! ❤️' : 'disliked ❌'}",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: isLiked ? Colors.green : Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,20 +55,19 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 50),
           _buildTopBar(),
           const Spacer(),
-
-          // Replaced static DogProfileCard with CardSwiper
           SizedBox(
-            // height: MediaQuery.of(context).size.height * 0.88,
             height: 650,
-            // Ensures only 1 card is visible
             child: CardSwiper(
               controller: swiperController,
               cardsCount: dogs.length,
-              onSwipe: (index, direction, previousIndex) {
+              // Corrected onSwipe callback
+              onSwipe: (previousIndex, currentIndex, direction) {
                 if (direction == CardSwiperDirection.right) {
-                  print("${dogs[index]['name']} liked! ❤️");
+                  _showToast(dogs[previousIndex]['name'], true);
+                  print("${dogs[previousIndex]['name']} liked! ❤️");
                 } else if (direction == CardSwiperDirection.left) {
-                  print("${dogs[index]['name']} disliked ❌");
+                  _showToast(dogs[previousIndex]['name'], false);
+                  print("${dogs[previousIndex]['name']} disliked ❌");
                 }
                 return true;
               },
@@ -66,11 +77,12 @@ class _HomePageState extends State<HomePage> {
                   dog: dogs[index],
                   isTopCard: index == 0,
                   swiperController: swiperController,
+                  onLike: () => _showToast(dogs[index]['name'], true),
+                  onDislike: () => _showToast(dogs[index]['name'], false),
                 );
               },
             ),
           ),
-
           const Spacer(),
         ],
       ),
@@ -87,8 +99,7 @@ class _HomePageState extends State<HomePage> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (context) => const SearchFilterScreen()),
+                MaterialPageRoute(builder: (context) => SearchFilterScreen()),
               );
             },
             child: Icon(Icons.search, color: Colors.grey.shade800, size: 28),
@@ -105,20 +116,22 @@ class DogProfileCard extends StatelessWidget {
   final Map<String, dynamic> dog;
   final bool isTopCard;
   final CardSwiperController swiperController;
+  final VoidCallback onLike;
+  final VoidCallback onDislike;
 
   const DogProfileCard({
     super.key,
     required this.dog,
     required this.isTopCard,
     required this.swiperController,
+    required this.onLike,
+    required this.onDislike,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      // height: MediaQuery.of(context).size.height * 85.0,
       height: 100,
-      // ✅ Increased height to 85% of screen
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -134,17 +147,16 @@ class DogProfileCard extends StatelessWidget {
         ],
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min, //  Keeps things compact
+        mainAxisSize: MainAxisSize.min,
         children: [
           Expanded(
-            // Expands content properly without overflow
             child: Column(
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(20),
                   child: Image.asset(
                     dog["image"],
-                    height: 200, // Adjust image height
+                    height: 200,
                     fit: BoxFit.cover,
                     width: double.infinity,
                   ),
@@ -169,8 +181,6 @@ class DogProfileCard extends StatelessWidget {
               ],
             ),
           ),
-
-          //  Centered Button (Show User Details)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: ElevatedButton(
@@ -198,9 +208,7 @@ class DogProfileCard extends StatelessWidget {
               ),
             ),
           ),
-
-          // Floating Buttons (Heart & Cross)
-          const SizedBox(height: 15), // Adjusted spacing
+          const SizedBox(height: 15),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -209,6 +217,8 @@ class DogProfileCard extends StatelessWidget {
                 color: Colors.redAccent,
                 backgroundColor: Colors.red.withOpacity(0.2),
                 onTap: () {
+                  // Show toast first, then swipe
+                  onDislike();
                   swiperController.swipe(CardSwiperDirection.left);
                 },
               ),
@@ -218,12 +228,14 @@ class DogProfileCard extends StatelessWidget {
                 color: Colors.green,
                 backgroundColor: Colors.green.withOpacity(0.2),
                 onTap: () {
+                  // Show toast first, then swipe
+                  onLike();
                   swiperController.swipe(CardSwiperDirection.right);
                 },
               ),
             ],
           ),
-          const SizedBox(height: 20), // Adjusted to prevent bottom overflow
+          const SizedBox(height: 20),
         ],
       ),
     );
@@ -258,7 +270,6 @@ class DogProfileCard extends StatelessWidget {
     );
   }
 
-  // Floating Button Design (Heart & Cross)
   Widget _floatingButton({
     required IconData icon,
     required Color color,
