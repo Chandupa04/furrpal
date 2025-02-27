@@ -1,9 +1,11 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:furrpal/features/home/presentation/pages/community_page.dart';
 import 'package:furrpal/features/home/presentation/pages/home_page.dart';
 import 'package:furrpal/features/notifications/presentation/pages/notification_page.dart';
 import 'package:furrpal/features/home/presentation/pages/pet_shop_page.dart';
+import 'package:cupertino_icons/cupertino_icons.dart';
 
 import '../../../../custom/container_custom.dart';
 
@@ -21,18 +23,18 @@ class _NavBarState extends State<NavBar> {
     const CommunityPage(),
     const PetShopPage(),
   ];
-  int _curruntIndex = 0;
+  int _currentIndex = 0;
 
   void _onItemTap(int index) {
     setState(() {
-      _curruntIndex = index;
+      _currentIndex = index;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: pages[_curruntIndex],
+      body: pages[_currentIndex],
       bottomNavigationBar: ContainerCustom(
         alignment: Alignment.topCenter,
         height: 60.h,
@@ -52,23 +54,23 @@ class _NavBarState extends State<NavBar> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             _buildNavItem(
-              'assets/icons/pet-house.png',
-              'assets/icons/pet-house.png',
+              CupertinoIcons.house,
+              CupertinoIcons.house_fill,
               0,
             ),
             _buildNavItem(
-              'assets/icons/notification.png',
-              'assets/icons/notification.png',
+              CupertinoIcons.bell,
+              CupertinoIcons.bell_fill,
               1,
             ),
             _buildNavItem(
-              'assets/icons/community.png',
-              'assets/icons/community.png',
+              CupertinoIcons.group,
+              CupertinoIcons.group_solid,
               2,
             ),
             _buildNavItem(
-              'assets/icons/pet-shop.png',
-              'assets/icons/pet-shop.png',
+              CupertinoIcons.cart,
+              CupertinoIcons.cart_fill,
               3,
             ),
           ],
@@ -77,8 +79,8 @@ class _NavBarState extends State<NavBar> {
     );
   }
 
-  Widget _buildNavItem(String icon, String selectedIcon, int index) {
-    final isSelected = _curruntIndex == index;
+  Widget _buildNavItem(IconData icon, IconData selectedIcon, int index) {
+    final isSelected = _currentIndex == index;
     return GestureDetector(
       onTap: () => _onItemTap(index),
       child: Column(
@@ -91,17 +93,15 @@ class _NavBarState extends State<NavBar> {
               bottomLeft: Radius.circular(6.r),
               bottomRight: Radius.circular(6.r),
             ),
-            bgColor: isSelected == true
-                ? const Color(0xffF88158)
-                : Colors.transparent,
+            bgColor: isSelected ? const Color(0xffF88158) : Colors.transparent,
           ),
-          ContainerCustom(
-            height: 32.h,
-            width: 32.w,
-            child: isSelected == true
-                ? Image.asset(selectedIcon)
-                : Image.asset(icon),
-          )
+          Icon(
+            isSelected ? selectedIcon : icon,
+            size: 32.w,
+            color: isSelected
+                ? const Color(0xffF88158) // Change color for active state
+                : Colors.grey, // Change color for inactive state
+          ),
         ],
       ),
     );
