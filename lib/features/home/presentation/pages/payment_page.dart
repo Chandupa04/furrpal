@@ -81,7 +81,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                             vertical: 12, horizontal: 15),
                         decoration: BoxDecoration(
                           border: Border.all(
-                              color: const Color(0xFFF88158), width: 2),
+                              color: const Color(0xFFFE5B00), width: 2),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: const Row(
@@ -96,7 +96,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                                 ),
                                 SizedBox(width: 10),
                                 Text(
-                                  "PayHere",
+                                  "Stripe",
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
