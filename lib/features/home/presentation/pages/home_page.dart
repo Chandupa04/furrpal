@@ -41,7 +41,21 @@ class _HomePageState extends State<HomePage> {
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
         timeInSecForIosWeb: 1,
-        backgroundColor: isLiked ? Colors.green : Colors.red,
+        backgroundColor: isLiked
+            ? const Color.fromARGB(255, 121, 125, 122)
+            : const Color.fromARGB(255, 121, 125, 122),
+        textColor: Colors.white,
+        fontSize: 16.0);
+  }
+
+  void _showSkipToast(String dogName) {
+    Fluttertoast.showToast(
+        msg: "${dogName} skipped ",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: const Color.fromARGB(
+            255, 121, 125, 122), // Different color for skip
         textColor: Colors.white,
         fontSize: 16.0);
   }
@@ -60,7 +74,7 @@ class _HomePageState extends State<HomePage> {
             child: CardSwiper(
               controller: swiperController,
               cardsCount: dogs.length,
-              // Corrected onSwipe callback
+              // Updated onSwipe callback to handle all directions
               onSwipe: (previousIndex, currentIndex, direction) {
                 if (direction == CardSwiperDirection.right) {
                   _showToast(dogs[previousIndex]['name'], true);
@@ -68,6 +82,10 @@ class _HomePageState extends State<HomePage> {
                 } else if (direction == CardSwiperDirection.left) {
                   _showToast(dogs[previousIndex]['name'], false);
                   print("${dogs[previousIndex]['name']} disliked ❌");
+                } else if (direction == CardSwiperDirection.top ||
+                    direction == CardSwiperDirection.bottom) {
+                  _showSkipToast(dogs[previousIndex]['name']);
+                  print("${dogs[previousIndex]['name']} skipped ⏭️");
                 }
                 return true;
               },
