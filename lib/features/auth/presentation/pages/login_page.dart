@@ -153,7 +153,7 @@ class _LoginPageState extends State<LoginPage> {
                   Expanded(child: Container()),
                   ButtonCustom(
                     text: 'Login to FurrPal',
-                    callback: () {},
+                    callback: login,
                     dontApplyMargin: true,
                   ),
                 ],
