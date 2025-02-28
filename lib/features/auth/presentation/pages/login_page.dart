@@ -6,7 +6,9 @@ import 'package:furrpal/custom/container_custom.dart';
 import 'package:furrpal/custom/text_custom.dart';
 import 'package:furrpal/custom/textfield_custom.dart';
 import 'package:furrpal/features/auth/presentation/pages/signup_page.dart';
-import 'package:furrpal/features/home/presentation/pages/home_page.dart';
+import 'package:furrpal/features/nav_bar/presentation/pages/nav_bar.dart';
+
+import '../../../home/presentation/pages/home_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -22,7 +24,6 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // automaticallyImplyLeading: false,
         surfaceTintColor: whiteColor,
         backgroundColor: whiteColor,
       ),
@@ -36,7 +37,6 @@ class _LoginPageState extends State<LoginPage> {
               height: 150.h,
             ),
             ContainerCustom(
-              // width: 376.w,
               height: 397.h,
               marginTop: 112.h,
               marginLeft: 13.w,
@@ -97,7 +97,7 @@ class _LoginPageState extends State<LoginPage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => SignupPage(),
+                              builder: (context) => const SignupPage(),
                             ),
                           );
                         },
@@ -124,12 +124,18 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   Expanded(child: Container()),
+
+                  // ✅ Added Navigation to Home Page
                   ButtonCustom(
                     text: 'Login to FurrPal',
                     callback: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => HomePage()));
-
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                          const NavBar(), // Assuming you want NavBar as the main page after login
+                        ),
+                      );
                     },
                     dontApplyMargin: true,
                   ),

@@ -103,12 +103,12 @@ class _HomePageState extends State<HomePage> {
           GestureDetector(
             onTap: () {
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const UserProfileWidget()),
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const UserProfileWidget()),
               );
             },
-          // Navigate to User Profile
+            // Navigate to User Profile
 
             child:Icon(Icons.person, color: Colors.grey.shade800, size: 28),
           ),
@@ -205,7 +205,7 @@ class DogProfileCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
               ),
               child: const Text(
                 "Show User Details",
