@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:furrpal/constant/constant.dart';
 import 'package:furrpal/custom/button_custom.dart';
 import 'package:furrpal/custom/container_custom.dart';
 import 'package:furrpal/custom/text_custom.dart';
 import 'package:furrpal/custom/textfield_custom.dart';
+import 'package:furrpal/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:furrpal/features/auth/presentation/pages/signup_page.dart';
 import 'package:furrpal/features/nav_bar/presentation/pages/nav_bar.dart';
 
@@ -18,7 +20,31 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
   bool isobscutured = false;
+
+  void login() {
+    final String email = emailController.text;
+    final String password = passwordController.text;
+    final authCubit = context.read<AuthCubit>();
+    if (email.isNotEmpty && password.isNotEmpty) {
+      authCubit.login(email, password);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: TextCustomWidget(
+        text: 'Please Enter Both Email and Password',
+        fontSize: 12.sp,
+      )));
+    }
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +81,8 @@ class _LoginPageState extends State<LoginPage> {
                     marginLeft: 9.w,
                     marginBottom: 4.h,
                   ),
-                  const TextFieldCustom(
+                  TextFieldCustom(
+                    controller: emailController,
                     keyboardType: TextInputType.emailAddress,
                   ),
                   TextCustomWidget(
@@ -66,6 +93,7 @@ class _LoginPageState extends State<LoginPage> {
                     marginBottom: 4.h,
                   ),
                   TextFieldCustom(
+                    controller: passwordController,
                     marginBottom: 19.h,
                     obscureText: isobscutured,
                     suffixIcon: IconButton(
