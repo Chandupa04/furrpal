@@ -7,6 +7,8 @@ import 'package:furrpal/custom/text_custom.dart';
 import 'package:furrpal/custom/textfield_custom.dart';
 import 'package:furrpal/features/auth/presentation/pages/signup_page.dart';
 
+import '../../../shop/presentation/pages/shop_details_page.dart';
+
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -125,7 +127,9 @@ class _LoginPageState extends State<LoginPage> {
                   Expanded(child: Container()),
                   ButtonCustom(
                     text: 'Login to FurrPal',
-                    callback: () {},
+                    callback: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>ShopDetailsPage(),),);
+                    },
                     dontApplyMargin: true,
                   ),
                 ],
