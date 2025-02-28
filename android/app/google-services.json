@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "224103604665",
+    "project_id": "furrpal-1f511",
+    "storage_bucket": "furrpal-1f511.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:224103604665:android:5291f06adca2aef2bf1668",
+        "android_client_info": {
+          "package_name": "com.furrpal.furrpal"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCjy1UXyHck0UvYzr4eSr9LW7zVS6lh4nI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

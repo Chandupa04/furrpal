@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:furrpal/constant/constant.dart';
 import 'package:furrpal/custom/button_custom.dart';
 import 'package:furrpal/custom/container_custom.dart';
+import 'package:furrpal/features/auth/presentation/pages/dog_profile_creat_page.dart';
 
 import '../../../../custom/text_custom.dart';
 import '../../../../custom/textfield_custom.dart';
@@ -16,6 +17,11 @@ class SignupPage extends StatefulWidget {
 }
 
 class _SignupPageState extends State<SignupPage> {
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
+  final fNameController = TextEditingController();
+  final lNameController = TextEditingController();
   bool isobscutured = false;
   bool isChecked = false;
 
@@ -36,9 +42,10 @@ class _SignupPageState extends State<SignupPage> {
               height: 150.h,
             ),
             ContainerCustom(
-              height: 549.h,
+              height: 620.h,
               marginLeft: 13.w,
               marginRight: 13.w,
+              marginBottom: 10.h,
               paddingLeft: 23.w,
               paddingRight: 23.w,
               paddingTop: 24.h,
@@ -54,6 +61,7 @@ class _SignupPageState extends State<SignupPage> {
                     marginBottom: 4.h,
                   ),
                   TextFieldCustom(
+                    controller: fNameController,
                     marginBottom: 15.h,
                   ),
                   TextCustomWidget(
@@ -63,6 +71,7 @@ class _SignupPageState extends State<SignupPage> {
                     marginBottom: 4.h,
                   ),
                   TextFieldCustom(
+                    controller: lNameController,
                     marginBottom: 15.h,
                   ),
                   TextCustomWidget(
@@ -72,6 +81,7 @@ class _SignupPageState extends State<SignupPage> {
                     marginBottom: 4.h,
                   ),
                   TextFieldCustom(
+                    controller: emailController,
                     keyboardType: TextInputType.emailAddress,
                     marginBottom: 15.h,
                   ),
@@ -82,6 +92,33 @@ class _SignupPageState extends State<SignupPage> {
                     marginBottom: 4.h,
                   ),
                   TextFieldCustom(
+                    controller: passwordController,
+                    marginBottom: 19.h,
+                    obscureText: isobscutured,
+                    suffixIcon: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          isobscutured = !isobscutured;
+                        });
+                      },
+                      icon: ImageIcon(
+                        AssetImage(
+                          isobscutured == true
+                              ? 'assets/icons/password_hide.png'
+                              : 'assets/icons/password_unhide.png',
+                        ),
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                  TextCustomWidget(
+                    text: 'Confirm Password',
+                    fontSize: 17.sp,
+                    marginLeft: 9.w,
+                    marginBottom: 4.h,
+                  ),
+                  TextFieldCustom(
+                    controller: confirmPasswordController,
                     marginBottom: 19.h,
                     obscureText: isobscutured,
                     suffixIcon: IconButton(
@@ -121,8 +158,15 @@ class _SignupPageState extends State<SignupPage> {
                   ),
                   Expanded(child: Container()),
                   ButtonCustom(
-                    text: 'Creat Account',
-                    callback: () {},
+                    text: 'Continue',
+                    callback: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DogProfileCreatPage(),
+                        ),
+                      );
+                    },
                     isDisabled: isChecked == false ? true : false,
                     dontApplyMargin: true,
                   ),
