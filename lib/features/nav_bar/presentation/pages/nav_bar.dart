@@ -76,8 +76,8 @@ class _NavBarState extends State<NavBar> {
               3,
             ),
             _buildNavItem(
-              'assets/icons/pet-shop.png',
-              'assets/icons/pet-shop.png',
+              'assets/icons/user_profile.png',
+              'assets/icons/user_profile.png',
               4,
             ),
           ],
