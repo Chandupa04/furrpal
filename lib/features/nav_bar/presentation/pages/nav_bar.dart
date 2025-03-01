@@ -4,6 +4,8 @@ import 'package:furrpal/features/home/presentation/pages/community_page.dart';
 import 'package:furrpal/features/home/presentation/pages/home_page.dart';
 import 'package:furrpal/features/home/presentation/pages/notification_page.dart';
 import 'package:furrpal/features/home/presentation/pages/pet_shop_page.dart';
+import 'package:furrpal/features/home/presentation/user_profile.dart';
+
 
 import '../../../../custom/container_custom.dart';
 
@@ -20,6 +22,7 @@ class _NavBarState extends State<NavBar> {
     NotificationPage(),
     CommunityPage(),
     PetShopPage(),
+    UserProfilePage(),
   ];
   int _curruntIndex = 0;
 
@@ -70,6 +73,11 @@ class _NavBarState extends State<NavBar> {
               'assets/icons/pet-shop.png',
               'assets/icons/pet-shop.png',
               3,
+            ),
+            _buildNavItem(
+              'assets/icons/pet-shop.png',
+              'assets/icons/pet-shop.png',
+              4,
             ),
           ],
         ),
