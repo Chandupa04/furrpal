@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:furrpal/features/home/presentation/pages/community_page.dart';
+import 'package:furrpal/features/community/presentation/pages/community_page.dart';
 import 'package:furrpal/features/home/presentation/pages/home_page.dart';
 import 'package:furrpal/features/home/presentation/pages/notification_page.dart';
 import 'package:furrpal/features/home/presentation/pages/pet_shop_page.dart';
@@ -36,7 +36,7 @@ class _NavBarState extends State<NavBar> {
       bottomNavigationBar: ContainerCustom(
         alignment: Alignment.topCenter,
         height: 60.h,
-        bgColor: Colors.white,
+        bgColor: Color(0xffF88158),
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(25.r),
           topRight: Radius.circular(25.r),
@@ -45,7 +45,7 @@ class _NavBarState extends State<NavBar> {
           BoxShadow(
             offset: Offset(0, -4.h),
             blurRadius: 40.r,
-            color: Color(0xffF88158).withOpacity(0.2),
+            color: Color(0xffF88158).withOpacity(0.3),
           ),
         ],
         child: Row(
@@ -91,15 +91,20 @@ class _NavBarState extends State<NavBar> {
               bottomLeft: Radius.circular(6.r),
               bottomRight: Radius.circular(6.r),
             ),
-            bgColor:
-                isSelected == true ? Color(0xffF88158) : Colors.transparent,
+            bgColor: isSelected == true ? Colors.black : Colors.transparent,
           ),
           ContainerCustom(
             height: 32.h,
             width: 32.w,
             child: isSelected == true
-                ? Image.asset(selectedIcon)
-                : Image.asset(icon),
+                ? Image.asset(
+                    selectedIcon,
+                    color: Colors.black,
+                  )
+                : Image.asset(
+                    icon,
+                    color: Colors.white,
+                  ),
           )
         ],
       ),
