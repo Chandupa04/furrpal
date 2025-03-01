@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:furrpal/features/home/presentation/pages/payment_page.dart';
 import 'package:furrpal/features/home/presentation/pages/filter_search_page.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -34,30 +33,60 @@ class _HomePageState extends State<HomePage> {
 
   final CardSwiperController swiperController = CardSwiperController();
 
-  // Function to show toast message
+  // Create an overlay entry to show custom toast
+  OverlayEntry? _overlayEntry;
+
+  // Function to show custom toast message
+  void _showCustomToast(String message) {
+    // Remove any existing overlay first
+    _overlayEntry?.remove();
+
+    _overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        // Position it above the bottom navigation but below cards
+        bottom: 80, // Adjust this value based on your tab bar height
+        left: 0,
+        right: 0,
+        child: Center(
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(255, 121, 125, 122),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                message,
+                style: const TextStyle(color: Colors.white, fontSize: 16),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    // Insert overlay and auto-remove after some duration
+    Overlay.of(context).insert(_overlayEntry!);
+    Future.delayed(const Duration(seconds: 2), () {
+      _overlayEntry?.remove();
+      _overlayEntry = null;
+    });
+  }
+
   void _showToast(String dogName, bool isLiked) {
-    Fluttertoast.showToast(
-        msg: "${dogName} ${isLiked ? 'liked! ❤️' : 'disliked ❌'}",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 1,
-        backgroundColor: isLiked
-            ? const Color.fromARGB(255, 121, 125, 122)
-            : const Color.fromARGB(255, 121, 125, 122),
-        textColor: Colors.white,
-        fontSize: 16.0);
+    _showCustomToast("${dogName} ${isLiked ? 'liked! ' : 'disliked '}");
   }
 
   void _showSkipToast(String dogName) {
-    Fluttertoast.showToast(
-        msg: "${dogName} skipped ",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 1,
-        backgroundColor: const Color.fromARGB(
-            255, 121, 125, 122), // Different color for skip
-        textColor: Colors.white,
-        fontSize: 16.0);
+    _showCustomToast("${dogName} skipped");
+  }
+
+  @override
+  void dispose() {
+    // Clean up overlay if it exists
+    _overlayEntry?.remove();
+    super.dispose();
   }
 
   @override
@@ -78,14 +107,14 @@ class _HomePageState extends State<HomePage> {
               onSwipe: (previousIndex, currentIndex, direction) {
                 if (direction == CardSwiperDirection.right) {
                   _showToast(dogs[previousIndex]['name'], true);
-                  print("${dogs[previousIndex]['name']} liked! ❤️");
+                  print("${dogs[previousIndex]['name']} liked! ");
                 } else if (direction == CardSwiperDirection.left) {
                   _showToast(dogs[previousIndex]['name'], false);
-                  print("${dogs[previousIndex]['name']} disliked ❌");
+                  print("${dogs[previousIndex]['name']} disliked ");
                 } else if (direction == CardSwiperDirection.top ||
                     direction == CardSwiperDirection.bottom) {
                   _showSkipToast(dogs[previousIndex]['name']);
-                  print("${dogs[previousIndex]['name']} skipped ⏭️");
+                  print("${dogs[previousIndex]['name']} skipped ⏭");
                 }
                 return true;
               },
@@ -129,7 +158,7 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-// Fixes bottom overflow issue by using Flexible & Padding
+// DogProfileCard class remains the same
 class DogProfileCard extends StatelessWidget {
   final Map<String, dynamic> dog;
   final bool isTopCard;
