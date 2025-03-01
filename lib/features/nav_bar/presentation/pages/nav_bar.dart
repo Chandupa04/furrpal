@@ -39,7 +39,7 @@ class _NavBarState extends State<NavBar> {
       bottomNavigationBar: ContainerCustom(
         alignment: Alignment.topCenter,
         height: 60.h,
-        bgColor: Color(0xffF88158),
+        bgColor: const Color.fromARGB(255, 242, 241, 240),
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(25.r),
           topRight: Radius.circular(25.r),
@@ -74,11 +74,11 @@ class _NavBarState extends State<NavBar> {
               CupertinoIcons.cart_fill,
               3,
             ),
-            _buildNavItem(
-              'assets/icons/user_profile.png' as IconData,
-              'assets/icons/user_profile.png' as IconData,
-              4,
-            ),
+            // _buildNavItem(
+            //   'assets/icons/user_profile.png' as IconData,
+            //   'assets/icons/user_profile.png' as IconData,
+            //   4,
+            // ),
           ],
         ),
       ),
