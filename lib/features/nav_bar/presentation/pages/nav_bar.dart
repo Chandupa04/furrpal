@@ -1,11 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:furrpal/features/home/presentation/pages/community_page.dart';
+import 'package:furrpal/features/community/presentation/pages/community_page.dart';
 import 'package:furrpal/features/home/presentation/pages/home_page.dart';
 import 'package:furrpal/features/notifications/presentation/pages/notification_page.dart';
 import 'package:furrpal/features/home/presentation/pages/pet_shop_page.dart';
 import 'package:cupertino_icons/cupertino_icons.dart';
+import 'package:furrpal/features/user_profile/presentation/pages/user_profile.dart';
 
 import '../../../../custom/container_custom.dart';
 
@@ -38,7 +39,7 @@ class _NavBarState extends State<NavBar> {
       bottomNavigationBar: ContainerCustom(
         alignment: Alignment.topCenter,
         height: 60.h,
-        bgColor: Colors.white,
+        bgColor: Color(0xffF88158),
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(25.r),
           topRight: Radius.circular(25.r),
@@ -72,6 +73,11 @@ class _NavBarState extends State<NavBar> {
               CupertinoIcons.cart,
               CupertinoIcons.cart_fill,
               3,
+            ),
+            _buildNavItem(
+              'assets/icons/user_profile.png' as IconData,
+              'assets/icons/user_profile.png' as IconData,
+              4,
             ),
           ],
         ),
