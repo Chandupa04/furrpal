@@ -43,6 +43,28 @@ class _ShopPageState extends State<ShopPage> {
         price: 12.49),
     Product(
         name: "Dog Chain", image: "assets/images/dog_chain.jpg", price: 12.49),
+    Product(
+        name: "Dog Feeder",
+        image: "assets/images/dog_feeder.jpg",
+        price: 15.50),
+    Product(
+        name: "Dog Snacks", image: "assets/images/dog_snack.jpg", price: 20.50),
+    Product(
+        name: "Dog Food Bowl",
+        image: "assets/images/food_bowl.jpg",
+        price: 17.50),
+    Product(
+        name: "Pet Diapers",
+        image: "assets/images/pet_diapers.jpg",
+        price: 10.50),
+    Product(
+        name: "Pet Hair Remover",
+        image: "assets/images/dog_hair.jpg",
+        price: 10.50),
+    Product(
+        name: "Retractable Elastic Pet Leash Car Seat Safety Belt for Dogs",
+        image: "assets/images/Retractable_Elastic.jpg",
+        price: 10.50),
   ];
 
   List<Product> cart = [];
