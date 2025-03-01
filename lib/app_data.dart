@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:furrpal/constant/constant.dart';
 import 'package:furrpal/features/auth/data/repositories/firebase_auth_repo.dart';
 import 'package:furrpal/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:furrpal/features/auth/presentation/cubit/auth_state.dart';
@@ -24,6 +25,11 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+            scaffoldBackgroundColor: blackColor,
+            appBarTheme: AppBarTheme(
+              backgroundColor: blackColor,
+              foregroundColor: whiteColor,
+            ),
             useMaterial3: true,
           ),
           home: BlocConsumer<AuthCubit, AuthState>(

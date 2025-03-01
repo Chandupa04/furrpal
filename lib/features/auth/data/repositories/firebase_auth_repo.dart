@@ -16,7 +16,8 @@ class FirebaseAuthRepo implements AuthRepo {
       UserEntity user = UserEntity(
         uid: userCredential.user!.uid,
         email: email,
-        name: '',
+        fName: '',
+        lName: '',
       );
 
       return user;
@@ -28,8 +29,8 @@ class FirebaseAuthRepo implements AuthRepo {
   }
 
   @override
-  Future<UserEntity?> registerwithEmailPassword(
-      String fName, String lName, String email, String password) async {
+  Future<UserEntity?> registerwithEmailPassword(String fName, String lName,
+      String email, String password, String confirmPassword) async {
     try {
       //attempt sign in
       UserCredential userCredential = await firebaseAuth
@@ -38,7 +39,8 @@ class FirebaseAuthRepo implements AuthRepo {
       UserEntity user = UserEntity(
         uid: userCredential.user!.uid,
         email: email,
-        name: '$fName $lName',
+        fName: fName,
+        lName: lName,
       );
 
       return user;
@@ -68,7 +70,8 @@ class FirebaseAuthRepo implements AuthRepo {
     return UserEntity(
       uid: firebaseUser.uid,
       email: firebaseUser.email!,
-      name: '',
+      fName: '',
+      lName: '',
     );
   }
 }
