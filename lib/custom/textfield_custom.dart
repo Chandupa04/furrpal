@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:furrpal/constant/constant.dart';
 
-class TextFieldCustom extends StatelessWidget {
+class TextFieldCustom extends StatefulWidget {
   final String? hintText;
   final String? labelText;
   final IconData? icon;
@@ -68,9 +68,9 @@ class TextFieldCustom extends StatelessWidget {
     this.labelstyle,
     this.suffix,
     this.suffixIcon,
+    this.obscureText,
     this.controller,
     this.onSubmit,
-    this.obscureText,
     this.textAlignVertical,
     this.borderWidth,
     this.cphorizontal,
@@ -82,90 +82,113 @@ class TextFieldCustom extends StatelessWidget {
   });
 
   @override
+  State<TextFieldCustom> createState() => _TextFieldCustomState();
+}
+
+bool isobscutured = true;
+
+class _TextFieldCustomState extends State<TextFieldCustom> {
+  @override
   Widget build(BuildContext context) {
     InputBorder getBorder() {
-      if (useUnderlineBorder == true) {
+      if (widget.useUnderlineBorder == true) {
         return UnderlineInputBorder(
-          borderSide: border ?? BorderSide(color: borderColor ?? Colors.black),
+          borderSide: widget.border ??
+              BorderSide(color: widget.borderColor ?? Colors.black),
         );
       } else {
         return OutlineInputBorder(
-          borderRadius: borderRadius ?? BorderRadius.circular(10.r),
-          borderSide: border ??
+          borderRadius: widget.borderRadius ?? BorderRadius.circular(10.r),
+          borderSide: widget.border ??
               BorderSide(
-                  color: borderColor ?? Colors.transparent,
-                  width: borderWidth ?? 1.w),
+                  color: widget.borderColor ?? Colors.transparent,
+                  width: widget.borderWidth ?? 1.w),
         );
       }
     }
 
     return Container(
       decoration: BoxDecoration(
-        boxShadow: boxShadow,
-        borderRadius: borderRadius ?? BorderRadius.circular(10.r),
-        color: fillColor ?? whiteColor,
+        boxShadow: widget.boxShadow,
+        borderRadius: widget.borderRadius ?? BorderRadius.circular(10.r),
+        color: widget.fillColor ?? whiteColor,
       ),
-      padding: containerPadding,
-      width: width,
-      height: height ?? 54.h,
+      padding: widget.containerPadding,
+      width: widget.width,
+      height: widget.height ?? 54.h,
       margin: EdgeInsets.only(
-        top: marginTop,
-        left: marginLeft,
-        right: marginRight,
-        bottom: marginBottom,
+        top: widget.marginTop,
+        left: widget.marginLeft,
+        right: widget.marginRight,
+        bottom: widget.marginBottom,
       ),
-      alignment: alignment ?? Alignment.center,
+      alignment: widget.alignment ?? Alignment.center,
       child: ConstrainedBox(
         constraints: BoxConstraints(
-          minWidth: width ?? 310.w,
-          minHeight: height ?? 41.h,
+          minWidth: widget.width ?? 310.w,
+          minHeight: widget.height ?? 41.h,
         ),
         child: TextField(
-          textInputAction: textInputAction ?? TextInputAction.next,
-          controller: controller,
+          textInputAction: widget.textInputAction ?? TextInputAction.next,
+          controller: widget.controller,
           style: TextStyle(
             fontSize: 17.sp,
             fontWeight: FontWeight.w500,
             color: Colors.black,
           ),
-          obscureText: obscureText ?? false,
+          obscureText: isobscutured,
           onSubmitted: (_) {
-            if (onSubmit != null) {
-              onSubmit!();
+            if (widget.onSubmit != null) {
+              widget.onSubmit!();
             }
           },
-          expands: obscureText == true ? false : expands ?? true,
-          maxLines: obscureText == true ? 1 : maxLines,
+          expands: isobscutured == true ? false : widget.expands ?? true,
+          maxLines: isobscutured == true ? 1 : widget.maxLines,
           minLines: null,
-          inputFormatters: isOtpField != null && isOtpField == true
-              ? [
-                  LengthLimitingTextInputFormatter(1),
-                ]
-              : null,
-          textAlign: textAlign ?? TextAlign.left,
-          textAlignVertical: textAlignVertical ?? TextAlignVertical.center,
-          onChanged: onChanged,
+          inputFormatters:
+              widget.isOtpField != null && widget.isOtpField == true
+                  ? [
+                      LengthLimitingTextInputFormatter(1),
+                    ]
+                  : null,
+          textAlign: widget.textAlign ?? TextAlign.left,
+          textAlignVertical:
+              widget.textAlignVertical ?? TextAlignVertical.center,
+          onChanged: widget.onChanged,
           decoration: InputDecoration(
-            hintText: hintText,
-            hintStyle: hintstyle ??
+            hintText: widget.hintText,
+            hintStyle: widget.hintstyle ??
                 TextStyle(
                   fontSize: 17.sp,
                   fontWeight: FontWeight.w500,
                   color: Colors.black,
                 ),
-            labelText: labelText,
-            labelStyle: labelstyle ??
+            labelText: widget.labelText,
+            labelStyle: widget.labelstyle ??
                 TextStyle(
                   fontSize: 17.sp,
                   fontWeight: FontWeight.w300,
                   color: const Color(0xff999999),
                 ),
-            prefixIcon: prefixIcon,
-            prefix: prefix,
-            suffix: suffix,
-            suffixIcon: suffixIcon,
+            prefixIcon: widget.prefixIcon,
+            prefix: widget.prefix,
+            suffix: widget.suffix,
+            suffixIcon: widget.obscureText == true
+                ? IconButton(
+                    onPressed: () {
+                      setState(() {
+                        isobscutured = !isobscutured;
+                      });
+                    },
+                    icon: Icon(
+                      isobscutured == true
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
+                    ),
+                  )
+                : widget.suffixIcon,
             contentPadding: EdgeInsets.symmetric(
-                vertical: 2.h, horizontal: cphorizontal ?? 16.w),
+                vertical: 2.h, horizontal: widget.cphorizontal ?? 16.w),
             enabledBorder: getBorder(),
             //     OutlineInputBorder(
             //   borderSide: border ??
@@ -188,9 +211,9 @@ class TextFieldCustom extends StatelessWidget {
             //   ),
             // ),
             fillColor: Colors.transparent,
-            filled: fillColor != null ? true : false,
+            filled: widget.fillColor != null ? true : false,
           ),
-          keyboardType: keyboardType,
+          keyboardType: widget.keyboardType,
         ),
       ),
     );
