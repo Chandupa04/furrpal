@@ -30,6 +30,7 @@ class _UserProfileState extends State<UserProfile> {
         body: Column(
           children: [
             ButtonCustom(
+              isLoading: false,
               text: 'Logout',
               callback: logout,
             )

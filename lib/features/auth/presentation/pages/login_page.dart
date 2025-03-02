@@ -60,7 +60,11 @@ class _LoginPageState extends State<LoginPage> {
       listener: (context, state) {
         if (state is Authenticated) {
           Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => HomePage()));
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    const NavBar()), // Show NavBar after login
+          );
         }
       },
       child: Scaffold(
@@ -137,6 +141,7 @@ class _LoginPageState extends State<LoginPage> {
                           fontSize: 17.sp,
                         ),
                         ButtonCustom(
+                          isLoading: false,
                           text: 'SignUp',
                           callback: () {
                             Navigator.push(
@@ -175,6 +180,7 @@ class _LoginPageState extends State<LoginPage> {
                       inProgress: inProgress,
                       isDisabled: inProgress,
                       disabledColor: primaryColor,
+                      isLoading: false,
                       // () {
                       //   Navigator.push(
                       //     context,
