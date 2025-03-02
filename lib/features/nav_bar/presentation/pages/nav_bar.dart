@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:furrpal/features/home/presentation/pages/community_page.dart';
 import 'package:furrpal/features/home/presentation/pages/home_page.dart';
-import 'package:furrpal/features/notifications/presentation/pages/notification_page.dart';
-import 'package:furrpal/features/home/presentation/pages/pet_shop_page.dart';
 
+import 'package:furrpal/features/home/presentation/pages/pet_shop_page.dart';
+import 'package:furrpal/features/notifications/presentation/pages/notification_page.dart';
 import '../../../../custom/container_custom.dart';
 
 class NavBar extends StatefulWidget {
@@ -14,12 +14,13 @@ class NavBar extends StatefulWidget {
   State<NavBar> createState() => _NavBarState();
 }
 
+
 class _NavBarState extends State<NavBar> {
   List pages = [
-    const HomePage(),
-    const NotificationsPage(),
-    const CommunityPage(),
-    const PetShopPage(),
+    HomePage(),
+    NotificationsPage(),
+    CommunityPage(),
+    PetShopPage(),
   ];
   int _curruntIndex = 0;
 
@@ -45,7 +46,7 @@ class _NavBarState extends State<NavBar> {
           BoxShadow(
             offset: Offset(0, -4.h),
             blurRadius: 40.r,
-            color: const Color(0xffF88158).withOpacity(0.2),
+            color: Color(0xffF88158).withOpacity(0.2),
           ),
         ],
         child: Row(
@@ -91,9 +92,8 @@ class _NavBarState extends State<NavBar> {
               bottomLeft: Radius.circular(6.r),
               bottomRight: Radius.circular(6.r),
             ),
-            bgColor: isSelected == true
-                ? const Color(0xffF88158)
-                : Colors.transparent,
+            bgColor:
+                isSelected == true ? Color(0xffF88158) : Colors.transparent,
           ),
           ContainerCustom(
             height: 32.h,

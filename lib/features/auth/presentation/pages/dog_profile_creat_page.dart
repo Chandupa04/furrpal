@@ -1,22 +1,15 @@
-import 'package:custom_check_box/custom_check_box.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:furrpal/constant/constant.dart';
 import 'package:furrpal/custom/button_custom.dart';
-import 'package:furrpal/custom/container_custom.dart';
+import '../../../../custom/container_custom.dart';
 import '../../../../custom/text_custom.dart';
 import '../../../../custom/textfield_custom.dart';
 
-class SignupPage extends StatefulWidget {
-  const SignupPage({super.key});
 
-  @override
-  State<SignupPage> createState() => _SignupPageState();
-}
 
-class _SignupPageState extends State<SignupPage> {
-  bool isobscutured = false;
-  bool isChecked = false;
+class DogProfileCreatPage extends StatelessWidget {
+  const DogProfileCreatPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -35,9 +28,9 @@ class _SignupPageState extends State<SignupPage> {
               height: 150.h,
             ),
             ContainerCustom(
-              height: 549.h,
               marginLeft: 13.w,
               marginRight: 13.w,
+              marginBottom: 10.h,
               paddingLeft: 23.w,
               paddingRight: 23.w,
               paddingTop: 24.h,
@@ -47,7 +40,7 @@ class _SignupPageState extends State<SignupPage> {
               child: Column(
                 children: [
                   TextCustomWidget(
-                    text: 'First Name',
+                    text: "Dog's Name",
                     fontSize: 17.sp,
                     marginLeft: 9.w,
                     marginBottom: 4.h,
@@ -56,7 +49,7 @@ class _SignupPageState extends State<SignupPage> {
                     marginBottom: 15.h,
                   ),
                   TextCustomWidget(
-                    text: 'Last Name',
+                    text: 'Breed',
                     fontSize: 17.sp,
                     marginLeft: 9.w,
                     marginBottom: 4.h,
@@ -64,66 +57,63 @@ class _SignupPageState extends State<SignupPage> {
                   TextFieldCustom(
                     marginBottom: 15.h,
                   ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          TextCustomWidget(
+                            text: 'Gender',
+                            fontSize: 17.sp,
+                            marginLeft: 9.w,
+                            marginBottom: 4.h,
+                          ),
+                          TextFieldCustom(
+                            width: 151.w,
+                          ),
+                        ],
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          TextCustomWidget(
+                            text: 'Age',
+                            fontSize: 17.sp,
+                            marginLeft: 9.w,
+                            marginBottom: 4.h,
+                          ),
+                          TextFieldCustom(
+                            width: 151.w,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                   TextCustomWidget(
-                    text: 'Email',
+                    text: 'Health Conditions',
                     fontSize: 17.sp,
                     marginLeft: 9.w,
                     marginBottom: 4.h,
+                    marginTop: 15.h,
                   ),
                   TextFieldCustom(
                     keyboardType: TextInputType.emailAddress,
                     marginBottom: 15.h,
                   ),
                   TextCustomWidget(
-                    text: 'Password',
+                    text: 'Location of the pet',
                     fontSize: 17.sp,
                     marginLeft: 9.w,
                     marginBottom: 4.h,
                   ),
                   TextFieldCustom(
-                    marginBottom: 19.h,
-                    obscureText: isobscutured,
-                    suffixIcon: IconButton(
-                      onPressed: () {
-                        setState(() {
-                          isobscutured = !isobscutured;
-                        });
-                      },
-                      icon: ImageIcon(
-                        AssetImage(
-                          isobscutured == true
-                              ? 'assets/icons/password_hide.png'
-                              : 'assets/icons/password_unhide.png',
-                        ),
-                        color: Colors.black,
-                      ),
-                    ),
+                    marginBottom: 27.h,
                   ),
-                  Row(
-                    children: [
-                      CustomCheckBox(
-                        borderColor: primaryColor,
-                        checkedFillColor: primaryColor,
-                        value: isChecked,
-                        onChanged: (index) {
-                          setState(() {
-                            isChecked = index;
-                          });
-                        },
-                      ),
-                      TextCustomWidget(
-                        text: 'Agree with Terms & Conditions',
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ],
-                  ),
-                  Expanded(child: Container()),
                   ButtonCustom(
-                    text: 'Creat Account',
-                    callback: () {},
-                    isDisabled: isChecked == false ? true : false,
+                    text: 'Create Account',
                     dontApplyMargin: true,
+                    callback: () {},
                   ),
                 ],
               ),

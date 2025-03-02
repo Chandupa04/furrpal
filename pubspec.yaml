@@ -39,7 +39,11 @@ dependencies:
   custom_check_box: ^0.0.4
   flutter_card_swiper: ^7.0.0
   image_picker: ^1.0.7
-  fluttertoast: ^8.2.4
+  flutter_local_notifications: 16.2.0
+  firebase_auth: ^4.17.4
+  flutter_bloc: ^8.1.1
+  lucide_icons_flutter: ^1.2.8
+  equatable: ^2.0.3
 
 dev_dependencies:
   flutter_test:
