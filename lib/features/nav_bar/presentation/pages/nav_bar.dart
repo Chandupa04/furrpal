@@ -6,8 +6,6 @@ import 'package:furrpal/features/home/presentation/pages/notification_page.dart'
 import 'package:furrpal/features/home/presentation/pages/pet_shop_page.dart';
 import 'package:furrpal/features/user_profile/presentation/pages/user_profile.dart';
 
-
-
 import '../../../../custom/container_custom.dart';
 
 class NavBar extends StatefulWidget {
@@ -19,11 +17,11 @@ class NavBar extends StatefulWidget {
 
 class _NavBarState extends State<NavBar> {
   List pages = [
-    HomePage(),
-    NotificationPage(),
-    CommunityPage(),
-    PetShopPage(),
-    UserProfile(),
+    const HomePage(),
+    const NotificationPage(),
+    const CommunityPage(),
+    const PetShopPage(),
+    const UserProfile(),
   ];
   int _curruntIndex = 0;
 
@@ -40,7 +38,7 @@ class _NavBarState extends State<NavBar> {
       bottomNavigationBar: ContainerCustom(
         alignment: Alignment.topCenter,
         height: 60.h,
-        bgColor: Color(0xffF88158),
+        bgColor: const Color(0xffF88158),
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(25.r),
           topRight: Radius.circular(25.r),
@@ -49,7 +47,7 @@ class _NavBarState extends State<NavBar> {
           BoxShadow(
             offset: Offset(0, -4.h),
             blurRadius: 40.r,
-            color: Color(0xffF88158).withOpacity(0.3),
+            color: const Color(0xffF88158).withOpacity(0.3),
           ),
         ],
         child: Row(

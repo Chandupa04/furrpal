@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:furrpal/custom/button_custom.dart';
 import 'package:furrpal/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:furrpal/features/auth/presentation/cubit/auth_state.dart';
+import 'package:furrpal/features/auth/presentation/pages/start_page.dart';
 
 class UserProfile extends StatefulWidget {
   const UserProfile({super.key});
@@ -22,7 +23,12 @@ class _UserProfileState extends State<UserProfile> {
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is UnAuthenticated) {
-          Navigator.pop(context);
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (context) => StartPage(),
+              ),
+              (route) => false);
         }
       },
       child: Scaffold(

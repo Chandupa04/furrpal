@@ -48,9 +48,7 @@ class _SignupPageState extends State<SignupPage> {
       );
       return;
     }
-    setState(() {
-      inProgress = true;
-    });
+
     final String email = emailController.text;
     final String password = passwordController.text;
     final String confirmPassword = confirmPasswordController.text;
@@ -64,8 +62,21 @@ class _SignupPageState extends State<SignupPage> {
         password.isNotEmpty &&
         confirmPassword.isNotEmpty) {
       if (password == confirmPassword) {
+        setState(() {
+          inProgress = true;
+        });
         authCubit.register(fName, lName, email, password, confirmPassword);
-      } else {}
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: TextCustomWidget(
+              text: 'Passwords do not match',
+              fontSize: 17.sp,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        );
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
