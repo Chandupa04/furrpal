@@ -68,7 +68,7 @@ class TextFieldCustom extends StatefulWidget {
     this.labelstyle,
     this.suffix,
     this.suffixIcon,
-    this.obscureText,
+    this.obscureText = false,
     this.controller,
     this.onSubmit,
     this.textAlignVertical,
@@ -85,11 +85,35 @@ class TextFieldCustom extends StatefulWidget {
   State<TextFieldCustom> createState() => _TextFieldCustomState();
 }
 
-bool isobscutured = true;
-
 class _TextFieldCustomState extends State<TextFieldCustom> {
+  late bool isObscured;
+
+  @override
+  void initState() {
+    super.initState();
+    isObscured = widget.obscureText ?? false;
+  }
+
   @override
   Widget build(BuildContext context) {
+    Widget? suffixIconWidget;
+    if (widget.obscureText == true) {
+      suffixIconWidget = IconButton(
+        onPressed: () {
+          setState(() {
+            isObscured = !isObscured;
+          });
+        },
+        icon: Icon(
+          isObscured
+              ? Icons.visibility_off_outlined
+              : Icons.visibility_outlined,
+        ),
+      );
+    } else {
+      suffixIconWidget = widget.suffixIcon;
+    }
+
     InputBorder getBorder() {
       if (widget.useUnderlineBorder == true) {
         return UnderlineInputBorder(
@@ -136,14 +160,14 @@ class _TextFieldCustomState extends State<TextFieldCustom> {
             fontWeight: FontWeight.w500,
             color: Colors.black,
           ),
-          obscureText: isobscutured,
+          obscureText: isObscured,
           onSubmitted: (_) {
             if (widget.onSubmit != null) {
               widget.onSubmit!();
             }
           },
-          expands: isobscutured == true ? false : widget.expands ?? true,
-          maxLines: isobscutured == true ? 1 : widget.maxLines,
+          expands: isObscured == true ? false : widget.expands ?? true,
+          maxLines: isObscured == true ? 1 : widget.maxLines,
           minLines: null,
           inputFormatters:
               widget.isOtpField != null && widget.isOtpField == true
@@ -173,20 +197,21 @@ class _TextFieldCustomState extends State<TextFieldCustom> {
             prefixIcon: widget.prefixIcon,
             prefix: widget.prefix,
             suffix: widget.suffix,
-            suffixIcon: widget.obscureText == true
-                ? IconButton(
-                    onPressed: () {
-                      setState(() {
-                        isobscutured = !isobscutured;
-                      });
-                    },
-                    icon: Icon(
-                      isobscutured == true
-                          ? Icons.visibility_off_outlined
-                          : Icons.visibility_outlined,
-                    ),
-                  )
-                : widget.suffixIcon,
+            suffixIcon: suffixIconWidget,
+            //  widget.obscureText == true
+            //     ? IconButton(
+            //         onPressed: () {
+            //           setState(() {
+            //             isobscutured = !isobscutured;
+            //           });
+            //         },
+            //         icon: Icon(
+            //           isobscutured == true
+            //               ? Icons.visibility_off_outlined
+            //               : Icons.visibility_outlined,
+            //         ),
+            //       )
+            //     : widget.suffixIcon,
             contentPadding: EdgeInsets.symmetric(
                 vertical: 2.h, horizontal: widget.cphorizontal ?? 16.w),
             enabledBorder: getBorder(),
