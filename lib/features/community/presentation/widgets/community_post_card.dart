@@ -6,8 +6,131 @@ import 'package:furrpal/custom/text_custom.dart';
 import 'package:furrpal/features/community/presentation/pages/comment_page.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-class CommunityPostCard extends StatelessWidget {
+class CommunityPostCard extends StatefulWidget {
   const CommunityPostCard({super.key});
+
+  @override
+  _CommunityPostCardState createState() => _CommunityPostCardState();
+}
+
+class _CommunityPostCardState extends State<CommunityPostCard> {
+  String _postContent = 'Original post content here';  // Initial post content
+  final TextEditingController _editController = TextEditingController();
+
+  void _editPost() {
+    // Set initial value of controller to the current post content
+    _editController.text = _postContent;
+    
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Edit Post'),
+          content: TextField(
+            controller: _editController,
+            maxLines: 5,
+            decoration: InputDecoration(
+              hintText: 'Edit your post...',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _postContent = _editController.text;
+                });
+                Navigator.pop(context);  // Close the dialog
+              },
+              child: Text("Save"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _hidePost() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Hide Post?"),
+          content: Text("Are you sure you want to hide this post?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Handle hide logic here (e.g., change state to hide the post)
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Post hidden')));
+              },
+              child: Text("Hide"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _reportPost() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Report Post?"),
+          content: Text("Are you sure you want to report this post?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Handle report logic here (e.g., send report to the backend)
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Post reported')));
+              },
+              child: Text("Report"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _deletePost() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Delete Post?"),
+          content: Text("Are you sure you want to delete this post? This action cannot be undone."),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Handle delete logic here (e.g., remove the post from the list)
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Post deleted')));
+              },
+              child: Text("Delete"),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,13 +168,12 @@ class CommunityPostCard extends StatelessWidget {
                 ],
               ),
               ContainerCustom(
-                // marginRight: 10.w,
                 child: PopupMenuButton(
                   icon: const Icon(
                     Icons.more_vert_rounded,
-                    color: whiteColor,
+                    color: Color.fromARGB(255, 0, 0, 0),
                   ),
-                  color: primaryColor,
+                  color: const Color.fromARGB(255, 255, 255, 255),
                   padding: EdgeInsets.zero,
                   shape: ContinuousRectangleBorder(
                     borderRadius: BorderRadius.only(
@@ -71,7 +193,7 @@ class CommunityPostCard extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                         textColor: blackColor,
                       ),
-                      onTap: () {},
+                      onTap: _editPost,
                     ),
                     PopupMenuItem(
                       value: "Delete",
@@ -82,7 +204,29 @@ class CommunityPostCard extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                         textColor: blackColor,
                       ),
-                      onTap: () {},
+                      onTap: _deletePost,  // Show delete confirmation dialog
+                    ),
+                    PopupMenuItem(
+                      value: "Hide",
+                      height: 30.h,
+                      child: TextCustomWidget(
+                        text: "Hide",
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w600,
+                        textColor: blackColor,
+                      ),
+                      onTap: _hidePost,  // Show hide dialog
+                    ),
+                    PopupMenuItem(
+                      value: "Report",
+                      height: 30.h,
+                      child: TextCustomWidget(
+                        text: "Report",
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w600,
+                        textColor: blackColor,
+                      ),
+                      onTap: _reportPost,  // Show report dialog
                     ),
                   ],
                 ),
@@ -96,6 +240,13 @@ class CommunityPostCard extends StatelessWidget {
             marginBottom: 10.h,
             bgColor: Colors.grey,
           ),
+          TextCustomWidget(
+            text: _postContent,  // Display the current post content
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w600,
+            marginLeft: 10.w,
+            marginRight: 10.w,
+          ),
           Row(
             children: [
               Row(
@@ -107,7 +258,7 @@ class CommunityPostCard extends StatelessWidget {
                       onPressed: () {},
                       padding: EdgeInsets.zero,
                       icon: const Icon(Icons.favorite_border_rounded),
-                      color: whiteColor,
+                      color: const Color.fromARGB(255, 0, 0, 0),
                     ),
                   ),
                   TextCustomWidget(
@@ -115,7 +266,7 @@ class CommunityPostCard extends StatelessWidget {
                     fontSize: 20.sp,
                     fontWeight: FontWeight.bold,
                     marginLeft: 5.w,
-                  )
+                  ),
                 ],
               ),
               Row(
@@ -135,7 +286,7 @@ class CommunityPostCard extends StatelessWidget {
                       },
                       padding: EdgeInsets.zero,
                       icon: const Icon(LucideIcons.messageCircle),
-                      color: whiteColor,
+                      color: const Color.fromARGB(255, 0, 0, 0),
                     ),
                   ),
                   TextCustomWidget(
@@ -147,7 +298,7 @@ class CommunityPostCard extends StatelessWidget {
                 ],
               ),
             ],
-          )
+          ),
         ],
       ),
     );

@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:furrpal/features/community/presentation/pages/add_post_page.dart';
 import 'package:furrpal/features/community/presentation/widgets/community_post_card.dart';
 
 class CommunityPage extends StatelessWidget {
@@ -13,13 +15,13 @@ class CommunityPage extends StatelessWidget {
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
-            onPressed: () {},
-            icon: ImageIcon(
-              AssetImage(
-                'assets/icons/notification.png',
-              ),
-              color: Colors.black,
-            ),
+            onPressed: () {Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AddPostPage(),
+                          ),
+                        );},
+            icon: Icon(CupertinoIcons.add)
           ),
         ],
       ),
