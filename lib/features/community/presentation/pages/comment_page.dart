@@ -10,6 +10,7 @@ class CommentPage extends StatefulWidget {
 
 class _CommentPageState extends State<CommentPage> {
   final TextEditingController _commentController = TextEditingController();
+  final Map<int, List<String>> _replies = {};
   final List<String> _comments = [];
 
   void _addComment() {
@@ -23,6 +24,40 @@ class _CommentPageState extends State<CommentPage> {
         SnackBar(content: Text("Please enter a comment")),
       );
     }
+  }
+
+  void _addReply(int commentIndex) {
+    TextEditingController replyController = TextEditingController();
+    
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Reply to Comment"),
+          content: TextField(
+            controller: replyController,
+            decoration: InputDecoration(hintText: "Enter your reply..."),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (replyController.text.isNotEmpty) {
+                  setState(() {
+                    _replies.putIfAbsent(commentIndex, () => []).add(replyController.text);
+                  });
+                  Navigator.pop(context);
+                }
+              },
+              child: Text("Reply"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -41,9 +76,27 @@ class _CommentPageState extends State<CommentPage> {
             child: ListView.builder(
               itemCount: _comments.length,
               itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(_comments[index]),
-                  leading: Icon(Icons.person),
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ListTile(
+                      title: Text(_comments[index]),
+                      leading: Icon(Icons.person),
+                      trailing: TextButton(
+                        onPressed: () => _addReply(index),
+                        child: Text("Reply"),
+                      ),
+                    ),
+                    if (_replies.containsKey(index)) ..._replies[index]!.map((reply) {
+                      return Padding(
+                        padding: const EdgeInsets.only(left: 40.0),
+                        child: ListTile(
+                          title: Text(reply),
+                          leading: Icon(Icons.reply, color: Colors.grey),
+                        ),
+                      );
+                    }).toList(),
+                  ],
                 );
               },
             ),
@@ -63,7 +116,7 @@ class _CommentPageState extends State<CommentPage> {
                 ),
                 SizedBox(width: 10),
                 IconButton(
-                  icon: Icon(Icons.send, color: const Color.fromARGB(255, 0, 0, 0)),
+                  icon: Icon(Icons.send, color: Colors.blue),
                   onPressed: _addComment,
                 ),
               ],
