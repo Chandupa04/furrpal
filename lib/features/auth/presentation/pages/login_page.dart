@@ -1,3 +1,4 @@
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -25,8 +26,27 @@ class _LoginPageState extends State<LoginPage> {
   final passwordController = TextEditingController();
   bool isobscutured = false;
   bool inProgress = false;
+  bool isValid = false;
 
   void login() {
+    isValid = EmailValidator.validate(emailController.text.trim());
+    if (!isValid) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: blackColor,
+          shape: ContinuousRectangleBorder(
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20.r),
+                  topRight: Radius.circular(20.r))),
+          content: TextCustomWidget(
+            text: 'Email is not valid',
+            fontSize: 17.sp,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      );
+      return;
+    }
     setState(() {
       inProgress = true;
     });
@@ -116,22 +136,7 @@ class _LoginPageState extends State<LoginPage> {
                     TextFieldCustom(
                       controller: passwordController,
                       marginBottom: 19.h,
-                      obscureText: isobscutured,
-                      suffixIcon: IconButton(
-                        onPressed: () {
-                          setState(() {
-                            isobscutured = !isobscutured;
-                          });
-                        },
-                        icon: ImageIcon(
-                          AssetImage(
-                            isobscutured == true
-                                ? 'assets/icons/password_hide.png'
-                                : 'assets/icons/password_unhide.png',
-                          ),
-                          color: Colors.black,
-                        ),
-                      ),
+                      obscureText: true,
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -147,7 +152,7 @@ class _LoginPageState extends State<LoginPage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => SignupPage(),
+                                builder: (context) => const SignupPage(),
                               ),
                             );
                           },
