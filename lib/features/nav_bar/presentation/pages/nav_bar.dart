@@ -74,11 +74,11 @@ class _NavBarState extends State<NavBar> {
               CupertinoIcons.cart_fill,
               3,
             ),
-            // _buildNavItem(
-            //   'assets/icons/user_profile.png' as IconData,
-            //   'assets/icons/user_profile.png' as IconData,
-            //   4,
-            // ),
+            _buildNavItem(
+              CupertinoIcons.person_alt_circle,
+              CupertinoIcons.person_alt_circle_fill,
+              4,
+            ),
           ],
         ),
       ),

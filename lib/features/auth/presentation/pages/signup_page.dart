@@ -1,4 +1,5 @@
 import 'package:custom_check_box/custom_check_box.dart';
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -27,11 +28,28 @@ class _SignupPageState extends State<SignupPage> {
   bool isobscutured = false;
   bool isChecked = false;
   bool inProgress = false;
+  bool isValid = false;
 
   void signUp() {
-    setState(() {
-      inProgress = true;
-    });
+    isValid = EmailValidator.validate(emailController.text.trim());
+    if (!isValid) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: blackColor,
+          shape: ContinuousRectangleBorder(
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20.r),
+                  topRight: Radius.circular(20.r))),
+          content: TextCustomWidget(
+            text: 'Email is not valid',
+            fontSize: 17.sp,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      );
+      return;
+    }
+
     final String email = emailController.text;
     final String password = passwordController.text;
     final String confirmPassword = confirmPasswordController.text;
@@ -44,14 +62,42 @@ class _SignupPageState extends State<SignupPage> {
         email.isNotEmpty &&
         password.isNotEmpty &&
         confirmPassword.isNotEmpty) {
-      authCubit.register(fName, lName, email, password, confirmPassword);
+      if (password == confirmPassword) {
+        setState(() {
+          inProgress = true;
+        });
+        authCubit.register(fName, lName, email, password, confirmPassword);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: TextCustomWidget(
+              text: 'Passwords do not match',
+              fontSize: 17.sp,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        );
+      }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
           content: TextCustomWidget(
-        text: 'Please Enter Both Email and Password',
-        fontSize: 12.sp,
-      )));
+            text: 'Please Enter Both Email and Password',
+            fontSize: 12.sp,
+          ),
+        ),
+      );
     }
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    fNameController.dispose();
+    lNameController.dispose();
+    super.dispose();
   }
 
   @override
@@ -134,22 +180,8 @@ class _SignupPageState extends State<SignupPage> {
                     TextFieldCustom(
                       controller: passwordController,
                       marginBottom: 19.h,
-                      obscureText: isobscutured,
-                      suffixIcon: IconButton(
-                        onPressed: () {
-                          setState(() {
-                            isobscutured = !isobscutured;
-                          });
-                        },
-                        icon: ImageIcon(
-                          AssetImage(
-                            isobscutured == true
-                                ? 'assets/icons/password_hide.png'
-                                : 'assets/icons/password_unhide.png',
-                          ),
-                          color: Colors.black,
-                        ),
-                      ),
+                      // obscureText: isobscutured,
+                      obscureText: true,
                     ),
                     TextCustomWidget(
                       text: 'Confirm Password',
@@ -160,22 +192,7 @@ class _SignupPageState extends State<SignupPage> {
                     TextFieldCustom(
                       controller: confirmPasswordController,
                       marginBottom: 19.h,
-                      obscureText: isobscutured,
-                      suffixIcon: IconButton(
-                        onPressed: () {
-                          setState(() {
-                            isobscutured = !isobscutured;
-                          });
-                        },
-                        icon: ImageIcon(
-                          AssetImage(
-                            isobscutured == true
-                                ? 'assets/icons/password_hide.png'
-                                : 'assets/icons/password_unhide.png',
-                          ),
-                          color: Colors.black,
-                        ),
-                      ),
+                      obscureText: true,
                     ),
                     Row(
                       children: [

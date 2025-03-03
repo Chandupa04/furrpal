@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:furrpal/custom/text_custom.dart';
 import 'package:furrpal/features/community/presentation/widgets/community_post_card.dart';
-import 'package:furrpal/features/user_profile/presentation/pages/user_profile.dart';
 
 class CommunityPage extends StatelessWidget {
   const CommunityPage({super.key});
@@ -26,20 +24,7 @@ class CommunityPage extends StatelessWidget {
         ],
       ),
       body: Column(
-        children: [
-          ListTile(
-            title: TextCustomWidget(text: 'Profile'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => UserProfile(),
-                ),
-              );
-            },
-          ),
-          CommunityPostCard()
-        ],
+        children: [CommunityPostCard()],
       ),
     );
   }

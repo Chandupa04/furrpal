@@ -1,9 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:furrpal/features/auth/domain/entities/user/user_entity.dart';
 import 'package:furrpal/features/auth/domain/repositories/auth_repo.dart';
 
 class FirebaseAuthRepo implements AuthRepo {
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+  final FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
 
   @override
   Future<UserEntity?> loginwithEmailPassword(
@@ -42,6 +44,12 @@ class FirebaseAuthRepo implements AuthRepo {
         fName: fName,
         lName: lName,
       );
+
+      //save the data to database
+      await firebaseFirestore
+          .collection('users')
+          .doc(user.uid)
+          .set(user.toJson());
 
       return user;
 

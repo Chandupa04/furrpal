@@ -18,6 +18,7 @@ class _HomePageState extends State<HomePage> {
   final FirebaseService _firebaseService = FirebaseService();
   List<Map<String, dynamic>> dogs = [];
   bool isLoading = true;
+  bool _disposed = false;
 
   final CardSwiperController swiperController = CardSwiperController();
   OverlayEntry? _overlayEntry;
@@ -28,8 +29,23 @@ class _HomePageState extends State<HomePage> {
     _loadDogProfiles();
   }
 
+  @override
+  void dispose() {
+    _disposed = true;
+    _overlayEntry?.remove();
+    super.dispose();
+  }
+
+  void _safeSetState(VoidCallback fn) {
+    if (!_disposed && mounted) {
+      setState(fn);
+    }
+  }
+
   Future<void> _loadDogProfiles() async {
-    setState(() {
+    if (!mounted) return;
+
+    _safeSetState(() {
       isLoading = true;
     });
 
@@ -39,18 +55,18 @@ class _HomePageState extends State<HomePage> {
       // Debug: Print the number of profiles retrieved
       print('Loaded ${dogProfiles.length} dog profiles');
 
-      setState(() {
+      _safeSetState(() {
         dogs = dogProfiles;
         isLoading = false;
       });
     } catch (e) {
       print('Error loading dog profiles: $e');
-      setState(() {
-        isLoading = false;
-      });
+      if (!_disposed && mounted) {
+        _safeSetState(() {
+          isLoading = false;
+        });
 
-      // Show error message
-      if (mounted) {
+        // Show error message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to load dog profiles: $e')),
         );
@@ -136,12 +152,6 @@ class _HomePageState extends State<HomePage> {
 
   void _showSkipToast(String dogName) {
     _showCustomToast("${dogName} skipped");
-  }
-
-  @override
-  void dispose() {
-    _overlayEntry?.remove();
-    super.dispose();
   }
 
   @override
