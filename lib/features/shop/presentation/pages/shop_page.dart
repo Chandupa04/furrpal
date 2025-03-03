@@ -65,6 +65,16 @@ class _ShopPageState extends State<ShopPage> {
         name: "Retractable Elastic Pet Leash Car Seat Safety Belt for Dogs",
         image: "assets/images/Retractable_Elastic.jpg",
         price: 10.50),
+    Product(
+        name: "Diapers for Female Dogs",
+        image: "assets/images/diapersg.jpg",
+        price: 7.50),
+    Product(
+        name: "Diapers for Male Dogs",
+        image: "assets/images/diapers.jpg",
+        price: 7.50),
+    Product(name: "Dogs Beds", image: "assets/images/bed.jpg", price: 12.60),
+    Product(name: "Dog Toys", image: "assets/images/toys.jpg", price: 3.50),
   ];
 
   List<Product> cart = [];
