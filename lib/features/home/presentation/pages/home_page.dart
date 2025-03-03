@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:furrpal/features/home/presentation/pages/payment_page.dart';
 import 'package:furrpal/features/home/presentation/pages/filter_search_page.dart';
-import 'package:furrpal/services/firebase_service.dart';
+import 'package:furrpal/config/firebase_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
