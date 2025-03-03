@@ -107,7 +107,7 @@ class CommunityPostCard extends StatelessWidget {
                       onPressed: () {},
                       padding: EdgeInsets.zero,
                       icon: const Icon(Icons.favorite_border_rounded),
-                      color: whiteColor,
+                      color: const Color.fromARGB(255, 0, 0, 0),
                     ),
                   ),
                   TextCustomWidget(
@@ -135,7 +135,7 @@ class CommunityPostCard extends StatelessWidget {
                       },
                       padding: EdgeInsets.zero,
                       icon: const Icon(LucideIcons.messageCircle),
-                      color: whiteColor,
+                      color: const Color.fromARGB(255, 0, 0, 0),
                     ),
                   ),
                   TextCustomWidget(
