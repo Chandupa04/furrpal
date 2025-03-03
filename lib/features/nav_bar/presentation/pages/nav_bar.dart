@@ -1,9 +1,11 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:furrpal/features/community/presentation/pages/community_page.dart';
 import 'package:furrpal/features/home/presentation/pages/home_page.dart';
-import 'package:furrpal/features/home/presentation/pages/notification_page.dart';
+import 'package:furrpal/features/notifications/presentation/pages/notification_page.dart';
 import 'package:furrpal/features/home/presentation/pages/pet_shop_page.dart';
+import 'package:cupertino_icons/cupertino_icons.dart';
 import 'package:furrpal/features/user_profile/presentation/pages/user_profile.dart';
 
 import '../../../../custom/container_custom.dart';
@@ -18,27 +20,26 @@ class NavBar extends StatefulWidget {
 class _NavBarState extends State<NavBar> {
   List pages = [
     const HomePage(),
-    const NotificationPage(),
+    const NotificationsPage(),
     const CommunityPage(),
     const PetShopPage(),
-    const UserProfile(),
   ];
-  int _curruntIndex = 0;
+  int _currentIndex = 0;
 
   void _onItemTap(int index) {
     setState(() {
-      _curruntIndex = index;
+      _currentIndex = index;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: pages[_curruntIndex],
+      body: pages[_currentIndex],
       bottomNavigationBar: ContainerCustom(
         alignment: Alignment.topCenter,
         height: 60.h,
-        bgColor: const Color(0xffF88158),
+        bgColor: const Color.fromARGB(255, 242, 241, 240),
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(25.r),
           topRight: Radius.circular(25.r),
@@ -47,45 +48,45 @@ class _NavBarState extends State<NavBar> {
           BoxShadow(
             offset: Offset(0, -4.h),
             blurRadius: 40.r,
-            color: const Color(0xffF88158).withOpacity(0.3),
+            color: const Color(0xffF88158).withOpacity(0.2),
           ),
         ],
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             _buildNavItem(
-              'assets/icons/pet-house.png',
-              'assets/icons/pet-house.png',
+              CupertinoIcons.house,
+              CupertinoIcons.house_fill,
               0,
             ),
             _buildNavItem(
-              'assets/icons/notification.png',
-              'assets/icons/notification.png',
+              CupertinoIcons.bell,
+              CupertinoIcons.bell_fill,
               1,
             ),
             _buildNavItem(
-              'assets/icons/community.png',
-              'assets/icons/community.png',
+              CupertinoIcons.group,
+              CupertinoIcons.group_solid,
               2,
             ),
             _buildNavItem(
-              'assets/icons/pet-shop.png',
-              'assets/icons/pet-shop.png',
+              CupertinoIcons.cart,
+              CupertinoIcons.cart_fill,
               3,
             ),
-            _buildNavItem(
-              'assets/icons/user_profile.png',
-              'assets/icons/user_profile.png',
-              4,
-            ),
+            // _buildNavItem(
+            //   'assets/icons/user_profile.png' as IconData,
+            //   'assets/icons/user_profile.png' as IconData,
+            //   4,
+            // ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildNavItem(String icon, String selectedIcon, int index) {
-    final isSelected = _curruntIndex == index;
+  Widget _buildNavItem(IconData icon, IconData selectedIcon, int index) {
+    final isSelected = _currentIndex == index;
     return GestureDetector(
       onTap: () => _onItemTap(index),
       child: Column(
@@ -98,21 +99,15 @@ class _NavBarState extends State<NavBar> {
               bottomLeft: Radius.circular(6.r),
               bottomRight: Radius.circular(6.r),
             ),
-            bgColor: isSelected == true ? Colors.black : Colors.transparent,
+            bgColor: isSelected ? const Color(0xffF88158) : Colors.transparent,
           ),
-          ContainerCustom(
-            height: 32.h,
-            width: 32.w,
-            child: isSelected == true
-                ? Image.asset(
-                    selectedIcon,
-                    color: Colors.black,
-                  )
-                : Image.asset(
-                    icon,
-                    color: Colors.white,
-                  ),
-          )
+          Icon(
+            isSelected ? selectedIcon : icon,
+            size: 32.w,
+            color: isSelected
+                ? const Color(0xffF88158) // Change color for active state
+                : Colors.grey, // Change color for inactive state
+          ),
         ],
       ),
     );

@@ -10,6 +10,9 @@ import 'package:furrpal/custom/textfield_custom.dart';
 import 'package:furrpal/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:furrpal/features/auth/presentation/cubit/auth_state.dart';
 import 'package:furrpal/features/auth/presentation/pages/signup_page.dart';
+import 'package:furrpal/features/nav_bar/presentation/pages/nav_bar.dart';
+
+import '../../../home/presentation/pages/home_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -76,7 +79,12 @@ class _LoginPageState extends State<LoginPage> {
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is Authenticated) {
-          Navigator.pop(context);
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    const NavBar()), // Show NavBar after login
+          );
         }
       },
       child: Scaffold(
@@ -138,6 +146,7 @@ class _LoginPageState extends State<LoginPage> {
                           fontSize: 17.sp,
                         ),
                         ButtonCustom(
+                          isLoading: false,
                           text: 'SignUp',
                           callback: () {
                             Navigator.push(
@@ -176,6 +185,7 @@ class _LoginPageState extends State<LoginPage> {
                       inProgress: inProgress,
                       isDisabled: inProgress,
                       disabledColor: primaryColor,
+                      isLoading: false,
                       // () {
                       //   Navigator.push(
                       //     context,

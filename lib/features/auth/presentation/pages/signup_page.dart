@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:furrpal/constant/constant.dart';
 import 'package:furrpal/custom/button_custom.dart';
 import 'package:furrpal/custom/container_custom.dart';
+import 'package:furrpal/features/auth/presentation/pages/dog_profile_creat_page.dart';
 import '../../../../custom/text_custom.dart';
 import '../../../../custom/textfield_custom.dart';
 import '../cubit/auth_cubit.dart';
@@ -104,7 +105,12 @@ class _SignupPageState extends State<SignupPage> {
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is Authenticated) {
-          Navigator.pop(context);
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => DogProfileCreatPage(),
+            ),
+          );
         }
       },
       child: Scaffold(
@@ -212,6 +218,7 @@ class _SignupPageState extends State<SignupPage> {
                       text: 'Continue',
                       callback: signUp,
                       inProgress: inProgress,
+                      isLoading: false,
 
                       // () {
                       //   Navigator.push(
