@@ -31,8 +31,14 @@ class FirebaseAuthRepo implements AuthRepo {
   }
 
   @override
-  Future<UserEntity?> registerwithEmailPassword(String fName, String lName,
-      String email, String password, String confirmPassword) async {
+  Future<UserEntity?> registerwithEmailPassword(
+      String fName,
+      String lName,
+      String email,
+      String address,
+      String phone,
+      String password,
+      String confirmPassword) async {
     try {
       //attempt sign in
       UserCredential userCredential = await firebaseAuth
@@ -43,6 +49,8 @@ class FirebaseAuthRepo implements AuthRepo {
         email: email,
         fName: fName,
         lName: lName,
+        address: address,
+        phoneNumber: phone,
       );
 
       //save the data to database
