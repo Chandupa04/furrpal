@@ -1,9 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
 import 'package:flutter/services.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:furrpal/features/home/presentation/pages/payment_page.dart';
 import 'package:furrpal/features/home/presentation/pages/filter_search_page.dart';
+import 'package:furrpal/services/firebase_service.dart';
 import 'package:furrpal/features/home/presentation/pages/userprofile_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -14,26 +15,134 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final List<Map<String, dynamic>> dogs = [
-    {
-      "name": "Rocky",
-      "breed": "German Shepherd",
-      "age": "4 years",
-      "gender": "Male",
-      "location": "Kandy",
-      "image": "assets/images/german_shepherd.jpg"
-    },
-    {
-      "name": "Bella",
-      "breed": "Golden Retriever",
-      "age": "3 years",
-      "gender": "Female",
-      "location": "Colombo",
-      "image": "assets/images/golden_retriever.jpeg"
-    }
-  ];
+  final FirebaseService _firebaseService = FirebaseService();
+  List<Map<String, dynamic>> dogs = [];
+  bool isLoading = true;
 
   final CardSwiperController swiperController = CardSwiperController();
+  OverlayEntry? _overlayEntry;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDogProfiles();
+  }
+
+  Future<void> _loadDogProfiles() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final dogProfiles = await _firebaseService.getAllDogProfiles();
+
+      // Debug: Print the number of profiles retrieved
+      print('Loaded ${dogProfiles.length} dog profiles');
+
+      setState(() {
+        dogs = dogProfiles;
+        isLoading = false;
+      });
+    } catch (e) {
+      print('Error loading dog profiles: $e');
+      setState(() {
+        isLoading = false;
+      });
+
+      // Show error message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to load dog profiles: $e')),
+        );
+      }
+    }
+  }
+
+  void _testFirestore() async {
+    try {
+      // First, check if we can read existing documents
+      final QuerySnapshot snapshot =
+          await FirebaseFirestore.instance.collection('dogs').get();
+      print("Found ${snapshot.docs.length} existing dog profiles");
+
+      // Then try to add a test document
+      DocumentReference docRef =
+          await FirebaseFirestore.instance.collection('dogs').add({
+        'name': 'Test Dog',
+        'breed': 'Test Breed',
+        'gender': 'Male',
+        'age': '3',
+        'location': 'Test Location',
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      print("Test dog profile added successfully with ID: ${docRef.id}");
+
+      // Refresh the dog profiles list
+      _loadDogProfiles();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Test dog profile added successfully!')),
+        );
+      }
+    } catch (e) {
+      print("Error testing Firestore: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error testing Firestore: $e")),
+        );
+      }
+    }
+  }
+
+  void _showCustomToast(String message) {
+    _overlayEntry?.remove();
+
+    _overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        bottom: 80,
+        left: 0,
+        right: 0,
+        child: Center(
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(255, 121, 125, 122),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                message,
+                style: const TextStyle(color: Colors.white, fontSize: 16),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    Overlay.of(context).insert(_overlayEntry!);
+    Future.delayed(const Duration(seconds: 2), () {
+      _overlayEntry?.remove();
+      _overlayEntry = null;
+    });
+  }
+
+  void _showToast(String dogName, bool isLiked) {
+    _showCustomToast("${dogName} ${isLiked ? 'liked! ' : 'disliked '}");
+  }
+
+  void _showSkipToast(String dogName) {
+    _showCustomToast("${dogName} skipped");
+  }
+
+  @override
+  void dispose() {
+    _overlayEntry?.remove();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,36 +153,67 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 50),
           _buildTopBar(),
           const Spacer(),
-
-          // Replaced static DogProfileCard with CardSwiper
-          SizedBox(
-            // height: MediaQuery.of(context).size.height * 0.88,
-            height: 650,
-            // Ensures only 1 card is visible
-            child: CardSwiper(
-              controller: swiperController,
-              cardsCount: dogs.length,
-              onSwipe: (index, direction, previousIndex) {
-                if (direction == CardSwiperDirection.right) {
-                  print("${dogs[index]['name']} liked! ❤️");
-                } else if (direction == CardSwiperDirection.left) {
-                  print("${dogs[index]['name']} disliked ❌");
-                }
-                return true;
-              },
-              cardBuilder:
-                  (context, index, percentThresholdX, percentThresholdY) {
-                return DogProfileCard(
-                  dog: dogs[index],
-                  isTopCard: index == 0,
-                  swiperController: swiperController,
-                );
-              },
+          if (isLoading)
+            const Center(
+              child: CircularProgressIndicator(),
+            )
+          else if (dogs.isEmpty)
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    "No dog profiles found",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: _loadDogProfiles,
+                    child: const Text("Refresh"),
+                  ),
+                  const SizedBox(height: 10),
+                  ElevatedButton(
+                    onPressed: _testFirestore,
+                    child: const Text("Test Firestore Connection"),
+                  ),
+                ],
+              ),
+            )
+          else
+            SizedBox(
+              height: 650,
+              child: CardSwiper(
+                controller: swiperController,
+                cardsCount: dogs.length,
+                onSwipe: (previousIndex, currentIndex, direction) {
+                  if (direction == CardSwiperDirection.right) {
+                    _showToast(dogs[previousIndex]['name'], true);
+                  } else if (direction == CardSwiperDirection.left) {
+                    _showToast(dogs[previousIndex]['name'], false);
+                  } else if (direction == CardSwiperDirection.top ||
+                      direction == CardSwiperDirection.bottom) {
+                    _showSkipToast(dogs[previousIndex]['name']);
+                  }
+                  return true;
+                },
+                cardBuilder:
+                    (context, index, percentThresholdX, percentThresholdY) {
+                  return DogProfileCard(
+                    dog: dogs[index],
+                    isTopCard: index == 0,
+                    swiperController: swiperController,
+                    onLike: () => _showToast(dogs[index]['name'], true),
+                    onDislike: () => _showToast(dogs[index]['name'], false),
+                  );
+                },
+              ),
             ),
-          ),
-
           const Spacer(),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _loadDogProfiles,
+        child: const Icon(Icons.refresh),
       ),
     );
   }
@@ -88,55 +228,51 @@ class _HomePageState extends State<HomePage> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (context) => const SearchFilterScreen()),
+                MaterialPageRoute(builder: (context) => SearchFilterScreen()),
               );
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(
-              //       builder: (context) => const UserProfileApp()),
-              // );
-
             },
             child: Icon(Icons.search, color: Colors.grey.shade800, size: 28),
           ),
           GestureDetector(
             onTap: () {
+              // Navigate to the user profile page when the person icon is tapped
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (context) => const UserProfileWidget()),
+                MaterialPageRoute(builder: (context) => const UserProfileWidget()),
               );
             },
-            // Navigate to User Profile
-
-            child:Icon(Icons.person, color: Colors.grey.shade800, size: 28),
+            child: Icon(Icons.person, color: Colors.grey.shade800, size: 28),
           ),
+          // Icon(Icons.person, color: Colors.grey.shade800, size: 28),
         ],
       ),
     );
   }
 }
 
-// Fixes bottom overflow issue by using Flexible & Padding
 class DogProfileCard extends StatelessWidget {
   final Map<String, dynamic> dog;
   final bool isTopCard;
   final CardSwiperController swiperController;
+  final VoidCallback onLike;
+  final VoidCallback onDislike;
 
   const DogProfileCard({
     super.key,
     required this.dog,
     required this.isTopCard,
     required this.swiperController,
+    required this.onLike,
+    required this.onDislike,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Get image from Firebase or use placeholder
+    final String imageUrl = dog["image"] ?? "";
+
     return Container(
-      // height: MediaQuery.of(context).size.height * 85.0,
       height: 100,
-      // ✅ Increased height to 85% of screen
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -152,29 +288,58 @@ class DogProfileCard extends StatelessWidget {
         ],
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min, //  Keeps things compact
+        mainAxisSize: MainAxisSize.min,
         children: [
           Expanded(
-            // Expands content properly without overflow
             child: Column(
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(20),
-                  child: Image.asset(
-                    dog["image"],
-                    height: 200, // Adjust image height
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                  ),
+                  child: imageUrl.isNotEmpty
+                      ? Image.network(
+                          imageUrl,
+                          height: 200,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Container(
+                              height: 200,
+                              width: double.infinity,
+                              color: Colors.grey[200],
+                              child: const Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              height: 200,
+                              width: double.infinity,
+                              color: Colors.grey[200],
+                              child: const Icon(
+                                Icons.error,
+                                color: Colors.red,
+                                size: 50,
+                              ),
+                            );
+                          },
+                        )
+                      : Image.asset(
+                          "assets/images/dog_placeholder.jpg",
+                          height: 200,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  dog["name"],
+                  dog["name"] ?? "Unknown",
                   style: const TextStyle(
                       fontSize: 26, fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  dog["breed"],
+                  dog["breed"] ?? "Unknown breed",
                   style: const TextStyle(
                     fontSize: 16,
                     fontStyle: FontStyle.italic,
@@ -187,8 +352,6 @@ class DogProfileCard extends StatelessWidget {
               ],
             ),
           ),
-
-          //  Centered Button (Show User Details)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: ElevatedButton(
@@ -205,7 +368,7 @@ class DogProfileCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 padding:
-                const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                    const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
               ),
               child: const Text(
                 "Show User Details",
@@ -216,9 +379,7 @@ class DogProfileCard extends StatelessWidget {
               ),
             ),
           ),
-
-          // Floating Buttons (Heart & Cross)
-          const SizedBox(height: 15), // Adjusted spacing
+          const SizedBox(height: 15),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -227,6 +388,7 @@ class DogProfileCard extends StatelessWidget {
                 color: Colors.redAccent,
                 backgroundColor: Colors.red.withOpacity(0.2),
                 onTap: () {
+                  onDislike();
                   swiperController.swipe(CardSwiperDirection.left);
                 },
               ),
@@ -236,12 +398,13 @@ class DogProfileCard extends StatelessWidget {
                 color: Colors.green,
                 backgroundColor: Colors.green.withOpacity(0.2),
                 onTap: () {
+                  onLike();
                   swiperController.swipe(CardSwiperDirection.right);
                 },
               ),
             ],
           ),
-          const SizedBox(height: 20), // Adjusted to prevent bottom overflow
+          const SizedBox(height: 20),
         ],
       ),
     );
@@ -251,9 +414,9 @@ class DogProfileCard extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        _infoPill("Age", dog["age"]),
-        _infoPill("Gender", dog["gender"]),
-        _infoPill("Location", dog["location"]),
+        _infoPill("Age", dog["age"] ?? "Unknown"),
+        _infoPill("Gender", dog["gender"] ?? "Unknown"),
+        _infoPill("Location", dog["location"] ?? "Unknown"),
       ],
     );
   }
@@ -276,7 +439,6 @@ class DogProfileCard extends StatelessWidget {
     );
   }
 
-  // Floating Button Design (Heart & Cross)
   Widget _floatingButton({
     required IconData icon,
     required Color color,

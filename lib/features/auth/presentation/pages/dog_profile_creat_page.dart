@@ -1,15 +1,128 @@
+// lib/features/profile/presentation/pages/dog_profile_create_page.dart
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:furrpal/constant/constant.dart';
 import 'package:furrpal/custom/button_custom.dart';
+import 'package:furrpal/services/firebase_service.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+
 import '../../../../custom/container_custom.dart';
 import '../../../../custom/text_custom.dart';
 import '../../../../custom/textfield_custom.dart';
 
-
-
-class DogProfileCreatPage extends StatelessWidget {
+class DogProfileCreatPage extends StatefulWidget {
   const DogProfileCreatPage({super.key});
+
+  @override
+  State<DogProfileCreatPage> createState() => _DogProfileCreatPageState();
+}
+
+class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
+  final FirebaseService _firebaseService = FirebaseService();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _breedController = TextEditingController();
+  final TextEditingController _genderController = TextEditingController();
+  final TextEditingController _ageController = TextEditingController();
+  final TextEditingController _healthController = TextEditingController();
+  final TextEditingController _locationController = TextEditingController();
+
+  File? _imageFile;
+  bool _isLoading = false;
+
+  Future<void> _testFirestore() async {
+    try {
+      final FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+      // Test if we can access Firestore
+      print("Testing Firestore connection...");
+      await firestore.collection('test').doc('test').set({
+        'timestamp': FieldValue.serverTimestamp(),
+        'message': 'Test connection'
+      });
+      print("Firestore test write successful");
+
+      // Try to read the document back
+      final docSnapshot = await firestore.collection('test').doc('test').get();
+      print("Firestore test read successful: ${docSnapshot.exists}");
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Firestore connection test successful')),
+      );
+    } catch (e) {
+      print("Firestore test failed: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Firestore test failed: $e')),
+      );
+    }
+  }
+
+  Future<void> _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
+      setState(() {
+        _imageFile = File(image.path);
+      });
+    }
+  }
+
+  Future<void> _createDogProfile() async {
+    if (_nameController.text.isEmpty ||
+        _breedController.text.isEmpty ||
+        _genderController.text.isEmpty ||
+        _ageController.text.isEmpty ||
+        _locationController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all required fields')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await _firebaseService.createDogProfile(
+        name: _nameController.text,
+        breed: _breedController.text,
+        gender: _genderController.text,
+        age: _ageController.text,
+        healthConditions: _healthController.text,
+        location: _locationController.text,
+        imageFile: _imageFile,
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Dog profile created successfully!')),
+      );
+
+      // Navigate back or to home page
+      Navigator.pop(context);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error creating profile: $e')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _breedController.dispose();
+    _genderController.dispose();
+    _ageController.dispose();
+    _healthController.dispose();
+    _locationController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,10 +135,43 @@ class DogProfileCreatPage extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Image.asset(
-              logoImage,
-              width: 150.w,
-              height: 150.h,
+            GestureDetector(
+              onTap: _pickImage,
+              child: _imageFile != null
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(75.r),
+                      child: Image.file(
+                        _imageFile!,
+                        width: 150.w,
+                        height: 150.h,
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                  : Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Image.asset(
+                          logoImage,
+                          width: 150.w,
+                          height: 150.h,
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Container(
+                            padding: EdgeInsets.all(8.r),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.camera_alt,
+                              size: 24.r,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
             ),
             ContainerCustom(
               marginLeft: 13.w,
@@ -47,6 +193,7 @@ class DogProfileCreatPage extends StatelessWidget {
                   ),
                   TextFieldCustom(
                     marginBottom: 15.h,
+                    controller: _nameController,
                   ),
                   TextCustomWidget(
                     text: 'Breed',
@@ -56,6 +203,7 @@ class DogProfileCreatPage extends StatelessWidget {
                   ),
                   TextFieldCustom(
                     marginBottom: 15.h,
+                    controller: _breedController,
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -71,6 +219,7 @@ class DogProfileCreatPage extends StatelessWidget {
                           ),
                           TextFieldCustom(
                             width: 151.w,
+                            controller: _genderController,
                           ),
                         ],
                       ),
@@ -85,6 +234,7 @@ class DogProfileCreatPage extends StatelessWidget {
                           ),
                           TextFieldCustom(
                             width: 151.w,
+                            controller: _ageController,
                           ),
                         ],
                       ),
@@ -100,6 +250,7 @@ class DogProfileCreatPage extends StatelessWidget {
                   TextFieldCustom(
                     keyboardType: TextInputType.emailAddress,
                     marginBottom: 15.h,
+                    controller: _healthController,
                   ),
                   TextCustomWidget(
                     text: 'Location of the pet',
@@ -109,11 +260,13 @@ class DogProfileCreatPage extends StatelessWidget {
                   ),
                   TextFieldCustom(
                     marginBottom: 27.h,
+                    controller: _locationController,
                   ),
                   ButtonCustom(
-                    text: 'Create Account',
+                    text: 'Create Profile',
                     dontApplyMargin: true,
-                    callback: () {},
+                    isLoading: _isLoading,
+                    callback: _createDogProfile,
                   ),
                 ],
               ),
