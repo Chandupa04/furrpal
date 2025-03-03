@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:furrpal/constant/constant.dart';
-import 'package:furrpal/custom/button_custom.dart';
-import 'package:furrpal/custom/text_custom.dart';
-import 'package:furrpal/features/auth/domain/entities/user/user_entity.dart';
 import 'package:furrpal/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:furrpal/features/auth/presentation/cubit/auth_state.dart';
 import 'package:furrpal/features/auth/presentation/pages/start_page.dart';

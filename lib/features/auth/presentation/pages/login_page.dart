@@ -45,13 +45,14 @@ class _LoginPageState extends State<LoginPage> {
       );
       return;
     }
-    setState(() {
-      inProgress = true;
-    });
+
     final String email = emailController.text;
     final String password = passwordController.text;
     final authCubit = context.read<AuthCubit>();
     if (email.isNotEmpty && password.isNotEmpty) {
+      setState(() {
+        inProgress = true;
+      });
       authCubit.login(email, password);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -184,14 +185,6 @@ class _LoginPageState extends State<LoginPage> {
                       isDisabled: inProgress,
                       disabledColor: primaryColor,
                       isLoading: false,
-                      // () {
-                      //   Navigator.push(
-                      //     context,
-                      //     MaterialPageRoute(
-                      //       builder: (context) => NavBar(),
-                      //     ),
-                      //   );
-                      // },
                       dontApplyMargin: true,
                     ),
                   ],
