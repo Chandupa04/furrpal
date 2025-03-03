@@ -26,10 +26,10 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-            scaffoldBackgroundColor: blackColor,
+            scaffoldBackgroundColor: whiteColor,
             appBarTheme: AppBarTheme(
-              backgroundColor: blackColor,
-              foregroundColor: whiteColor,
+              backgroundColor: whiteColor,
+              foregroundColor: blackColor,
             ),
             useMaterial3: true,
           ),

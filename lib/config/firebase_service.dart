@@ -1,13 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
-
-import 'package:furrpal/features/auth/domain/entities/user/user_entity.dart';
 
 class FirebaseService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
-  late UserEntity user;
 
   // Create a dog profile
   Future<void> createDogProfile({
@@ -19,6 +17,9 @@ class FirebaseService {
     required String location,
     File? imageFile,
   }) async {
+    User? user = FirebaseAuth.instance.currentUser;
+    String userId = user!.uid;
+
     try {
       // Upload image if provided
       String? imageUrl;
@@ -32,11 +33,7 @@ class FirebaseService {
       }
 
       // Create dog profile document
-      await _firestore
-          .collection('users')
-          .doc(user.uid)
-          .collection('dogs')
-          .add({
+      await _firestore.collection('users').doc(userId).collection('dogs').add({
         'name': name,
         'breed': breed,
         'gender': gender,
