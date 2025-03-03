@@ -1,0 +1,109 @@
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+
+class AddPostPage extends StatefulWidget {
+  const AddPostPage({super.key});
+
+  @override
+  _AddPostPageState createState() => _AddPostPageState();
+}
+
+class _AddPostPageState extends State<AddPostPage> {
+  final TextEditingController _postController = TextEditingController();
+  File? _selectedImage;
+
+  Future<void> _pickImage() async {
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _selectedImage = File(pickedFile.path);
+      });
+    }
+  }
+
+  void _submitPost() {
+    if (_postController.text.isNotEmpty || _selectedImage != null) {
+      // Handle post submission (e.g., send data to backend)
+      Navigator.pop(context); // Close the page after submission
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Please add some text or an image")),
+      );
+    }
+  }
+
+  Future<bool> _onBackPressed() async {
+    if (_postController.text.isNotEmpty || _selectedImage != null) {
+      bool? discard = await showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("Discard Post?"),
+            content: Text("You have unsaved changes. Do you want to discard them?"),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false), // Stay on page
+                child: Text("Continue Editing"),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true), // Discard post
+                child: Text("Discard"),
+              ),
+            ],
+          );
+        },
+      );
+      return discard ?? false;
+    }
+    return true;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      onWillPop: _onBackPressed,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("Create Post"),
+          leading: IconButton(
+            icon: Icon(Icons.close),
+            onPressed: () async {
+              if (await _onBackPressed()) {
+                Navigator.pop(context);
+              }
+            },
+          ),
+        ),
+        body: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              TextField(
+                controller: _postController,
+                decoration: InputDecoration(
+                  hintText: "What's on your mind?",
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 5,
+              ),
+              SizedBox(height: 10),
+              _selectedImage != null
+                  ? Image.file(_selectedImage!, height: 150)
+                  : TextButton.icon(
+                      onPressed: _pickImage,
+                      icon: Icon(Icons.image),
+                      label: Text("Add Image"),
+                    ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _submitPost,
+                child: Text("Post"),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

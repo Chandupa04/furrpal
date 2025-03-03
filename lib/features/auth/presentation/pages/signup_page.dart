@@ -25,6 +25,9 @@ class _SignupPageState extends State<SignupPage> {
   final confirmPasswordController = TextEditingController();
   final fNameController = TextEditingController();
   final lNameController = TextEditingController();
+  final addressController = TextEditingController();
+  final phoneController = TextEditingController();
+
   bool isobscutured = false;
   bool isChecked = false;
   bool inProgress = false;
@@ -55,6 +58,8 @@ class _SignupPageState extends State<SignupPage> {
     final String confirmPassword = confirmPasswordController.text;
     final String fName = fNameController.text;
     final String lName = lNameController.text;
+    final String address = addressController.text;
+    final String phone = phoneController.text;
 
     final authCubit = context.read<AuthCubit>();
     if (fName.isNotEmpty &&
@@ -66,7 +71,8 @@ class _SignupPageState extends State<SignupPage> {
         setState(() {
           inProgress = true;
         });
-        authCubit.register(fName, lName, email, password, confirmPassword);
+        authCubit.register(
+            fName, lName, email, address, phone, password, confirmPassword);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -128,7 +134,7 @@ class _SignupPageState extends State<SignupPage> {
                 height: 150.h,
               ),
               ContainerCustom(
-                height: 630.h,
+                height: 800.h,
                 marginLeft: 13.w,
                 marginRight: 13.w,
                 marginBottom: 10.h,
@@ -169,6 +175,28 @@ class _SignupPageState extends State<SignupPage> {
                     TextFieldCustom(
                       controller: emailController,
                       keyboardType: TextInputType.emailAddress,
+                      marginBottom: 15.h,
+                    ),
+                    TextCustomWidget(
+                      text: 'Address',
+                      fontSize: 17.sp,
+                      marginLeft: 9.w,
+                      marginBottom: 4.h,
+                    ),
+                    TextFieldCustom(
+                      controller: addressController,
+                      keyboardType: TextInputType.streetAddress,
+                      marginBottom: 15.h,
+                    ),
+                    TextCustomWidget(
+                      text: 'Mobile Number',
+                      fontSize: 17.sp,
+                      marginLeft: 9.w,
+                      marginBottom: 4.h,
+                    ),
+                    TextFieldCustom(
+                      controller: phoneController,
+                      keyboardType: TextInputType.phone,
                       marginBottom: 15.h,
                     ),
                     TextCustomWidget(
