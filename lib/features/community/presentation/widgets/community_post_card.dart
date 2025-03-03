@@ -14,21 +14,25 @@ class CommunityPostCard extends StatefulWidget {
 }
 
 class _CommunityPostCardState extends State<CommunityPostCard> {
-  String _postContent = "This is a sample post content."; // Dummy content
-  bool _isEditing = false;
+  String _postContent = 'Original post content here';  // Initial post content
+  final TextEditingController _editController = TextEditingController();
 
   void _editPost() {
-    TextEditingController _editController = TextEditingController(text: _postContent);
-
+    // Set initial value of controller to the current post content
+    _editController.text = _postContent;
+    
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text("Edit Post"),
+          title: Text('Edit Post'),
           content: TextField(
             controller: _editController,
-            maxLines: 4,
-            decoration: InputDecoration(border: OutlineInputBorder()),
+            maxLines: 5,
+            decoration: InputDecoration(
+              hintText: 'Edit your post...',
+              border: OutlineInputBorder(),
+            ),
           ),
           actions: [
             TextButton(
@@ -39,11 +43,88 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
               onPressed: () {
                 setState(() {
                   _postContent = _editController.text;
-                  _isEditing = false;
                 });
-                Navigator.pop(context);
+                Navigator.pop(context);  // Close the dialog
               },
               child: Text("Save"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _hidePost() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Hide Post?"),
+          content: Text("Are you sure you want to hide this post?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Handle hide logic here (e.g., change state to hide the post)
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Post hidden')));
+              },
+              child: Text("Hide"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _reportPost() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Report Post?"),
+          content: Text("Are you sure you want to report this post?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Handle report logic here (e.g., send report to the backend)
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Post reported')));
+              },
+              child: Text("Report"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _deletePost() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Delete Post?"),
+          content: Text("Are you sure you want to delete this post? This action cannot be undone."),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Handle delete logic here (e.g., remove the post from the list)
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Post deleted')));
+              },
+              child: Text("Delete"),
             ),
           ],
         );
@@ -64,7 +145,9 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
             children: [
               Row(
                 children: [
-                  CircleAvatar(radius: 24.r),
+                  CircleAvatar(
+                    radius: 24.r,
+                  ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -84,89 +167,127 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
                   ),
                 ],
               ),
-              PopupMenuButton(
-                icon: const Icon(Icons.more_vert_rounded, color: Colors.black),
-                color: Colors.white,
-                shape: ContinuousRectangleBorder(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10.r),
-                    bottomLeft: Radius.circular(10.r),
-                    bottomRight: Radius.circular(10.r),
+              ContainerCustom(
+                child: PopupMenuButton(
+                  icon: const Icon(
+                    Icons.more_vert_rounded,
+                    color: Color.fromARGB(255, 0, 0, 0),
                   ),
+                  color: const Color.fromARGB(255, 255, 255, 255),
+                  padding: EdgeInsets.zero,
+                  shape: ContinuousRectangleBorder(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10.r),
+                      bottomLeft: Radius.circular(10.r),
+                      bottomRight: Radius.circular(10.r),
+                    ),
+                  ),
+                  position: PopupMenuPosition.under,
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: "Edit",
+                      height: 30.h,
+                      child: TextCustomWidget(
+                        text: "Edit",
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w600,
+                        textColor: blackColor,
+                      ),
+                      onTap: _editPost,
+                    ),
+                    PopupMenuItem(
+                      value: "Delete",
+                      height: 30.h,
+                      child: TextCustomWidget(
+                        text: "Delete",
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w600,
+                        textColor: blackColor,
+                      ),
+                      onTap: _deletePost,  // Show delete confirmation dialog
+                    ),
+                    PopupMenuItem(
+                      value: "Hide",
+                      height: 30.h,
+                      child: TextCustomWidget(
+                        text: "Hide",
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w600,
+                        textColor: blackColor,
+                      ),
+                      onTap: _hidePost,  // Show hide dialog
+                    ),
+                    PopupMenuItem(
+                      value: "Report",
+                      height: 30.h,
+                      child: TextCustomWidget(
+                        text: "Report",
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w600,
+                        textColor: blackColor,
+                      ),
+                      onTap: _reportPost,  // Show report dialog
+                    ),
+                  ],
                 ),
-                position: PopupMenuPosition.under,
-                itemBuilder: (context) => [
-                  PopupMenuItem(
-                    value: "Edit",
-                    height: 30.h,
-                    child: TextCustomWidget(
-                      text: "Edit",
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w600,
-                      textColor: blackColor,
-                    ),
-                    onTap: _editPost,
-                  ),
-                  PopupMenuItem(
-                    value: "Delete",
-                    height: 30.h,
-                    child: TextCustomWidget(
-                      text: "Delete",
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w600,
-                      textColor: blackColor,
-                    ),
-                    onTap: () {
-                      // Handle delete logic here
-                    },
-                  ),
-                ],
               ),
             ],
           ),
           ContainerCustom(
-            marginTop: 10.h,
-            marginBottom: 10.h,
-            child: TextCustomWidget(
-              text: _postContent,
-              fontSize: 16.sp,
-            ),
-          ),
-          ContainerCustom(
             height: MediaQuery.of(context).size.height * 0.3,
             width: double.infinity,
+            marginTop: 10.h,
+            marginBottom: 10.h,
             bgColor: Colors.grey,
+          ),
+          TextCustomWidget(
+            text: _postContent,  // Display the current post content
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w600,
+            marginLeft: 10.w,
+            marginRight: 10.w,
           ),
           Row(
             children: [
               Row(
                 children: [
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.favorite_border_rounded),
-                    color: Colors.black,
+                  ContainerCustom(
+                    width: 30.w,
+                    height: 30.h,
+                    child: IconButton(
+                      onPressed: () {},
+                      padding: EdgeInsets.zero,
+                      icon: const Icon(Icons.favorite_border_rounded),
+                      color: const Color.fromARGB(255, 0, 0, 0),
+                    ),
                   ),
                   TextCustomWidget(
                     text: '1',
                     fontSize: 20.sp,
                     fontWeight: FontWeight.bold,
                     marginLeft: 5.w,
-                  )
+                  ),
                 ],
               ),
               Row(
                 children: [
-                  IconButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CommentPage(),
-                        ),
-                      );
-                    },
-                    icon: const Icon(LucideIcons.messageCircle),
-                    color: Colors.black,
+                  ContainerCustom(
+                    width: 30.w,
+                    height: 30.h,
+                    marginLeft: 30.w,
+                    child: IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CommentPage(),
+                          ),
+                        );
+                      },
+                      padding: EdgeInsets.zero,
+                      icon: const Icon(LucideIcons.messageCircle),
+                      color: const Color.fromARGB(255, 0, 0, 0),
+                    ),
                   ),
                   TextCustomWidget(
                     text: '1',
@@ -177,7 +298,7 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
                 ],
               ),
             ],
-          )
+          ),
         ],
       ),
     );
