@@ -12,8 +12,6 @@ import 'package:furrpal/features/auth/presentation/cubit/auth_state.dart';
 import 'package:furrpal/features/auth/presentation/pages/signup_page.dart';
 import 'package:furrpal/features/nav_bar/presentation/pages/nav_bar.dart';
 
-import '../../../home/presentation/pages/home_page.dart';
-
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 

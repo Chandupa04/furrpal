@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:furrpal/constant/constant.dart';
 import 'package:furrpal/custom/text_custom.dart';
-import 'package:furrpal/features/auth/data/repositories/firebase_auth_repo.dart';
+import 'package:furrpal/config/firebase_auth_repo.dart';
 import 'package:furrpal/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:furrpal/features/auth/presentation/cubit/auth_state.dart';
 import 'package:furrpal/features/nav_bar/presentation/pages/nav_bar.dart';
