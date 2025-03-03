@@ -123,14 +123,15 @@ class FirebaseService {
       final String userName = userData['firstName'] ?? 'A user';
       print('Storing like for user: $userName');
 
-      // First, get the current dog document to check existing likes
-      final dogDoc = await _firestore
+      // Get the current dog document
+      final dogRef = _firestore
           .collection('users')
           .doc(dogOwnerId)
           .collection('dogs')
-          .doc(dogId)
-          .get();
+          .doc(dogId);
 
+      // Get current likes array
+      final dogDoc = await dogRef.get();
       if (!dogDoc.exists) {
         print('Error: Dog document not found');
         return;
@@ -142,29 +143,19 @@ class FirebaseService {
         return;
       }
 
-      // Get current likes array
-      final List<dynamic> currentLikes = dogData['likes'] ?? [];
-      print('Current likes: $currentLikes');
+      List<dynamic> currentLikes = dogData['likes'] ?? [];
+      print('Current likes before update: $currentLikes');
 
-      // Add like to the dog document
-      await _firestore
-          .collection('users')
-          .doc(dogOwnerId)
-          .collection('dogs')
-          .doc(dogId)
-          .update({
-        'likes': FieldValue.arrayUnion(
-            [currentUserId]), // Store user ID instead of name
+      // Add the new like
+      currentLikes.add(currentUserId);
+
+      // Update the likes array
+      await dogRef.update({
+        'likes': currentLikes,
       });
 
       // Verify the update
-      final updatedDogDoc = await _firestore
-          .collection('users')
-          .doc(dogOwnerId)
-          .collection('dogs')
-          .doc(dogId)
-          .get();
-
+      final updatedDogDoc = await dogRef.get();
       final updatedDogData = updatedDogDoc.data();
       if (updatedDogData != null) {
         print('Updated likes array: ${updatedDogData['likes']}');
@@ -217,14 +208,15 @@ class FirebaseService {
       final String userName = userData['firstName'] ?? 'A user';
       print('Storing dislike for user: $userName');
 
-      // First, get the current dog document to check existing dislikes
-      final dogDoc = await _firestore
+      // Get the current dog document
+      final dogRef = _firestore
           .collection('users')
           .doc(dogOwnerId)
           .collection('dogs')
-          .doc(dogId)
-          .get();
+          .doc(dogId);
 
+      // Get current dislikes array
+      final dogDoc = await dogRef.get();
       if (!dogDoc.exists) {
         print('Error: Dog document not found');
         return;
@@ -236,29 +228,19 @@ class FirebaseService {
         return;
       }
 
-      // Get current dislikes array
-      final List<dynamic> currentDislikes = dogData['dislikes'] ?? [];
-      print('Current dislikes: $currentDislikes');
+      List<dynamic> currentDislikes = dogData['dislikes'] ?? [];
+      print('Current dislikes before update: $currentDislikes');
 
-      // Add dislike to the dog document
-      await _firestore
-          .collection('users')
-          .doc(dogOwnerId)
-          .collection('dogs')
-          .doc(dogId)
-          .update({
-        'dislikes': FieldValue.arrayUnion(
-            [currentUserId]), // Store user ID instead of name
+      // Add the new dislike
+      currentDislikes.add(currentUserId);
+
+      // Update the dislikes array
+      await dogRef.update({
+        'dislikes': currentDislikes,
       });
 
       // Verify the update
-      final updatedDogDoc = await _firestore
-          .collection('users')
-          .doc(dogOwnerId)
-          .collection('dogs')
-          .doc(dogId)
-          .get();
-
+      final updatedDogDoc = await dogRef.get();
       final updatedDogData = updatedDogDoc.data();
       if (updatedDogData != null) {
         print('Updated dislikes array: ${updatedDogData['dislikes']}');
