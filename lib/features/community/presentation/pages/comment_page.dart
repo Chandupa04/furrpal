@@ -12,6 +12,7 @@ class _CommentPageState extends State<CommentPage> {
   final TextEditingController _commentController = TextEditingController();
   final Map<int, List<String>> _replies = {};
   final List<String> _comments = [];
+  final Map<int, bool> _likedComments = {}; // Tracks liked comments
 
   void _addComment() {
     if (_commentController.text.isNotEmpty) {
@@ -24,6 +25,12 @@ class _CommentPageState extends State<CommentPage> {
         SnackBar(content: Text("Please enter a comment")),
       );
     }
+  }
+
+  void _toggleLike(int index) {
+    setState(() {
+      _likedComments[index] = !(_likedComments[index] ?? false);
+    });
   }
 
   void _addReply(int commentIndex) {
@@ -82,9 +89,21 @@ class _CommentPageState extends State<CommentPage> {
                     ListTile(
                       title: Text(_comments[index]),
                       leading: Icon(Icons.person),
-                      trailing: TextButton(
-                        onPressed: () => _addReply(index),
-                        child: Text("Reply"),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              _likedComments[index] == true ? Icons.favorite : Icons.favorite_border,
+                              color: _likedComments[index] == true ? Colors.red : Colors.grey,
+                            ),
+                            onPressed: () => _toggleLike(index),
+                          ),
+                          TextButton(
+                            onPressed: () => _addReply(index),
+                            child: Text("Reply"),
+                          ),
+                        ],
                       ),
                     ),
                     if (_replies.containsKey(index)) ..._replies[index]!.map((reply) {
