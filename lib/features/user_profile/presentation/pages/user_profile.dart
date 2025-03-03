@@ -32,7 +32,7 @@ class _UserProfileState extends State<UserProfile> {
         }
       },
       child: Scaffold(
-        appBar: AppBar(),
+        appBar: AppBar(automaticallyImplyLeading: false,),
         body: Column(
           children: [
             ButtonCustom(
