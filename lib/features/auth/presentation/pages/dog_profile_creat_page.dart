@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:furrpal/constant/constant.dart';
 import 'package:furrpal/custom/button_custom.dart';
-import 'package:furrpal/services/firebase_service.dart';
+import 'package:furrpal/config/firebase_service.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
