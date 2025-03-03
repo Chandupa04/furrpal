@@ -4,8 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:furrpal/features/home/presentation/pages/payment_page.dart';
 import 'package:furrpal/features/home/presentation/pages/filter_search_page.dart';
-import 'package:furrpal/services/firebase_service.dart';
-import 'package:furrpal/features/home/presentation/pages/userprofile_page.dart';
+import 'package:furrpal/config/firebase_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -242,16 +241,6 @@ class _HomePageState extends State<HomePage> {
               );
             },
             child: Icon(Icons.search, color: Colors.grey.shade800, size: 28),
-          ),
-          GestureDetector(
-            onTap: () {
-              // Navigate to the user profile page when the person icon is tapped
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const UserProfileWidget()),
-              );
-            },
-            child: Icon(Icons.person, color: Colors.grey.shade800, size: 28),
           ),
           // Icon(Icons.person, color: Colors.grey.shade800, size: 28),
         ],
