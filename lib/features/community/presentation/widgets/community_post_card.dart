@@ -51,7 +51,7 @@ class CommunityPostCard extends StatelessWidget {
                     Icons.more_vert_rounded,
                     color: whiteColor,
                   ),
-                  color: primaryColor,
+                  color: const Color.fromARGB(255, 255, 255, 255),
                   padding: EdgeInsets.zero,
                   shape: ContinuousRectangleBorder(
                     borderRadius: BorderRadius.only(
