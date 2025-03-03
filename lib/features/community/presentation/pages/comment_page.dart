@@ -49,7 +49,7 @@ class _CommentPageState extends State<CommentPage> {
             ),
           ),
           Padding(
-            padding: EdgeInsets.all(8.0),
+            padding: EdgeInsets.all(40.0),
             child: Row(
               children: [
                 Expanded(
@@ -63,7 +63,7 @@ class _CommentPageState extends State<CommentPage> {
                 ),
                 SizedBox(width: 10),
                 IconButton(
-                  icon: Icon(Icons.send, color: Colors.blue),
+                  icon: Icon(Icons.send, color: const Color.fromARGB(255, 0, 0, 0)),
                   onPressed: _addComment,
                 ),
               ],
