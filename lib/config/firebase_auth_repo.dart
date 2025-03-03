@@ -20,6 +20,8 @@ class FirebaseAuthRepo implements AuthRepo {
         email: email,
         fName: '',
         lName: '',
+        phoneNumber: '',
+        address: '',
       );
 
       return user;
@@ -88,6 +90,8 @@ class FirebaseAuthRepo implements AuthRepo {
       email: firebaseUser.email!,
       fName: '',
       lName: '',
+      phoneNumber: '',
+      address: '',
     );
   }
 }

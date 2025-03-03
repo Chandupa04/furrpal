@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:furrpal/constant/constant.dart';
 import 'package:furrpal/custom/button_custom.dart';
+import 'package:furrpal/custom/text_custom.dart';
+import 'package:furrpal/features/auth/domain/entities/user/user_entity.dart';
 import 'package:furrpal/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:furrpal/features/auth/presentation/cubit/auth_state.dart';
 import 'package:furrpal/features/auth/presentation/pages/start_page.dart';
@@ -13,6 +16,11 @@ class UserProfile extends StatefulWidget {
 }
 
 class _UserProfileState extends State<UserProfile> {
+  // Cubit
+  late final authCubit = context.read<AuthCubit>();
+  // Current User
+  late UserEntity? currentUser = authCubit.currentUser;
+
   void logout() {
     final authCubit = context.read<AuthCubit>();
     authCubit.logout();
@@ -35,6 +43,10 @@ class _UserProfileState extends State<UserProfile> {
         appBar: AppBar(),
         body: Column(
           children: [
+            TextCustomWidget(
+              text: currentUser!.email,
+              textColor: blackColor,
+            ),
             ButtonCustom(
               isLoading: false,
               text: 'Logout',
