@@ -1,24 +1,27 @@
 class UserEntity {
-  final String? uid;
-  final String? email;
-  final String? name;
+  final String uid;
+  final String email;
+  final String fName;
+  final String lName;
+  final String phoneNumber;
+  final String address;
 
-  // will not going to firebase
-  final String? password;
-
-  const UserEntity({
-    this.uid,
-    this.email,
-    this.name,
-    this.password,
-  });
+  const UserEntity(
+      {required this.uid,
+      required this.email,
+      required this.fName,
+      required this.lName,
+      required this.phoneNumber,
+      required this.address});
 
   Map<String, dynamic> toJson() {
     return {
       'uid': uid,
       'email': email,
-      'name': name,
-      // 'password': password,
+      'first name': fName,
+      'last name': lName,
+      'phone number': phoneNumber,
+      'address': address,
     };
   }
 
@@ -26,8 +29,10 @@ class UserEntity {
     return UserEntity(
       uid: jsonUser['uid'],
       email: jsonUser['email'],
-      name: jsonUser['name'],
-      // password: jsonUser['password'],
+      fName: jsonUser['first name'],
+      lName: jsonUser['last name'],
+      phoneNumber: jsonUser['phone number'],
+      address: jsonUser['address'],
     );
   }
 }

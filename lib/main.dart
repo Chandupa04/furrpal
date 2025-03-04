@@ -4,10 +4,10 @@ import 'package:furrpal/app_data.dart';
 import 'package:furrpal/firebase_options.dart';
 
 void main() async {
-  //firebase setup
+  // Firebase setup
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  //run app
+  // Run app
   runApp(MyApp());
 }

@@ -40,12 +40,13 @@ class StartPage extends StatelessWidget {
               height: 352.h,
             ),
             ButtonCustom(
+              isLoading: false,
               text: "Let's Match",
               callback: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => LoginPage(),
+                    builder: (context) => const LoginPage(),
                   ),
                 );
               },
