@@ -144,7 +144,7 @@ class _LoginPageState extends State<LoginPage> {
                           fontSize: 17.sp,
                         ),
                         ButtonCustom(
-                          isLoading: false,
+                          // isLoading: false,
                           text: 'SignUp',
                           callback: () {
                             Navigator.push(
@@ -183,7 +183,7 @@ class _LoginPageState extends State<LoginPage> {
                       inProgress: inProgress,
                       isDisabled: inProgress,
                       disabledColor: primaryColor,
-                      isLoading: false,
+                      // isLoading: false,
                       // () {
                       //   Navigator.push(
                       //     context,
