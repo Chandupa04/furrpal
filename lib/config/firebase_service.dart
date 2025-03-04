@@ -98,6 +98,24 @@ class FirebaseService {
     }
   }
 
+  // Get user profile data by ID
+  Future<Map<String, dynamic>?> getUserProfile(String userId) async {
+    try {
+      DocumentSnapshot userDoc =
+          await _firestore.collection('users').doc(userId).get();
+
+      if (!userDoc.exists) {
+        print('User document not found for ID: $userId');
+        return null;
+      }
+
+      return userDoc.data() as Map<String, dynamic>;
+    } catch (e) {
+      print('Error getting user profile: $e');
+      return null;
+    }
+  }
+
   // Store a like interaction
   Future<void> storeDogLike({
     required String currentUserId,
@@ -106,22 +124,34 @@ class FirebaseService {
     required String dogName,
   }) async {
     try {
-      // Get current user details
+      print('Starting to store like for dog: $dogName');
+
+      // Get current user details with full name
       final userDoc =
           await _firestore.collection('users').doc(currentUserId).get();
       if (!userDoc.exists) {
-        print('Error: User document not found');
+        print('Error: User document not found for ID: $currentUserId');
         return;
       }
 
       final userData = userDoc.data();
       if (userData == null) {
-        print('Error: User data is null');
+        print('Error: User data is null for ID: $currentUserId');
         return;
       }
 
-      final String userName = userData['firstName'] ?? 'A user';
-      print('Storing like for user: $userName');
+      // Get the user's first and last name
+      final String firstName = userData['firstName'] ?? '';
+      final String lastName = userData['lastName'] ?? '';
+      final String fullName = firstName.isNotEmpty && lastName.isNotEmpty
+          ? '$firstName $lastName'
+          : firstName.isNotEmpty
+              ? firstName
+              : lastName.isNotEmpty
+                  ? lastName
+                  : 'A user';
+
+      print('Storing like for user: $fullName');
 
       // Get the current dog document
       final dogRef = _firestore
@@ -133,18 +163,43 @@ class FirebaseService {
       // Get current likes array
       final dogDoc = await dogRef.get();
       if (!dogDoc.exists) {
-        print('Error: Dog document not found');
+        print('Error: Dog document not found for ID: $dogId');
         return;
       }
 
       final dogData = dogDoc.data();
       if (dogData == null) {
-        print('Error: Dog data is null');
+        print('Error: Dog data is null for ID: $dogId');
         return;
       }
 
       List<dynamic> currentLikes = dogData['likes'] ?? [];
       print('Current likes before update: $currentLikes');
+
+      // Check if user already liked this dog
+      if (currentLikes.contains(currentUserId)) {
+        print('User already liked this dog');
+        return;
+      }
+
+      // Check for existing notification BEFORE updating likes
+      print('Checking for existing notifications...');
+      final existingNotifications = await _firestore
+          .collection('users')
+          .doc(dogOwnerId)
+          .collection('notifications')
+          .where('type', isEqualTo: 'like')
+          .where('dogId', isEqualTo: dogId)
+          .where('likedByUserId', isEqualTo: currentUserId)
+          .get();
+
+      print(
+          'Found ${existingNotifications.docs.length} existing notifications');
+
+      if (existingNotifications.docs.isNotEmpty) {
+        print('Notification already exists for this like, skipping...');
+        return;
+      }
 
       // Add the new like
       currentLikes.add(currentUserId);
@@ -161,8 +216,12 @@ class FirebaseService {
         print('Updated likes array: ${updatedDogData['likes']}');
       }
 
-      // Add notification for dog owner
-      await _firestore
+      // Get user profile picture if available
+      String userProfilePic = userData['profilePicture'] ?? '';
+
+      // Create notification for dog owner
+      print('Creating notification for dog owner: $dogOwnerId');
+      final notificationRef = await _firestore
           .collection('users')
           .doc(dogOwnerId)
           .collection('notifications')
@@ -171,15 +230,27 @@ class FirebaseService {
         'dogId': dogId,
         'dogName': dogName,
         'likedByUserId': currentUserId,
-        'likedByUserName': userName,
+        'likedByUserName': fullName,
+        'likedByUserProfilePic': userProfilePic,
         'timestamp': FieldValue.serverTimestamp(),
         'read': false,
+        'message': 'Your dog $dogName is getting popular!',
       });
 
-      print('Like stored successfully for dog: $dogId by user: $currentUserId');
+      print('Notification created with ID: ${notificationRef.id}');
+
+      // Verify notification was created
+      final notificationDoc = await notificationRef.get();
+      if (notificationDoc.exists) {
+        print('Notification data: ${notificationDoc.data()}');
+      } else {
+        print('Error: Notification document was not created');
+      }
+
+      print('Like and notification stored successfully');
     } catch (e) {
       print('Error storing dog like: $e');
-      throw e;
+      rethrow;
     }
   }
 
@@ -205,8 +276,17 @@ class FirebaseService {
         return;
       }
 
-      final String userName = userData['firstName'] ?? 'A user';
-      print('Storing dislike for user: $userName');
+      final String firstName = userData['firstName'] ?? '';
+      final String lastName = userData['lastName'] ?? '';
+      final String fullName = firstName.isNotEmpty && lastName.isNotEmpty
+          ? '$firstName $lastName'
+          : firstName.isNotEmpty
+              ? firstName
+              : lastName.isNotEmpty
+                  ? lastName
+                  : 'A user';
+
+      print('Storing dislike for user: $fullName');
 
       // Get the current dog document
       final dogRef = _firestore
@@ -231,6 +311,12 @@ class FirebaseService {
       List<dynamic> currentDislikes = dogData['dislikes'] ?? [];
       print('Current dislikes before update: $currentDislikes');
 
+      // Check if user already disliked this dog
+      if (currentDislikes.contains(currentUserId)) {
+        print('User already disliked this dog');
+        return;
+      }
+
       // Add the new dislike
       currentDislikes.add(currentUserId);
 
@@ -251,6 +337,60 @@ class FirebaseService {
     } catch (e) {
       print('Error storing dog dislike: $e');
       throw e;
+    }
+  }
+
+  // Check if current user has liked a dog
+  Future<bool> hasUserLikedDog(String dogId, String userId) async {
+    try {
+      User? currentUser = _auth.currentUser;
+      if (currentUser == null) return false;
+
+      String currentUserId = currentUser.uid;
+
+      DocumentSnapshot dogDoc = await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('dogs')
+          .doc(dogId)
+          .get();
+
+      if (!dogDoc.exists) return false;
+
+      Map<String, dynamic> data = dogDoc.data() as Map<String, dynamic>;
+      List<dynamic> likes = data['likes'] ?? [];
+
+      return likes.contains(currentUserId);
+    } catch (e) {
+      print('Error checking if user liked dog: $e');
+      return false;
+    }
+  }
+
+  // Check if current user has disliked a dog
+  Future<bool> hasUserDislikedDog(String dogId, String userId) async {
+    try {
+      User? currentUser = _auth.currentUser;
+      if (currentUser == null) return false;
+
+      String currentUserId = currentUser.uid;
+
+      DocumentSnapshot dogDoc = await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('dogs')
+          .doc(dogId)
+          .get();
+
+      if (!dogDoc.exists) return false;
+
+      Map<String, dynamic> data = dogDoc.data() as Map<String, dynamic>;
+      List<dynamic> dislikes = data['dislikes'] ?? [];
+
+      return dislikes.contains(currentUserId);
+    } catch (e) {
+      print('Error checking if user disliked dog: $e');
+      return false;
     }
   }
 }
