@@ -76,12 +76,14 @@ class _ShopPageState extends State<ShopPage> {
     return Scaffold(
       appBar: AppBar(
         // backgroundColor: Colors.deepPurple,
-        title: Text("FurrPal Shop",
-            style: TextStyle(
-                fontSize: 24.sp,
-                fontWeight: FontWeight.bold,
-                // color: Colors.white
-                ),),
+        title: Text(
+          "FurrPal Shop",
+          style: TextStyle(
+            fontSize: 24.sp,
+            fontWeight: FontWeight.bold,
+            // color: Colors.white
+          ),
+        ),
         centerTitle: true,
         actions: [
           IconButton(
@@ -112,7 +114,8 @@ class _ShopPageState extends State<ShopPage> {
                   ),
                 );
               },
-              child: Card(color: whiteColor,
+              child: Card(
+                color: whiteColor,
                 elevation: 3,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.r)),
@@ -131,15 +134,20 @@ class _ShopPageState extends State<ShopPage> {
                           Text("\$${product.price.toStringAsFixed(2)}",
                               style: TextStyle(
                                   fontSize: 14.sp, color: Colors.green)),
-                          ButtonCustom(text: 'Add to Cart',
-                          btnHeight: 30.h,
-                          btnWidth: 140.w,
-                          borderRadius: BorderRadius.circular(15.r),
-                          // btnColor: ,
-                          textStyle: TextStyle(fontSize: 15.sp,color: blackColor,),
-                           callback: (){}, ),
+                          ButtonCustom(
+                            text: 'Add to Cart',
+                            btnHeight: 30.h,
+                            btnWidth: 140.w,
+                            borderRadius: BorderRadius.circular(15.r),
+                            // btnColor: ,
+                            textStyle: TextStyle(
+                              fontSize: 15.sp,
+                              color: blackColor,
+                            ),
+                            callback: () => addToCart(product),
+                          ),
                           // ElevatedButton(
-                          //   onPressed: () => addToCart(product),
+                          //   onPressed:
                           //   child: Text("Add to Cart"),
                           // ),
                         ],
