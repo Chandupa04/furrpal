@@ -65,6 +65,8 @@ class _SignupPageState extends State<SignupPage> {
     if (fName.isNotEmpty &&
         lName.isNotEmpty &&
         email.isNotEmpty &&
+        address.isNotEmpty &&
+        phone.isNotEmpty &&
         password.isNotEmpty &&
         confirmPassword.isNotEmpty) {
       if (password == confirmPassword) {
@@ -88,7 +90,7 @@ class _SignupPageState extends State<SignupPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: TextCustomWidget(
-            text: 'Please Enter Both Email and Password',
+            text: 'Please Enter all fields',
             fontSize: 12.sp,
           ),
         ),
@@ -103,6 +105,8 @@ class _SignupPageState extends State<SignupPage> {
     confirmPasswordController.dispose();
     fNameController.dispose();
     lNameController.dispose();
+    addressController.dispose();
+    phoneController.dispose();
     super.dispose();
   }
 
@@ -246,7 +250,7 @@ class _SignupPageState extends State<SignupPage> {
                       text: 'Continue',
                       callback: signUp,
                       inProgress: inProgress,
-                      isLoading: false,
+                      // isLoading: false,
 
                       // () {
                       //   Navigator.push(
@@ -256,6 +260,7 @@ class _SignupPageState extends State<SignupPage> {
                       //     ),
                       //   );
                       // },
+
                       isDisabled:
                           isChecked == false ? true : false || inProgress,
                       disabledColor: inProgress == true ? primaryColor : null,
