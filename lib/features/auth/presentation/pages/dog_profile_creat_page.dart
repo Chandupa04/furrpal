@@ -27,7 +27,7 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
   final TextEditingController _locationController = TextEditingController();
 
   File? _imageFile;
-  bool _isLoading = false;
+  // bool _isLoading = false;
 
   Future<void> _testFirestore() async {
     try {
@@ -79,9 +79,9 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-    });
+    // setState(() {
+    //   _isLoading = true;
+    // });
 
     try {
       await _firebaseService.createDogProfile(
@@ -105,9 +105,9 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
         SnackBar(content: Text('Error creating profile: $e')),
       );
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      // setState(() {
+      //   _isLoading = false;
+      // });
     }
   }
 
@@ -263,7 +263,7 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
                   ButtonCustom(
                     text: 'Create Profile',
                     dontApplyMargin: true,
-                    isLoading: _isLoading,
+                    // isLoading: _isLoading,
                     callback: _createDogProfile,
                   ),
                 ],

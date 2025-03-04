@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:furrpal/constant/constant.dart';
+import 'package:furrpal/custom/button_custom.dart';
 import 'cart_page.dart';
 import 'product_details_page.dart';
 
@@ -73,12 +75,13 @@ class _ShopPageState extends State<ShopPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.deepPurple,
+        // backgroundColor: Colors.deepPurple,
         title: Text("FurrPal Shop",
             style: TextStyle(
                 fontSize: 24.sp,
                 fontWeight: FontWeight.bold,
-                color: Colors.white)),
+                // color: Colors.white
+                ),),
         centerTitle: true,
         actions: [
           IconButton(
@@ -109,7 +112,7 @@ class _ShopPageState extends State<ShopPage> {
                   ),
                 );
               },
-              child: Card(
+              child: Card(color: whiteColor,
                 elevation: 3,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.r)),
@@ -128,10 +131,17 @@ class _ShopPageState extends State<ShopPage> {
                           Text("\$${product.price.toStringAsFixed(2)}",
                               style: TextStyle(
                                   fontSize: 14.sp, color: Colors.green)),
-                          ElevatedButton(
-                            onPressed: () => addToCart(product),
-                            child: Text("Add to Cart"),
-                          ),
+                          ButtonCustom(text: 'Add to Cart',
+                          btnHeight: 30.h,
+                          btnWidth: 140.w,
+                          borderRadius: BorderRadius.circular(15.r),
+                          // btnColor: ,
+                          textStyle: TextStyle(fontSize: 15.sp,color: blackColor,),
+                           callback: (){}, ),
+                          // ElevatedButton(
+                          //   onPressed: () => addToCart(product),
+                          //   child: Text("Add to Cart"),
+                          // ),
                         ],
                       ),
                     ),
