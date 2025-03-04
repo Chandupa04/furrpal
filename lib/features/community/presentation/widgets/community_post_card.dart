@@ -131,6 +131,7 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
       },
     );
   }
+  bool isLiked = false;
 
   @override
   Widget build(BuildContext context) {
@@ -156,12 +157,14 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w700,
                         marginLeft: 10.w,
+                        textColor: blackColor,
                       ),
                       TextCustomWidget(
                         text: '2/25/2025',
                         fontSize: 15.sp,
                         fontWeight: FontWeight.w500,
                         marginLeft: 10.w,
+                        textColor: blackColor,
                       ),
                     ],
                   ),
@@ -240,6 +243,7 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
             marginBottom: 10.h,
             bgColor: Colors.grey,
           ),
+          TextCustomWidget(text: _postContent,textColor: blackColor,),
           TextCustomWidget(
             text: _postContent,  // Display the current post content
             fontSize: 16.sp,
@@ -255,10 +259,14 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
                     width: 30.w,
                     height: 30.h,
                     child: IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        setState(() {
+                          isLiked = !isLiked;
+                        });
+                      },
                       padding: EdgeInsets.zero,
-                      icon: const Icon(Icons.favorite_border_rounded),
-                      color: const Color.fromARGB(255, 0, 0, 0),
+                      icon: Icon(isLiked==true?Icons.favorite: Icons.favorite_border_rounded),
+                      color:isLiked == true?Colors.red: null,
                     ),
                   ),
                   TextCustomWidget(
@@ -266,6 +274,7 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
                     fontSize: 20.sp,
                     fontWeight: FontWeight.bold,
                     marginLeft: 5.w,
+                    textColor: blackColor,
                   ),
                 ],
               ),
@@ -294,6 +303,7 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
                     fontSize: 20.sp,
                     fontWeight: FontWeight.bold,
                     marginLeft: 5.w,
+                    textColor: blackColor,
                   ),
                 ],
               ),

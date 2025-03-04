@@ -250,7 +250,17 @@ class _SignupPageState extends State<SignupPage> {
                       text: 'Continue',
                       callback: signUp,
                       inProgress: inProgress,
-                      isLoading: false,
+                      // isLoading: false,
+
+                      // () {
+                      //   Navigator.push(
+                      //     context,
+                      //     MaterialPageRoute(
+                      //       builder: (context) => DogProfileCreatPage(),
+                      //     ),
+                      //   );
+                      // },
+
                       isDisabled:
                           isChecked == false ? true : false || inProgress,
                       disabledColor: inProgress == true ? primaryColor : null,
