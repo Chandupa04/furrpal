@@ -221,7 +221,7 @@ class _UserProfileState extends State<UserProfile> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.asset('assets/images/dog.jpg',
+          Image.asset('assets/images/dog.jpeg',
               width: 80, height: 80, fit: BoxFit.cover),
           const SizedBox(height: 8),
           Text(dogName,

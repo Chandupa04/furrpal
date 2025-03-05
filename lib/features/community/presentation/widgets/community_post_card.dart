@@ -243,10 +243,14 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
           ),
           ContainerCustom(
             height: MediaQuery.of(context).size.height * 0.3,
+            child: Image.asset('assets/images/gallery.jpeg',
+            height: 250.h,
+            fit: BoxFit.contain,
+            ),
             width: double.infinity,
             marginTop: 10.h,
             marginBottom: 10.h,
-            bgColor: Colors.grey,
+            // bgColor: Colors.grey,
           ),
           TextCustomWidget(
             text: _postContent,
