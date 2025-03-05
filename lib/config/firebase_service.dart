@@ -48,7 +48,7 @@ class FirebaseService {
       });
     } catch (e) {
       print('Error creating dog profile: $e');
-      throw e;
+      rethrow;
     }
   }
 
@@ -94,7 +94,7 @@ class FirebaseService {
       return allDogs;
     } catch (e) {
       print('Error getting dog profiles: $e');
-      throw e;
+      rethrow;
     }
   }
 
@@ -336,7 +336,7 @@ class FirebaseService {
           'Dislike stored successfully for dog: $dogId by user: $currentUserId');
     } catch (e) {
       print('Error storing dog dislike: $e');
-      throw e;
+      rethrow;
     }
   }
 

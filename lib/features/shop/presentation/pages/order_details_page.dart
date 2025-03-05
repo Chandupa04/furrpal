@@ -5,7 +5,7 @@ import 'shop_page.dart';
 class OrderDetailsPage extends StatelessWidget {
   final List<Product> cart;
 
-  const OrderDetailsPage({Key? key, required this.cart}) : super(key: key);
+  const OrderDetailsPage({super.key, required this.cart});
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +43,7 @@ class OrderDetailsPage extends StatelessWidget {
                 },
               ),
             ),
-            Divider(thickness: 2),
+            const Divider(thickness: 2),
             Text("Total: \$${totalPrice.toStringAsFixed(2)}",
                 style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.bold)),
             SizedBox(height: 20.h),
@@ -52,7 +52,7 @@ class OrderDetailsPage extends StatelessWidget {
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: Text("Back to Cart"),
+                child: const Text("Back to Cart"),
               ),
             ),
           ],

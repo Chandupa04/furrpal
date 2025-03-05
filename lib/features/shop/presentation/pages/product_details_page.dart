@@ -5,7 +5,7 @@ import 'shop_page.dart';
 class ProductDetailsPage extends StatelessWidget {
   final Product product;
 
-  const ProductDetailsPage({Key? key, required this.product}) : super(key: key);
+  const ProductDetailsPage({super.key, required this.product});
 
   @override
   Widget build(BuildContext context) {
@@ -37,13 +37,13 @@ class ProductDetailsPage extends StatelessWidget {
               "This is a high-quality ${product.name} designed for your pet’s comfort and needs.",
               style: TextStyle(fontSize: 16.sp),
             ),
-            Spacer(),
+            const Spacer(),
             Center(
               child: ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: Text("Back to Shop"),
+                child: const Text("Back to Shop"),
               ),
             ),
           ],

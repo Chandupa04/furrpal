@@ -65,7 +65,7 @@ class DogProfilePage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Dog Image
-                Container(
+                SizedBox(
                   height: 300,
                   width: double.infinity,
                   child: dogData['image'] != null &&

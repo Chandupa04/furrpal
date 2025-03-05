@@ -5,7 +5,7 @@ import 'shop_page.dart';
 class CartPage extends StatefulWidget {
   final List<Product> cart;
 
-  CartPage({required this.cart});
+  const CartPage({super.key, required this.cart});
 
   @override
   _CartPageState createState() => _CartPageState();
@@ -37,11 +37,11 @@ class _CartPageState extends State<CartPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Your Cart"),
+        title: const Text("Your Cart"),
         backgroundColor: Colors.deepPurple,
       ),
       body: widget.cart.isEmpty
-          ? Center(
+          ? const Center(
               child: Text(
                 "Your cart is empty",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -64,12 +64,12 @@ class _CartPageState extends State<CartPage> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             IconButton(
-                              icon: Icon(Icons.remove_circle),
+                              icon: const Icon(Icons.remove_circle),
                               onPressed: () => removeFromCart(product),
                               color: Colors.red,
                             ),
                             IconButton(
-                              icon: Icon(Icons.add_circle),
+                              icon: const Icon(Icons.add_circle),
                               onPressed: () {
                                 setState(() {
                                   product.quantity++;
@@ -88,12 +88,12 @@ class _CartPageState extends State<CartPage> {
                   child: Column(
                     children: [
                       Text("Total: \$${totalPrice.toStringAsFixed(2)}",
-                          style: TextStyle(
+                          style: const TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold)),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       ElevatedButton(
                         onPressed: navigateToOrderDetails,
-                        child: Text("Proceed to Checkout"),
+                        child: const Text("Proceed to Checkout"),
                       ),
                     ],
                   ),
