@@ -27,20 +27,19 @@ class FirebaseService {
     print('Creating dog profile for user: $userId');
 
     try {
-      // Create a unique filename for the image
+      // Upload image if provided
       String? imageUrl;
       if (imageFile != null) {
         print('Image file exists: ${imageFile.existsSync()}');
         print('Image file size: ${imageFile.lengthSync()} bytes');
 
-        // Create a unique filename using timestamp and original filename
+        // Create a unique filename
         final String fileName =
             '${DateTime.now().millisecondsSinceEpoch}_${imageFile.path.split('/').last}';
         final storageRef = _storage.ref().child('dog_images/$userId/$fileName');
         print('Storage path: ${storageRef.fullPath}');
 
         try {
-          // Upload the image
           final uploadTask = storageRef.putFile(imageFile);
           final snapshot = await uploadTask;
           imageUrl = await snapshot.ref.getDownloadURL();
@@ -61,7 +60,7 @@ class FirebaseService {
         }
       }
 
-      // Create dog profile document with a unique ID
+      // Create dog profile document
       final dogData = {
         'name': name,
         'breed': breed,
@@ -69,50 +68,27 @@ class FirebaseService {
         'age': age,
         'healthConditions': healthConditions ?? '',
         'location': location,
-        'imageUrl': imageUrl ?? '',
+        'imageUrl': imageUrl ?? '', // Changed from 'image' to 'imageUrl'
         'createdAt': FieldValue.serverTimestamp(),
         'likes': [],
         'dislikes': [],
-        'ownerId': userId, // Add owner ID to the document
       };
       print('Creating dog document with data: $dogData');
 
-      // Use a transaction to ensure atomic operation
-      await _firestore.runTransaction((transaction) async {
-        // Create a new document reference
-        final docRef =
-            _firestore.collection('users').doc(userId).collection('dogs').doc();
-
-        // Set the document data
-        transaction.set(docRef, dogData);
-
-        print('Dog profile created successfully with ID: ${docRef.id}');
-      });
-
-      // Verify the document was created
-      final dogsSnapshot = await _firestore
+      final docRef = await _firestore
           .collection('users')
           .doc(userId)
           .collection('dogs')
-          .where('name', isEqualTo: name)
-          .where('createdAt',
-              isGreaterThan: Timestamp.fromDate(
-                  DateTime.now().subtract(const Duration(seconds: 5))))
-          .get();
+          .add(dogData);
+      print('Dog profile created successfully with ID: ${docRef.id}');
 
-      if (dogsSnapshot.docs.length > 1) {
-        print(
-            'Warning: Multiple profiles were created. Cleaning up duplicates...');
-        // Keep only the most recent document
-        final docs = dogsSnapshot.docs.toList()
-          ..sort((a, b) => (b.data()['createdAt'] as Timestamp)
-              .compareTo(a.data()['createdAt'] as Timestamp));
-
-        // Delete all but the most recent document
-        for (var i = 1; i < docs.length; i++) {
-          await docs[i].reference.delete();
-          print('Deleted duplicate profile: ${docs[i].id}');
-        }
+      // Verify the document was created
+      final docSnapshot = await docRef.get();
+      if (docSnapshot.exists) {
+        print('Verified document exists with data: ${docSnapshot.data()}');
+      } else {
+        print('Error: Document was not created');
+        throw Exception('Failed to create dog profile document');
       }
     } catch (e) {
       print('Error creating dog profile: $e');
@@ -250,22 +226,21 @@ class FirebaseService {
         return;
       }
 
-      // Check for existing notification BEFORE updating likes
-      print('Checking for existing notifications...');
-      final existingNotifications = await _firestore
+      // Create a unique notification ID to prevent duplicates
+      final String notificationId =
+          '${dogOwnerId}_${dogId}_${currentUserId}_like';
+
+      // Check for existing notification using the unique ID
+      print('Checking for existing notification with ID: $notificationId');
+      final existingNotification = await _firestore
           .collection('users')
           .doc(dogOwnerId)
           .collection('notifications')
-          .where('type', isEqualTo: 'like')
-          .where('dogId', isEqualTo: dogId)
-          .where('likedByUserId', isEqualTo: currentUserId)
+          .doc(notificationId)
           .get();
 
-      print(
-          'Found ${existingNotifications.docs.length} existing notifications');
-
-      if (existingNotifications.docs.isNotEmpty) {
-        print('Notification already exists for this like, skipping...');
+      if (existingNotification.exists) {
+        print('Notification already exists, skipping...');
         return;
       }
 
@@ -287,13 +262,15 @@ class FirebaseService {
       // Get user profile picture if available
       String userProfilePic = userData['profilePicture'] ?? '';
 
-      // Create notification for dog owner
+      // Create notification for dog owner using the unique ID
       print('Creating notification for dog owner: $dogOwnerId');
-      final notificationRef = await _firestore
+      final notificationRef = _firestore
           .collection('users')
           .doc(dogOwnerId)
           .collection('notifications')
-          .add({
+          .doc(notificationId);
+
+      await notificationRef.set({
         'type': 'like',
         'dogId': dogId,
         'dogName': dogName,
