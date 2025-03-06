@@ -3,8 +3,16 @@ class UserEntity {
   final String? email;
   final String? fName;
   final String? lName;
+  final String? phoneNumber;
+  final String? address;
 
-  const UserEntity({this.uid, this.email, this.fName, this.lName});
+  const UserEntity(
+      {this.uid,
+      this.email,
+      this.fName,
+      this.lName,
+      this.phoneNumber,
+      this.address});
 
   Map<String, dynamic> toJson() {
     return {
@@ -12,7 +20,8 @@ class UserEntity {
       'email': email,
       'first name': fName,
       'last name': lName,
-      // 'password': password,
+      'phone number': phoneNumber,
+      'address': address,
     };
   }
 
@@ -22,7 +31,8 @@ class UserEntity {
       email: jsonUser['email'],
       fName: jsonUser['first name'],
       lName: jsonUser['last name'],
-      // password: jsonUser['password'],
+      phoneNumber: jsonUser['phone number'],
+      address: jsonUser['address'],
     );
   }
 }

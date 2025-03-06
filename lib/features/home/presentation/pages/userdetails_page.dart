@@ -1,117 +1,110 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // Import Clipboard for copy function
-
-void main() {
-  runApp(UserDetailsApp());
-}
-
-class UserDetailsApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: UserDetailsPage(),
-    );
-  }
-}
+import 'package:flutter/services.dart';
 
 class UserDetailsPage extends StatefulWidget {
+  final Map<String, dynamic> userDetails;
+
+  const UserDetailsPage({Key? key, required this.userDetails}) : super(key: key);
+
   @override
   _UserDetailsPageState createState() => _UserDetailsPageState();
 }
 
 class _UserDetailsPageState extends State<UserDetailsPage> {
-  String name = "James Taylor";
-  String email = "james@email.com";
-  String address = "78/A Park lane.";
-  String contact = "0714586235";
-  String since = "since 2024";
-  String imagePath = "assets/images/man.jpg";
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Gradient Background
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.only(top: 70, bottom: 20),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.deepOrange.shade400, Colors.deepOrange.shade200],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(30),
-                  bottomRight: Radius.circular(30),
-                ),
-              ),
-              child: Column(
-                children: [
-                  Stack(
-                    alignment: Alignment.center,
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                // Gradient Background
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.only(top: 100, bottom: 20),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.deepOrange.shade400, Colors.deepOrange.shade200],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(30),
+                      bottomRight: Radius.circular(30),
+                    ),
+                  ),
+                  child: Column(
                     children: [
                       CircleAvatar(
-                        radius: 100, // Increased radius to make the image larger
-                        backgroundImage: AssetImage(imagePath),
+                        radius: 100,
+                        backgroundImage: AssetImage('assets/images/man.png'),
                         backgroundColor: Colors.white,
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        widget.userDetails['since'] ?? 'Member since 2024',
+                        style: TextStyle(color: Colors.black87, fontSize: 18, fontWeight: FontWeight.w500),
                       ),
                     ],
                   ),
-                  SizedBox(height: 10),
-                  // Display 'since' without edit icon
-                  Text(
-                    since,
-                    style: TextStyle(color: Colors.black87, fontSize: 18, fontWeight: FontWeight.w500),
-                  ),
-                ],
-              ),
-            ),
+                ),
 
-            SizedBox(height: 30),
+                SizedBox(height: 30),
 
-            // User Details Card (Larger and more spacious)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Container(
-                width: double.infinity,
-                padding: EdgeInsets.all(30), // Increased padding for a taller card
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 10,
-                      spreadRadius: 2,
+                // User Details Card
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(30),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 10,
+                          spreadRadius: 2,
+                        ),
+                      ],
                     ),
-                  ],
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildDetailRow("Name", widget.userDetails['name'] ?? 'Unknown'),
+                        SizedBox(height: 50),
+                        _buildDetailRow("Email", widget.userDetails['email'] ?? 'Unknown', isCopyable: true),
+                        SizedBox(height: 50),
+                        _buildDetailRow("Address", widget.userDetails['address'] ?? 'Unknown'),
+                        SizedBox(height: 50),
+                        _buildDetailRow("Contact number", widget.userDetails['contact'] ?? 'Unknown', isCopyable: true),
+                      ],
+                    ),
+                  ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildDetailRow("Name", name),
-                    SizedBox(height: 50), // Increased space between fields
-                    _buildDetailRow("Email", email, isCopyable: true), // Email is now clickable & copyable
-                    SizedBox(height: 50), // Increased space between fields
-                    _buildDetailRow("Address", address),
-                    SizedBox(height: 50), // Increased space between fields
-                    _buildDetailRow("Contact number", contact, isCopyable: true), // Contact number is now clickable & copyable
-                  ],
-                ),
+              ],
+            ),
+          ),
+          // Back Button
+          Positioned(
+            top: 40,
+            left: 20,
+            child: SafeArea(
+              child: IconButton(
+                icon: Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  // Updated _buildDetailRow to make Email and Contact clickable & copyable
   Widget _buildDetailRow(String label, String value, {bool isCopyable = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -134,7 +127,6 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
             style: TextStyle(
               fontSize: 22,
               color: Colors.blue,
-              // decoration: TextDecoration.underline, // Makes it look clickable
             ),
           ),
         )

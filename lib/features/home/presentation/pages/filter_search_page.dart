@@ -1,7 +1,18 @@
 import 'package:flutter/material.dart';
 
 class SearchFilterScreen extends StatefulWidget {
-  const SearchFilterScreen({super.key});
+  final Function(String?, String?, String?) onApplyFilters;
+  final String? initialBreed;
+  final String? initialGender;
+  final String? initialAge;
+
+  const SearchFilterScreen({
+    super.key,
+    required this.onApplyFilters,
+    this.initialBreed,
+    this.initialGender,
+    this.initialAge,
+  });
 
   @override
   _SearchFilterScreenState createState() => _SearchFilterScreenState();
@@ -45,10 +56,21 @@ class _SearchFilterScreenState extends State<SearchFilterScreen> {
 
   TextEditingController breedController = TextEditingController();
   List<String> filteredBreeds = [];
+  bool hasAppliedFilters = false;
 
   @override
   void initState() {
     super.initState();
+    // Initialize with any existing filters
+    selectedBreed = widget.initialBreed;
+    selectedGender = widget.initialGender;
+    selectedAge = widget.initialAge;
+
+    // Set the breed controller text if we have an initial breed
+    if (widget.initialBreed != null) {
+      breedController.text = widget.initialBreed!;
+    }
+
     filteredBreeds = breeds;
   }
 
@@ -58,6 +80,25 @@ class _SearchFilterScreenState extends State<SearchFilterScreen> {
           .where((breed) => breed.toLowerCase().contains(query.toLowerCase()))
           .toList();
     });
+  }
+
+  void _applyFilters() {
+    // Debug output before applying filters
+    print('Applying filters:');
+    print('Selected breed: $selectedBreed');
+    print('Selected gender: $selectedGender');
+    print('Selected age: $selectedAge');
+
+    setState(() {
+      hasAppliedFilters = true;
+    });
+
+    widget.onApplyFilters(
+      selectedBreed,
+      selectedGender,
+      selectedAge,
+    );
+    Navigator.pop(context);
   }
 
   @override
@@ -77,19 +118,22 @@ class _SearchFilterScreenState extends State<SearchFilterScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildSearchableDropdown('Breed', breedController, filteredBreeds,
-                (value) {
-              setState(() {
-                selectedBreed = value;
-              });
-            }),
+                    (value) {
+                  setState(() {
+                    selectedBreed = value;
+                    print('Selected breed: $value');
+                  });
+                }),
             _buildDropdown('Gender', selectedGender, genders, (value) {
               setState(() {
                 selectedGender = value;
+                print('Selected gender: $value');
               });
             }),
             _buildDropdown('Age', selectedAge, ageCategories, (value) {
               setState(() {
                 selectedAge = value;
+                print('Selected age: $value');
               });
             }),
             const SizedBox(height: 20),
@@ -97,17 +141,44 @@ class _SearchFilterScreenState extends State<SearchFilterScreen> {
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
-                onPressed: () {
-                  // Implement search functionality
-                },
+                onPressed: _applyFilters,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                child:
-                    const Text('Search', style: TextStyle(color: Colors.white)),
+                child: const Text('Search', style: TextStyle(color: Colors.white)),
+              ),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: OutlinedButton(
+                onPressed: () {
+                  setState(() {
+                    selectedBreed = null;
+                    selectedGender = null;
+                    selectedAge = null;
+                    breedController.clear();
+                    print('Cleared all filters');
+                  });
+
+                  // If we had applied filters before, apply the cleared filters
+                  if (hasAppliedFilters) {
+                    widget.onApplyFilters(null, null, null);
+                    Navigator.pop(context);
+                  }
+                },
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Colors.black),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: const Text('Clear Filters',
+                    style: TextStyle(color: Colors.black)),
               ),
             ),
           ],
@@ -125,7 +196,7 @@ class _SearchFilterScreenState extends State<SearchFilterScreen> {
         children: [
           Text(label,
               style:
-                  const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           const SizedBox(height: 5),
           DropdownButtonFormField<String>(
             value: selectedValue,
@@ -133,6 +204,7 @@ class _SearchFilterScreenState extends State<SearchFilterScreen> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
             items: items.map((String item) {
               return DropdownMenuItem<String>(
@@ -141,6 +213,7 @@ class _SearchFilterScreenState extends State<SearchFilterScreen> {
               );
             }).toList(),
             onChanged: onChanged,
+            hint: Text('Select $label'),
           ),
         ],
       ),
@@ -159,33 +232,35 @@ class _SearchFilterScreenState extends State<SearchFilterScreen> {
         children: [
           Text(label,
               style:
-                  const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           const SizedBox(height: 5),
           TextField(
             controller: controller,
             decoration: InputDecoration(
               hintText: "Type to search...",
               border:
-                  OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               suffixIcon: controller.text.isNotEmpty
                   ? IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () {
-                        setState(() {
-                          controller.clear();
-                          filteredBreeds = []; // Hide dropdown when cleared
-                        });
-                      },
-                    )
+                icon: const Icon(Icons.clear),
+                onPressed: () {
+                  setState(() {
+                    controller.clear();
+                    filteredBreeds = []; // Hide dropdown when cleared
+                    selectedBreed = null;
+                  });
+                },
+              )
                   : null,
             ),
             onChanged: (query) {
               setState(() {
                 filteredBreeds = query.isNotEmpty
                     ? breeds
-                        .where((breed) =>
-                            breed.toLowerCase().contains(query.toLowerCase()))
-                        .toList()
+                    .where((breed) =>
+                    breed.toLowerCase().contains(query.toLowerCase()))
+                    .toList()
                     : []; // Hide dropdown when input is empty
               });
             },
@@ -224,3 +299,4 @@ class _SearchFilterScreenState extends State<SearchFilterScreen> {
     );
   }
 }
+

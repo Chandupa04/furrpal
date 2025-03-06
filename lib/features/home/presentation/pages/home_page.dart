@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
-import 'package:furrpal/features/home/presentation/pages/payment_page.dart';
+import 'package:furrpal/features/home/presentation/pages/userdetails_page.dart';
 import 'package:furrpal/features/home/presentation/pages/filter_search_page.dart';
 import 'package:furrpal/config/firebase_service.dart';
 
@@ -18,6 +18,11 @@ class _HomePageState extends State<HomePage> {
   List<Map<String, dynamic>> dogs = [];
   bool isLoading = true;
   bool _disposed = false;
+
+  String? currentBreedFilter;
+  String? currentGenderFilter;
+  String? currentAgeFilter;
+  bool isFiltered = false;
 
   final CardSwiperController swiperController = CardSwiperController();
   OverlayEntry? _overlayEntry;
@@ -49,10 +54,33 @@ class _HomePageState extends State<HomePage> {
     });
 
     try {
-      final dogProfiles = await _firebaseService.getAllDogProfiles();
+      List<Map<String, dynamic>> dogProfiles;
 
-      // Debug: Print the number of profiles retrieved
-      print('Loaded ${dogProfiles.length} dog profiles');
+      if (isFiltered) {
+        print('Applying filters:');
+        print('Breed: $currentBreedFilter');
+        print('Gender: $currentGenderFilter');
+        print('Age: $currentAgeFilter');
+
+        dogProfiles = await _firebaseService.getFilteredDogProfiles(
+          breed: currentBreedFilter,
+          gender: currentGenderFilter,
+          age: currentAgeFilter,
+        );
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(dogProfiles.isEmpty
+                  ? 'No dogs found matching your criteria'
+                  : 'Found ${dogProfiles.length} dogs'),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+      } else {
+        dogProfiles = await _firebaseService.getAllDogProfiles();
+      }
 
       _safeSetState(() {
         dogs = dogProfiles;
@@ -63,9 +91,9 @@ class _HomePageState extends State<HomePage> {
       if (!_disposed && mounted) {
         _safeSetState(() {
           isLoading = false;
+          dogs = []; // Ensure dogs list is empty on error
         });
 
-        // Show error message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to load dog profiles: $e')),
         );
@@ -73,16 +101,130 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  void _applyFilters(String? breed, String? gender, String? age) {
+    setState(() {
+      currentBreedFilter = breed;
+      currentGenderFilter = gender;
+      currentAgeFilter = age;
+      isFiltered = breed != null || gender != null || age != null;
+    });
+    _loadDogProfiles();
+  }
+
+  void _clearFilters() {
+    setState(() {
+      currentBreedFilter = null;
+      currentGenderFilter = null;
+      currentAgeFilter = null;
+      isFiltered = false;
+    });
+    _loadDogProfiles();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 242, 241, 240),
+      body: Column(
+        children: [
+          const SizedBox(height: 50),
+          _buildTopBar(),
+          if (isFiltered) _buildActiveFilters(),
+          Expanded(
+            child: _buildContent(),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _loadDogProfiles,
+        child: const Icon(Icons.refresh),
+      ),
+    );
+  }
+
+  Widget _buildContent() {
+    if (isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (dogs.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              "No dogs found",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              isFiltered
+                  ? "Try adjusting your filters or clear them to see all dogs"
+                  : "No dog profiles are available at the moment",
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.grey,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            if (isFiltered)
+              ElevatedButton(
+                onPressed: _clearFilters,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(255, 183, 180, 177),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: const Text("Clear Filters"),
+              ),
+          ],
+        ),
+      );
+    }
+
+    return SizedBox(
+      height: 650,
+      child: CardSwiper(
+        controller: swiperController,
+        cardsCount: dogs.length,
+        onSwipe: _handleSwipe,
+        cardBuilder: (context, index, percentThresholdX, percentThresholdY) {
+          return DogProfileCard(
+            dog: dogs[index],
+            isTopCard: index == 0,
+            swiperController: swiperController,
+            onLike: () => _showToast(dogs[index]['name'], true),
+            onDislike: () => _showToast(dogs[index]['name'], false),
+          );
+        },
+      ),
+    );
+  }
+
+  bool _handleSwipe(int previousIndex, int? currentIndex, CardSwiperDirection direction) {
+    if (direction == CardSwiperDirection.right) {
+      _showToast(dogs[previousIndex]['name'], true);
+    } else if (direction == CardSwiperDirection.left) {
+      _showToast(dogs[previousIndex]['name'], false);
+    } else if (direction == CardSwiperDirection.top || direction == CardSwiperDirection.bottom) {
+      _showSkipToast(dogs[previousIndex]['name']);
+    }
+    return true;
+  }
+
   void _testFirestore() async {
     try {
       // First, check if we can read existing documents
       final QuerySnapshot snapshot =
-          await FirebaseFirestore.instance.collection('dogs').get();
+      await FirebaseFirestore.instance.collection('dogs').get();
       print("Found ${snapshot.docs.length} existing dog profiles");
 
       // Then try to add a test document
       DocumentReference docRef =
-          await FirebaseFirestore.instance.collection('dogs').add({
+      await FirebaseFirestore.instance.collection('dogs').add({
         'name': 'Test Dog',
         'breed': 'Test Breed',
         'gender': 'Male',
@@ -153,80 +295,6 @@ class _HomePageState extends State<HomePage> {
     _showCustomToast("${dogName} skipped");
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 242, 241, 240),
-      body: Column(
-        children: [
-          const SizedBox(height: 50),
-          _buildTopBar(),
-          const Spacer(),
-          if (isLoading)
-            const Center(
-              child: CircularProgressIndicator(),
-            )
-          else if (dogs.isEmpty)
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    "No dog profiles found",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: _loadDogProfiles,
-                    child: const Text("Refresh"),
-                  ),
-                  const SizedBox(height: 10),
-                  ElevatedButton(
-                    onPressed: _testFirestore,
-                    child: const Text("Test Firestore Connection"),
-                  ),
-                ],
-              ),
-            )
-          else
-            SizedBox(
-              height: 650,
-              child: CardSwiper(
-                controller: swiperController,
-                cardsCount: dogs.length,
-                onSwipe: (previousIndex, currentIndex, direction) {
-                  if (direction == CardSwiperDirection.right) {
-                    _showToast(dogs[previousIndex]['name'], true);
-                  } else if (direction == CardSwiperDirection.left) {
-                    _showToast(dogs[previousIndex]['name'], false);
-                  } else if (direction == CardSwiperDirection.top ||
-                      direction == CardSwiperDirection.bottom) {
-                    _showSkipToast(dogs[previousIndex]['name']);
-                  }
-                  return true;
-                },
-                cardBuilder:
-                    (context, index, percentThresholdX, percentThresholdY) {
-                  return DogProfileCard(
-                    dog: dogs[index],
-                    isTopCard: index == 0,
-                    swiperController: swiperController,
-                    onLike: () => _showToast(dogs[index]['name'], true),
-                    onDislike: () => _showToast(dogs[index]['name'], false),
-                  );
-                },
-              ),
-            ),
-          const Spacer(),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _loadDogProfiles,
-        child: const Icon(Icons.refresh),
-      ),
-    );
-  }
-
   Widget _buildTopBar() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -237,13 +305,77 @@ class _HomePageState extends State<HomePage> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => SearchFilterScreen()),
+                MaterialPageRoute(
+                  builder: (context) => SearchFilterScreen(
+                    onApplyFilters: _applyFilters,
+                    initialBreed: currentBreedFilter,
+                    initialGender: currentGenderFilter,
+                    initialAge: currentAgeFilter,
+                  ),
+                ),
               );
             },
             child: Icon(Icons.search, color: Colors.grey.shade800, size: 28),
           ),
-          // Icon(Icons.person, color: Colors.grey.shade800, size: 28),
+          if (isFiltered)
+            GestureDetector(
+              onTap: _clearFilters,
+              child: Row(
+                children: [
+                  Text(
+                    "Clear Filters",
+                    style: TextStyle(
+                      color: Colors.grey.shade800,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Icon(Icons.clear, color: Colors.grey.shade800, size: 20),
+                ],
+              ),
+            ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildActiveFilters() {
+    List<Widget> filterChips = [];
+
+    if (currentBreedFilter != null) {
+      filterChips.add(_buildFilterChip("Breed: $currentBreedFilter"));
+    }
+
+    if (currentGenderFilter != null) {
+      filterChips.add(_buildFilterChip("Gender: $currentGenderFilter"));
+    }
+
+    if (currentAgeFilter != null) {
+      filterChips.add(_buildFilterChip("Age: $currentAgeFilter"));
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: filterChips,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFilterChip(String label) {
+    return Container(
+      margin: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 183, 215, 172),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
       ),
     );
   }
@@ -296,40 +428,40 @@ class DogProfileCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                   child: imageUrl.isNotEmpty
                       ? Image.network(
-                          imageUrl,
-                          height: 200,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return Container(
-                              height: 200,
-                              width: double.infinity,
-                              color: Colors.grey[200],
-                              child: const Center(
-                                child: CircularProgressIndicator(),
-                              ),
-                            );
-                          },
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              height: 200,
-                              width: double.infinity,
-                              color: Colors.grey[200],
-                              child: const Icon(
-                                Icons.error,
-                                color: Colors.red,
-                                size: 50,
-                              ),
-                            );
-                          },
-                        )
-                      : Image.asset(
-                          "assets/images/dog_placeholder.jpg",
-                          height: 200,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
+                    imageUrl,
+                    height: 200,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Container(
+                        height: 200,
+                        width: double.infinity,
+                        color: Colors.grey[200],
+                        child: const Center(
+                          child: CircularProgressIndicator(),
                         ),
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        height: 200,
+                        width: double.infinity,
+                        color: Colors.grey[200],
+                        child: const Icon(
+                          Icons.error,
+                          color: Colors.red,
+                          size: 50,
+                        ),
+                      );
+                    },
+                  )
+                      : Image.asset(
+                    "assets/images/dog_placeholder.jpg",
+                    height: 200,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
                 ),
                 const SizedBox(height: 20),
                 Text(
@@ -355,10 +487,20 @@ class DogProfileCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: ElevatedButton(
               onPressed: () {
+                // Mock user details - replace this with actual user data in your app
+                Map<String, dynamic> userDetails = {
+                  'name': 'James Taylor',
+                  'email': 'james@email.com',
+                  'address': '78/A Park lane',
+                  'contact': '0714586235',
+                  'since': 'Member since 2024',
+                  'imagePath': 'https://via.placeholder.com/150', // Replace with actual image path
+                };
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const UserDetailsScreen()),
+                    builder: (context) => UserDetailsPage(userDetails: userDetails),
+                  ),
                 );
               },
               style: ElevatedButton.styleFrom(
@@ -366,15 +508,15 @@ class DogProfileCard extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
               ),
               child: const Text(
                 "Show User Details",
                 style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white),
+                    color: Colors.white
+                ),
               ),
             ),
           ),
@@ -468,3 +610,4 @@ class DogProfileCard extends StatelessWidget {
     );
   }
 }
+

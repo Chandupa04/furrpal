@@ -1,4 +1,3 @@
-// lib/features/profile/presentation/pages/dog_profile_create_page.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -7,7 +6,6 @@ import 'package:furrpal/custom/button_custom.dart';
 import 'package:furrpal/config/firebase_service.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-
 import '../../../../custom/container_custom.dart';
 import '../../../../custom/text_custom.dart';
 import '../../../../custom/textfield_custom.dart';
