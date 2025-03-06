@@ -325,7 +325,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildTopBar() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -339,6 +339,23 @@ class _HomePageState extends State<HomePage> {
             },
             child: Icon(Icons.search, color: Colors.grey.shade800, size: 28),
           ),
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
+            child: Row(
+              children: const [
+                Text(
+                  "FurrPal",
+                  style: TextStyle(
+                    fontSize: 25,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                SizedBox(width: 8),
+              ],
+            ),
+          ),
+          const SizedBox(width: 30),
           // Icon(Icons.person, color: Colors.grey.shade800, size: 28),
         ],
       ),
@@ -365,10 +382,10 @@ class DogProfileCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Get image from Firebase or use placeholder
-    final String imageUrl = dog["image"] ?? "";
+    final String imageUrl = dog["imageUrl"] ?? "";
 
     return Container(
-      height: 100,
+      height: 160,
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(

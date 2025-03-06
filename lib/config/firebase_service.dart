@@ -19,33 +19,101 @@ class FirebaseService {
     File? imageFile,
   }) async {
     User? user = FirebaseAuth.instance.currentUser;
-    String userId = user!.uid;
+    if (user == null) {
+      print('Error: No user logged in');
+      throw Exception('No user logged in');
+    }
+    String userId = user.uid;
+    print('Creating dog profile for user: $userId');
 
     try {
-      // Upload image if provided
+      // Create a unique filename for the image
       String? imageUrl;
       if (imageFile != null) {
-        final storageRef = _storage
-            .ref()
-            .child('dog_images/${DateTime.now().millisecondsSinceEpoch}');
-        final uploadTask = storageRef.putFile(imageFile);
-        final snapshot = await uploadTask;
-        imageUrl = await snapshot.ref.getDownloadURL();
+        print('Image file exists: ${imageFile.existsSync()}');
+        print('Image file size: ${imageFile.lengthSync()} bytes');
+
+        // Create a unique filename using timestamp and original filename
+        final String fileName =
+            '${DateTime.now().millisecondsSinceEpoch}_${imageFile.path.split('/').last}';
+        final storageRef = _storage.ref().child('dog_images/$userId/$fileName');
+        print('Storage path: ${storageRef.fullPath}');
+
+        try {
+          // Upload the image
+          final uploadTask = storageRef.putFile(imageFile);
+          final snapshot = await uploadTask;
+          imageUrl = await snapshot.ref.getDownloadURL();
+          print('Image uploaded successfully. URL: $imageUrl');
+
+          // Verify the URL is accessible
+          try {
+            final response = await HttpClient().getUrl(Uri.parse(imageUrl));
+            final httpResponse = await response.close();
+            print(
+                'Image URL is accessible. Status code: ${httpResponse.statusCode}');
+          } catch (e) {
+            print('Warning: Could not verify image URL accessibility: $e');
+          }
+        } catch (e) {
+          print('Error uploading image: $e');
+          throw Exception('Failed to upload image: $e');
+        }
       }
 
-      // Create dog profile document with empty likes and dislikes arrays
-      await _firestore.collection('users').doc(userId).collection('dogs').add({
+      // Create dog profile document with a unique ID
+      final dogData = {
         'name': name,
         'breed': breed,
         'gender': gender,
         'age': age,
         'healthConditions': healthConditions ?? '',
         'location': location,
-        'image': imageUrl ?? '',
+        'imageUrl': imageUrl ?? '',
         'createdAt': FieldValue.serverTimestamp(),
-        'likes': [], // Initialize empty likes array
-        'dislikes': [], // Initialize empty dislikes array
+        'likes': [],
+        'dislikes': [],
+        'ownerId': userId, // Add owner ID to the document
+      };
+      print('Creating dog document with data: $dogData');
+
+      // Use a transaction to ensure atomic operation
+      await _firestore.runTransaction((transaction) async {
+        // Create a new document reference
+        final docRef =
+            _firestore.collection('users').doc(userId).collection('dogs').doc();
+
+        // Set the document data
+        transaction.set(docRef, dogData);
+
+        print('Dog profile created successfully with ID: ${docRef.id}');
       });
+
+      // Verify the document was created
+      final dogsSnapshot = await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('dogs')
+          .where('name', isEqualTo: name)
+          .where('createdAt',
+              isGreaterThan: Timestamp.fromDate(
+                  DateTime.now().subtract(const Duration(seconds: 5))))
+          .get();
+
+      if (dogsSnapshot.docs.length > 1) {
+        print(
+            'Warning: Multiple profiles were created. Cleaning up duplicates...');
+        // Keep only the most recent document
+        final docs = dogsSnapshot.docs.toList()
+          ..sort((a, b) => (b.data()['createdAt'] as Timestamp)
+              .compareTo(a.data()['createdAt'] as Timestamp));
+
+        // Delete all but the most recent document
+        for (var i = 1; i < docs.length; i++) {
+          await docs[i].reference.delete();
+          print('Deleted duplicate profile: ${docs[i].id}');
+        }
+      }
     } catch (e) {
       print('Error creating dog profile: $e');
       rethrow;
