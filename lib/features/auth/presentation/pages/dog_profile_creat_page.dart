@@ -263,7 +263,6 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
                   ButtonCustom(
                     text: 'Create Profile',
                     dontApplyMargin: true,
-                    isLoading: _isLoading,
                     callback: _createDogProfile,
                   ),
                 ],

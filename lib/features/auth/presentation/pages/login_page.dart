@@ -77,6 +77,25 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
+        if (state is AuthError) {
+          setState(() {
+            inProgress = false;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: blackColor,
+              shape: ContinuousRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(20.r),
+                      topRight: Radius.circular(20.r))),
+              content: TextCustomWidget(
+                text: 'The email or password is incorrect',
+                fontSize: 15.sp,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          );
+        }
         if (state is Authenticated) {
           Navigator.pushReplacement(
             context,
@@ -145,7 +164,6 @@ class _LoginPageState extends State<LoginPage> {
                           fontSize: 17.sp,
                         ),
                         ButtonCustom(
-                          isLoading: false,
                           text: 'SignUp',
                           callback: () {
                             Navigator.push(
@@ -184,7 +202,6 @@ class _LoginPageState extends State<LoginPage> {
                       inProgress: inProgress,
                       isDisabled: inProgress,
                       disabledColor: primaryColor,
-                      isLoading: false,
                       dontApplyMargin: true,
                     ),
                   ],

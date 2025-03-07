@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:furrpal/constant/constant.dart';
-import 'package:furrpal/custom/text_custom.dart';
 import 'package:furrpal/config/firebase_auth_repo.dart';
 import 'package:furrpal/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:furrpal/features/auth/presentation/cubit/auth_state.dart';
 import 'package:furrpal/features/nav_bar/presentation/pages/nav_bar.dart';
+import 'custom/text_custom.dart';
 import 'features/auth/presentation/pages/start_page.dart';
 
 class MyApp extends StatelessWidget {
@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
             scaffoldBackgroundColor: whiteColor,
-            appBarTheme: AppBarTheme(
+            appBarTheme: const AppBarTheme(
               backgroundColor: whiteColor,
               foregroundColor: blackColor,
             ),
@@ -52,8 +52,9 @@ class MyApp extends StatelessWidget {
             },
             listener: (context, state) {
               if (state is AuthError) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: TextCustomWidget(text: state.message)));
+                print(state.message);
+                // ScaffoldMessenger.of(context).showSnackBar(
+                //     SnackBar(content: TextCustomWidget(text: state.message)));
               }
             },
           ),

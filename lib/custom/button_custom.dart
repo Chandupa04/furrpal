@@ -28,7 +28,7 @@ class ButtonCustom extends StatelessWidget {
     this.mainAxisAlignment,
     this.disabledColor,
     this.ischildPositionRight = false,
-    required bool isLoading,
+    // required bool isLoading,
   });
 
   final double? btnHeight;

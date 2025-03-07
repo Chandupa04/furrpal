@@ -3,6 +3,7 @@ import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:furrpal/app_data.dart';
 import 'package:furrpal/constant/constant.dart';
 import 'package:furrpal/custom/button_custom.dart';
 import 'package:furrpal/custom/container_custom.dart';
@@ -35,23 +36,6 @@ class _SignupPageState extends State<SignupPage> {
 
   void signUp() {
     isValid = EmailValidator.validate(emailController.text.trim());
-    if (!isValid) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: blackColor,
-          shape: ContinuousRectangleBorder(
-              borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20.r),
-                  topRight: Radius.circular(20.r))),
-          content: TextCustomWidget(
-            text: 'Email is not valid',
-            fontSize: 17.sp,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      );
-      return;
-    }
 
     final String email = emailController.text;
     final String password = passwordController.text;
@@ -86,12 +70,34 @@ class _SignupPageState extends State<SignupPage> {
           ),
         );
       }
+    } else if (!isValid) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: blackColor,
+          shape: ContinuousRectangleBorder(
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20.r),
+                  topRight: Radius.circular(20.r))),
+          content: TextCustomWidget(
+            text: 'Email is not valid',
+            fontSize: 15.sp,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      );
+      return;
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
+          backgroundColor: blackColor,
+          shape: ContinuousRectangleBorder(
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20.r),
+                  topRight: Radius.circular(20.r))),
           content: TextCustomWidget(
             text: 'Please Enter all fields',
-            fontSize: 12.sp,
+            fontSize: 15.sp,
+            fontWeight: FontWeight.bold,
           ),
         ),
       );
@@ -114,7 +120,24 @@ class _SignupPageState extends State<SignupPage> {
   Widget build(BuildContext context) {
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
-        if (state is Authenticated) {
+        if (state is AuthError) {
+          setState(() {
+            inProgress = false;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              shape: ContinuousRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(20.r),
+                      topRight: Radius.circular(20.r))),
+              content: TextCustomWidget(
+                text: 'The email address is already in use by another account',
+                fontSize: 15.sp,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          );
+        } else if (state is Authenticated) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -250,7 +273,6 @@ class _SignupPageState extends State<SignupPage> {
                       text: 'Continue',
                       callback: signUp,
                       inProgress: inProgress,
-                      isLoading: false,
                       isDisabled:
                           isChecked == false ? true : false || inProgress,
                       disabledColor: inProgress == true ? primaryColor : null,
