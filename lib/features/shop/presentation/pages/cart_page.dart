@@ -157,10 +157,21 @@ class _CartPageState extends State<CartPage> {
                       ElevatedButton(
                         onPressed: navigateToOrderDetails,
                         style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.deepPurple,
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 30, vertical: 12),
+                              horizontal: 30, vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
-                        child: const Text("Proceed to Checkout"),
+                        child: Text(
+                          "Checkout (\$${totalPrice.toStringAsFixed(2)})",
+                          style: const TextStyle(
+                            fontSize: 18,
+                            color: Colors.white, // ✅ Fix: Ensures visibility
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ],
                   ),
