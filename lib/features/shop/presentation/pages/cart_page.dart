@@ -103,10 +103,13 @@ class _CartPageState extends State<CartPage> {
                 ],
               ),
             )
-          : Column(
-              children: [
-                Expanded(
-                  child: ListView.separated(
+          : SingleChildScrollView(
+              child: Column(
+                children: [
+                  // Cart items list
+                  ListView.separated(
+                    shrinkWrap:
+                        true, // This makes the ListView occupy only necessary space
                     itemCount: widget.cart.length,
                     separatorBuilder: (context, index) =>
                         const Divider(thickness: 1),
@@ -138,45 +141,50 @@ class _CartPageState extends State<CartPage> {
                       );
                     },
                   ),
-                ),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: const BoxDecoration(
-                    border: Border(
-                      top: BorderSide(width: 1, color: Colors.grey),
+                  // Total Price with highlighted style
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        top: BorderSide(width: 1, color: Colors.grey),
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 20),
+                          decoration: BoxDecoration(
+                            color: Colors.amber[100],
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.amber, width: 2),
+                          ),
+                          child: Text(
+                            "Total: \$${totalPrice.toStringAsFixed(2)}",
+                            style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                      ],
                     ),
                   ),
-                  child: Column(
-                    children: [
-                      Text(
-                        "Total: \$${totalPrice.toStringAsFixed(2)}",
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 10),
-                      ElevatedButton(
-                        onPressed: navigateToOrderDetails,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.deepPurple,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 30, vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        child: Text(
-                          "Checkout (\$${totalPrice.toStringAsFixed(2)})",
-                          style: const TextStyle(
-                            fontSize: 18,
-                            color: Colors.white, // ✅ Fix: Ensures visibility
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                ],
+              ),
+            ),
+      // Floating Action Button for Checkout
+      floatingActionButton: widget.cart.isEmpty
+          ? null
+          : Padding(
+              padding: const EdgeInsets.only(bottom: 80), // Adjust for FAB
+              child: FloatingActionButton.extended(
+                onPressed: navigateToOrderDetails,
+                label: const Text("Checkout"),
+                icon: const Icon(Icons.shopping_cart),
+                backgroundColor: Colors.deepPurple,
+              ),
             ),
     );
   }
