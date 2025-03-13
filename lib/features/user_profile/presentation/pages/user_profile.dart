@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:furrpal/custom/button_custom.dart';
 import 'package:furrpal/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:furrpal/features/auth/presentation/cubit/auth_state.dart';
 import 'package:furrpal/features/auth/presentation/pages/start_page.dart';
@@ -81,9 +80,9 @@ class _UserProfileState extends State<UserProfile> {
           Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(
-                builder: (context) => StartPage(),
+                builder: (context) => const StartPage(),
               ),
-                  (route) => false);
+              (route) => false);
         }
       },
       child: Scaffold(
@@ -121,7 +120,7 @@ class _UserProfileState extends State<UserProfile> {
                           backgroundImage: _profileImage != null
                               ? FileImage(_profileImage!)
                               : const AssetImage('assets/images/man.jpg')
-                          as ImageProvider,
+                                  as ImageProvider,
                         ),
                       ),
                       const SizedBox(width: 20),
@@ -182,7 +181,7 @@ class _UserProfileState extends State<UserProfile> {
                     crossAxisSpacing: 8,
                     children: List.generate(
                       3,
-                          (index) => ClipRRect(
+                      (index) => ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: Image.asset(
                           'assets/images/puppy.jpeg',
@@ -222,9 +221,12 @@ class _UserProfileState extends State<UserProfile> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.asset('assets/images/dog.jpg', width: 80, height: 80, fit: BoxFit.cover),
+          Image.asset('assets/images/dog.jpeg',
+              width: 80, height: 80, fit: BoxFit.cover),
           const SizedBox(height: 8),
-          Text(dogName, style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
+          Text(dogName,
+              style: const TextStyle(
+                  color: Colors.black87, fontWeight: FontWeight.bold)),
         ],
       ),
     );

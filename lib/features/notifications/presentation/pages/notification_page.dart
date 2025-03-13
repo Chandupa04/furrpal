@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:timeago/timeago.dart' as timeago;
+import 'package:furrpal/config/firebase_service.dart';
+import 'package:furrpal/features/profile/presentation/pages/dog_profile_page.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
@@ -10,24 +15,14 @@ class NotificationsPage extends StatefulWidget {
 
 class _NotificationsPageState extends State<NotificationsPage> {
   int selectedIndex = 0;
-
+  final FirebaseService _firebaseService = FirebaseService();
   final categories = ['Profile', 'Community', 'Pet Shop'];
-
-  List<Notification> getCurrentNotifications() {
-    switch (selectedIndex) {
-      case 0:
-        return profileNotifications;
-      case 1:
-        return communityNotifications;
-      case 2:
-        return petShopNotifications;
-      default:
-        return [];
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    print('Current user ID: ${currentUser?.uid}');
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -86,27 +81,133 @@ class _NotificationsPageState extends State<NotificationsPage> {
           ),
         ),
       ),
-      body: ListView.separated(
-        itemCount: getCurrentNotifications().length,
-        separatorBuilder: (context, index) => const Divider(
-          height: 1,
-          indent: 72,
-          endIndent: 16,
-        ),
-        itemBuilder: (context, index) {
-          return NotificationTile(
-            notification: getCurrentNotifications()[index],
-          );
-        },
-      ),
+      body: selectedIndex == 0
+          ? StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(currentUser?.uid)
+                  .collection('notifications')
+                  .where('type', isEqualTo: 'like')
+                  .snapshots(),
+              builder: (context, snapshot) {
+                print('StreamBuilder state: ${snapshot.connectionState}');
+                if (snapshot.hasError) {
+                  print('StreamBuilder error: ${snapshot.error}');
+                  return Center(
+                    child: Text('Error: ${snapshot.error}'),
+                  );
+                }
+
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  print('StreamBuilder waiting for data...');
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+
+                final notifications = snapshot.data?.docs ?? [];
+                print('Number of notifications: ${notifications.length}');
+
+                if (notifications.isEmpty) {
+                  print('No notifications found');
+                  return Center(
+                    child: Text(
+                      'No likes yet',
+                      style: GoogleFonts.poppins(
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  );
+                }
+
+                // Sort notifications by timestamp in memory
+                notifications.sort((a, b) {
+                  final aTimestamp = (a.data()
+                      as Map<String, dynamic>)['timestamp'] as Timestamp;
+                  final bTimestamp = (b.data()
+                      as Map<String, dynamic>)['timestamp'] as Timestamp;
+                  return bTimestamp
+                      .compareTo(aTimestamp); // Sort in descending order
+                });
+
+                return ListView.separated(
+                  itemCount: notifications.length,
+                  separatorBuilder: (context, index) => const Divider(
+                    height: 1,
+                    indent: 72,
+                    endIndent: 16,
+                  ),
+                  itemBuilder: (context, index) {
+                    final notification =
+                        notifications[index].data() as Map<String, dynamic>;
+                    print('Notification data: $notification');
+
+                    final timestamp = notification['timestamp'] as Timestamp;
+                    final timeAgo = timeago.format(timestamp.toDate());
+
+                    // Get the user who liked the profile
+                    final likedByUserName =
+                        notification['likedByUserName'] ?? 'Someone';
+                    final dogName = notification['dogName'] ?? 'your dog';
+                    final message = notification['message'] ??
+                        'Your dog is getting popular!';
+
+                    // Get profile picture if available, otherwise use default
+                    final avatarPath =
+                        notification['likedByUserProfilePic'] != null &&
+                                notification['likedByUserProfilePic']
+                                    .toString()
+                                    .isNotEmpty
+                            ? notification['likedByUserProfilePic']
+                            : 'assets/user3.png';
+
+                    return NotificationTile(
+                      notification: Notification(
+                        avatarPath: avatarPath,
+                        title: '$likedByUserName liked your profile',
+                        message: message,
+                        time: timeAgo,
+                        userId: notification['likedByUserId'],
+                        dogId: notification['dogId'],
+                      ),
+                    );
+                  },
+                );
+              },
+            )
+          : ListView.separated(
+              itemCount: getCurrentNotifications().length,
+              separatorBuilder: (context, index) => const Divider(
+                height: 1,
+                indent: 72,
+                endIndent: 16,
+              ),
+              itemBuilder: (context, index) {
+                return NotificationTile(
+                  notification: getCurrentNotifications()[index],
+                );
+              },
+            ),
     );
+  }
+
+  List<Notification> getCurrentNotifications() {
+    switch (selectedIndex) {
+      case 1:
+        return communityNotifications;
+      case 2:
+        return petShopNotifications;
+      default:
+        return [];
+    }
   }
 }
 
 class NotificationTile extends StatelessWidget {
   final Notification notification;
+  final FirebaseService _firebaseService = FirebaseService();
 
-  const NotificationTile({super.key, required this.notification});
+  NotificationTile({super.key, required this.notification});
 
   @override
   Widget build(BuildContext context) {
@@ -123,10 +224,18 @@ class NotificationTile extends StatelessWidget {
                 width: 2,
               ),
             ),
-            child: CircleAvatar(
-              radius: 20,
-              backgroundImage: AssetImage(notification.avatarPath),
-            ),
+            child: notification.avatarPath.startsWith('http')
+                ? CircleAvatar(
+                    radius: 20,
+                    backgroundImage: NetworkImage(notification.avatarPath),
+                    onBackgroundImageError: (exception, stackTrace) {
+                      print('Error loading profile image: $exception');
+                    },
+                  )
+                : CircleAvatar(
+                    radius: 20,
+                    backgroundImage: AssetImage(notification.avatarPath),
+                  ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -165,6 +274,31 @@ class NotificationTile extends StatelessWidget {
                     height: 1.4,
                   ),
                 ),
+                if (notification.userId != null && notification.dogId != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DogProfilePage(
+                              dogId: notification.dogId!,
+                              userId: notification.userId!,
+                            ),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        'View Profile',
+                        style: GoogleFonts.poppins(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.blue,
+                        ),
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
@@ -179,12 +313,16 @@ class Notification {
   final String title;
   final String message;
   final String time;
+  final String? userId;
+  final String? dogId;
 
   Notification({
     required this.avatarPath,
     required this.title,
     required this.message,
     required this.time,
+    this.userId,
+    this.dogId,
   });
 }
 
