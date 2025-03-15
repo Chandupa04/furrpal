@@ -20,10 +20,10 @@ class FirebaseUserProfileRepo implements ProfileRepo {
             email: userData['email'],
             fName: userData['first name'],
             lName: userData['last name'],
-            phoneNumber: userData['phone number'],
-            address: userData['address'],
+            phoneNumber: userData['phone number'] ?? '',
+            address: userData['address'] ?? '',
             profileImageUrl: userData['profileImageUrl'].toString(),
-            bio: userData['bio'],
+            bio: userData['bio'] ?? '',
           );
         }
       }

@@ -1,19 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:furrpal/constant/constant.dart';
+import 'package:furrpal/custom/text_custom.dart';
+import 'package:furrpal/features/auth/models/user_entity.dart';
 import 'package:furrpal/features/auth/presentation/cubit/auth_cubit.dart';
-import 'package:furrpal/features/auth/presentation/cubit/auth_state.dart';
 import 'package:furrpal/features/auth/presentation/pages/start_page.dart';
+import 'package:furrpal/features/user_profile/presentation/cubit/profile_cubit.dart';
+import 'package:furrpal/features/user_profile/presentation/cubit/profile_state.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
+import '../widgets/build_info_row.dart';
+
 class UserProfile extends StatefulWidget {
-  const UserProfile({super.key});
+  final String uid;
+
+  const UserProfile({super.key, required this.uid});
 
   @override
   State<UserProfile> createState() => _UserProfileState();
 }
 
 class _UserProfileState extends State<UserProfile> {
+  //cubits
+  late final authCubit = context.read<AuthCubit>();
+  late final profileCubit = context.read<ProfileCubit>();
+
+  //current user
+  late UserEntity? currentUser = authCubit.currentUser;
+
+  // on startup
+  @override
+  void initState() {
+    super.initState();
+
+    // load user profile data
+    profileCubit.fetchUserProfile(widget.uid);
+  }
+
   File? _profileImage;
   final List<String> dogs = ['Dog 1', 'Dog 2'];
 
@@ -52,6 +76,12 @@ class _UserProfileState extends State<UserProfile> {
                 onTap: () {
                   Navigator.pop(context);
                   logout();
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => StartPage(),
+                      ),
+                      (route) => false);
                 },
               ),
             ],
@@ -74,142 +104,159 @@ class _UserProfileState extends State<UserProfile> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthCubit, AuthState>(
-      listener: (context, state) {
-        if (state is UnAuthenticated) {
-          Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(
-                builder: (context) => StartPage(),
-              ),
-                  (route) => false);
-        }
-      },
-      child: Scaffold(
-        body: SafeArea(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return BlocBuilder<ProfileCubit, ProfileState>(
+      builder: (context, state) {
+        //loaded
+        if (state is ProfileLoaded) {
+          //get loaded user
+          final user = state.profileUser;
+
+          return Scaffold(
+            body: SafeArea(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'My profile',
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.more_vert),
+                            onPressed: _showOptionsMenu,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          GestureDetector(
+                            onTap: _pickImage,
+                            child: CircleAvatar(
+                              radius: 50,
+                              backgroundImage: _profileImage != null
+                                  ? FileImage(_profileImage!)
+                                  : const AssetImage('assets/images/man.jpg')
+                                      as ImageProvider,
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${user.fName} ${user.lName}',
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                buildInfoRow(Icons.email, user.email),
+                                const SizedBox(height: 4),
+                                buildInfoRow(Icons.location_on, user.address),
+                                const SizedBox(height: 4),
+                                buildInfoRow(Icons.phone, user.phoneNumber),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 32),
                       const Text(
-                        'My profile',
+                        'Your Paws',
                         style: TextStyle(
-                          fontSize: 28,
+                          fontSize: 24,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.more_vert),
-                        onPressed: _showOptionsMenu,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      GestureDetector(
-                        onTap: _pickImage,
-                        child: CircleAvatar(
-                          radius: 50,
-                          backgroundImage: _profileImage != null
-                              ? FileImage(_profileImage!)
-                              : const AssetImage('assets/images/man.jpg')
-
-                                  as ImageProvider,
-
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                      const SizedBox(height: 16),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
                           children: [
-                            const Text(
-                              'James Taylor',
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            _buildInfoRow(Icons.email, 'james@email.com'),
-                            const SizedBox(height: 4),
-                            _buildInfoRow(Icons.location_on, '78/A Park lane'),
-                            const SizedBox(height: 4),
-                            _buildInfoRow(Icons.phone, '0714586235'),
+                            ...dogs.map((dog) => _buildDogCard(dog)),
+                            _buildAddDogCard(),
                           ],
                         ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 32),
-                  const Text(
-                    'Your Paws',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        ...dogs.map((dog) => _buildDogCard(dog)),
-                        _buildAddDogCard(),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  const Text(
-                    'Gallery',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  GridView.count(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    crossAxisCount: 3,
-                    mainAxisSpacing: 8,
-                    crossAxisSpacing: 8,
-                    children: List.generate(
-                      3,
-
-                      (index) => ClipRRect(
-
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.asset(
-                          'assets/images/puppy.jpeg',
-                          fit: BoxFit.cover,
+                      const SizedBox(height: 32),
+                      const Text(
+                        'Gallery',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ),
+                      const SizedBox(height: 16),
+                      GridView.count(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        crossAxisCount: 3,
+                        mainAxisSpacing: 8,
+                        crossAxisSpacing: 8,
+                        children: List.generate(
+                          3,
+                          (index) => ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.asset(
+                              'assets/images/puppy.jpeg',
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
-          ),
-        ),
-      ),
-    );
-  }
+          );
+          // Navigator.pushAndRemoveUntil(
+          //     context,
+          //     MaterialPageRoute(
+          //       builder: (context) => StartPage(),
+          //     ),
+          //     (route) => false);
 
-  Widget _buildInfoRow(IconData icon, String text) {
-    return Row(
-      children: [
-        Icon(icon, size: 16, color: Colors.grey),
-        const SizedBox(width: 8),
-        Text(text, style: const TextStyle(color: Colors.black, fontSize: 14)),
-      ],
+          //loading
+        } else if (state is ProfileLoading) {
+          print('loading');
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        } else {
+          print('no');
+          return Center(
+            child: Row(
+              children: [
+                TextCustomWidget(
+                  text: 'No profile found',
+                  textColor: blackColor,
+                ),
+                IconButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      logout();
+                    },
+                    icon: Icon(Icons.logout))
+              ],
+            ),
+          );
+        }
+      },
     );
   }
 
@@ -225,14 +272,12 @@ class _UserProfileState extends State<UserProfile> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-
           Image.asset('assets/images/dog.jpg',
               width: 80, height: 80, fit: BoxFit.cover),
           const SizedBox(height: 8),
           Text(dogName,
               style: const TextStyle(
                   color: Colors.black87, fontWeight: FontWeight.bold)),
-
         ],
       ),
     );

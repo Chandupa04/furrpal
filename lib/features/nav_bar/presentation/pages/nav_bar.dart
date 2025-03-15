@@ -1,6 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:furrpal/app_data.dart';
+import 'package:furrpal/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:furrpal/features/community/presentation/pages/community_page.dart';
 import 'package:furrpal/features/home/presentation/pages/home_page.dart';
 import 'package:furrpal/features/notifications/presentation/pages/notification_page.dart';
@@ -17,13 +20,6 @@ class NavBar extends StatefulWidget {
 }
 
 class _NavBarState extends State<NavBar> {
-  List pages = [
-    const HomePage(),
-    const NotificationsPage(),
-    const CommunityPage(),
-    ShopPage(),
-    const UserProfile(),
-  ];
   int _currentIndex = 0;
 
   void _onItemTap(int index) {
@@ -34,8 +30,21 @@ class _NavBarState extends State<NavBar> {
 
   @override
   Widget build(BuildContext context) {
+    //get the current user
+    final user = context.read<AuthCubit>().currentUser;
+    String? uid = user!.uid;
+
     return Scaffold(
-      body: pages[_currentIndex],
+      body: IndexedStack(
+        index: _currentIndex,
+        children: [
+          const HomePage(),
+          const NotificationsPage(),
+          const CommunityPage(),
+          ShopPage(),
+          UserProfile(uid: uid),
+        ],
+      ),
       bottomNavigationBar: ContainerCustom(
         alignment: Alignment.topCenter,
         height: 60.h,
