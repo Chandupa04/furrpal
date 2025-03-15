@@ -1,7 +1,8 @@
-import 'package:furrpal/features/auth/domain/entities/user/user_entity.dart';
+import '../../../auth/models/user_entity.dart';
 
 class ProfileUser extends UserEntity {
   final String profileImageUrl;
+  final String bio;
 
   ProfileUser({
     required super.uid,
@@ -11,10 +12,11 @@ class ProfileUser extends UserEntity {
     required super.phoneNumber,
     required super.address,
     required this.profileImageUrl,
+    required this.bio,
   });
 
   // update the profile
-  ProfileUser copyWith({String? newProfileImageUrl}) {
+  ProfileUser copyWith({String? newProfileImageUrl, String? newBio}) {
     return ProfileUser(
       uid: uid,
       email: email,
@@ -23,6 +25,7 @@ class ProfileUser extends UserEntity {
       phoneNumber: phoneNumber,
       address: address,
       profileImageUrl: newProfileImageUrl ?? profileImageUrl,
+      bio: newBio ?? bio,
     );
   }
 
@@ -35,6 +38,7 @@ class ProfileUser extends UserEntity {
       'phone number': phoneNumber,
       'address': address,
       'profile image url': profileImageUrl,
+      'bio': bio,
     };
   }
 
@@ -47,6 +51,7 @@ class ProfileUser extends UserEntity {
       phoneNumber: jsonUser['phone number'],
       address: jsonUser['address'],
       profileImageUrl: jsonUser['profileImageUrl'] ?? '',
+      bio: jsonUser['bio'] ?? '',
     );
   }
 }

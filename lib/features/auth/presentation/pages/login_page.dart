@@ -59,7 +59,7 @@ class _LoginPageState extends State<LoginPage> {
         SnackBar(
           content: TextCustomWidget(
             text: 'Please Enter Both Email and Password',
-            fontSize: 12.sp,
+            fontSize: 17.sp,
           ),
         ),
       );

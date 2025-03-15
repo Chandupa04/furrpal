@@ -17,11 +17,11 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) =>
-          AuthCubit(authRepo: authRepo)..checkUserAuthentication(),
-      child: ScreenUtilInit(
-        designSize: const Size(452, 778),
+    return ScreenUtilInit(
+      designSize: const Size(452, 778),
+      child: BlocProvider(
+        create: (context) =>
+            AuthCubit(authRepo: authRepo)..checkUserAuthentication(),
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
                 return const StartPage();
               }
               if (authState is Authenticated) {
-                return const NavBar();
+                return NavBar();
               } else {
                 return const Scaffold(
                   body: Center(
@@ -53,13 +53,14 @@ class MyApp extends StatelessWidget {
             listener: (context, state) {
               if (state is AuthError) {
                 print(state.message);
-                // ScaffoldMessenger.of(context).showSnackBar(
-                //     SnackBar(content: TextCustomWidget(text: state.message)));
+                ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: TextCustomWidget(text: state.message)));
               }
             },
           ),
         ),
       ),
     );
+    // );
   }
 }
