@@ -45,7 +45,7 @@ class FirebaseService {
       });
     } catch (e) {
       print('Error creating dog profile: $e');
-      throw e;
+      rethrow;
     }
   }
 
@@ -72,7 +72,7 @@ class FirebaseService {
       }).toList();
     } catch (e) {
       print('Error getting dog profiles: $e');
-      throw e;
+      rethrow;
     }
   }
 }

@@ -22,7 +22,7 @@ class _CommentPageState extends State<CommentPage> {
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Please enter a comment")),
+        const SnackBar(content: Text("Please enter a comment")),
       );
     }
   }
@@ -40,15 +40,15 @@ class _CommentPageState extends State<CommentPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text("Reply to Comment"),
+          title: const Text("Reply to Comment"),
           content: TextField(
             controller: replyController,
-            decoration: InputDecoration(hintText: "Enter your reply..."),
+            decoration: const InputDecoration(hintText: "Enter your reply..."),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text("Cancel"),
+              child: const Text("Cancel"),
             ),
             ElevatedButton(
               onPressed: () {
@@ -59,7 +59,7 @@ class _CommentPageState extends State<CommentPage> {
                   Navigator.pop(context);
                 }
               },
-              child: Text("Reply"),
+              child: const Text("Reply"),
             ),
           ],
         );
@@ -88,7 +88,7 @@ class _CommentPageState extends State<CommentPage> {
                   children: [
                     ListTile(
                       title: Text(_comments[index]),
-                      leading: Icon(Icons.person),
+                      leading: const Icon(Icons.person),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -101,7 +101,7 @@ class _CommentPageState extends State<CommentPage> {
                           ),
                           TextButton(
                             onPressed: () => _addReply(index),
-                            child: Text("Reply"),
+                            child: const Text("Reply"),
                           ),
                         ],
                       ),
@@ -111,31 +111,31 @@ class _CommentPageState extends State<CommentPage> {
                         padding: const EdgeInsets.only(left: 40.0),
                         child: ListTile(
                           title: Text(reply),
-                          leading: Icon(Icons.reply, color: Colors.grey),
+                          leading: const Icon(Icons.reply, color: Colors.grey),
                         ),
                       );
-                    }).toList(),
+                    }),
                   ],
                 );
               },
             ),
           ),
           Padding(
-            padding: EdgeInsets.all(40.0),
+            padding: const EdgeInsets.all(40.0),
             child: Row(
               children: [
                 Expanded(
                   child: TextField(
                     controller: _commentController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       hintText: "Write a comment...",
                       border: OutlineInputBorder(),
                     ),
                   ),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 IconButton(
-                  icon: Icon(Icons.send, color: Colors.blue),
+                  icon: const Icon(Icons.send, color: Colors.blue),
                   onPressed: _addComment,
                 ),
               ],

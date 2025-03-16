@@ -25,11 +25,11 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Edit Post'),
+          title: const Text('Edit Post'),
           content: TextField(
             controller: _editController,
             maxLines: 5,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               hintText: 'Edit your post...',
               border: OutlineInputBorder(),
             ),
@@ -37,7 +37,7 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text("Cancel"),
+              child: const Text("Cancel"),
             ),
             ElevatedButton(
               onPressed: () {
@@ -46,7 +46,7 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
                 });
                 Navigator.pop(context);  // Close the dialog
               },
-              child: Text("Save"),
+              child: const Text("Save"),
             ),
           ],
         );
@@ -59,20 +59,20 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text("Hide Post?"),
-          content: Text("Are you sure you want to hide this post?"),
+          title: const Text("Hide Post?"),
+          content: const Text("Are you sure you want to hide this post?"),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text("Cancel"),
+              child: const Text("Cancel"),
             ),
             ElevatedButton(
               onPressed: () {
                 // Handle hide logic here (e.g., change state to hide the post)
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Post hidden')));
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Post hidden')));
               },
-              child: Text("Hide"),
+              child: const Text("Hide"),
             ),
           ],
         );
@@ -85,20 +85,20 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text("Report Post?"),
-          content: Text("Are you sure you want to report this post?"),
+          title: const Text("Report Post?"),
+          content: const Text("Are you sure you want to report this post?"),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text("Cancel"),
+              child: const Text("Cancel"),
             ),
             ElevatedButton(
               onPressed: () {
                 // Handle report logic here (e.g., send report to the backend)
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Post reported')));
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Post reported')));
               },
-              child: Text("Report"),
+              child: const Text("Report"),
             ),
           ],
         );
@@ -111,20 +111,20 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text("Delete Post?"),
-          content: Text("Are you sure you want to delete this post? This action cannot be undone."),
+          title: const Text("Delete Post?"),
+          content: const Text("Are you sure you want to delete this post? This action cannot be undone."),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text("Cancel"),
+              child: const Text("Cancel"),
             ),
             ElevatedButton(
               onPressed: () {
                 // Handle delete logic here (e.g., remove the post from the list)
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Post deleted')));
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Post deleted')));
               },
-              child: Text("Delete"),
+              child: const Text("Delete"),
             ),
           ],
         );
@@ -190,46 +190,46 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
                     PopupMenuItem(
                       value: "Edit",
                       height: 30.h,
+                      onTap: _editPost,
                       child: TextCustomWidget(
                         text: "Edit",
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w600,
                         textColor: blackColor,
                       ),
-                      onTap: _editPost,
                     ),
                     PopupMenuItem(
                       value: "Delete",
                       height: 30.h,
+                      onTap: _deletePost,
                       child: TextCustomWidget(
                         text: "Delete",
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w600,
                         textColor: blackColor,
-                      ),
-                      onTap: _deletePost,  // Show delete confirmation dialog
+                      ),  // Show delete confirmation dialog
                     ),
                     PopupMenuItem(
                       value: "Hide",
                       height: 30.h,
+                      onTap: _hidePost,
                       child: TextCustomWidget(
                         text: "Hide",
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w600,
                         textColor: blackColor,
-                      ),
-                      onTap: _hidePost,  // Show hide dialog
+                      ),  // Show hide dialog
                     ),
                     PopupMenuItem(
                       value: "Report",
                       height: 30.h,
+                      onTap: _reportPost,
                       child: TextCustomWidget(
                         text: "Report",
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w600,
                         textColor: blackColor,
-                      ),
-                      onTap: _reportPost,  // Show report dialog
+                      ),  // Show report dialog
                     ),
                   ],
                 ),
@@ -289,7 +289,7 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => CommentPage(),
+                            builder: (context) => const CommentPage(),
                           ),
                         );
                       },

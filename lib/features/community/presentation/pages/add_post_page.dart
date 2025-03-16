@@ -28,7 +28,7 @@ class _AddPostPageState extends State<AddPostPage> {
       Navigator.pop(context); // Close the page after submission
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Please add some text or an image")),
+        const SnackBar(content: Text("Please add some text or an image")),
       );
     }
   }
@@ -39,16 +39,16 @@ class _AddPostPageState extends State<AddPostPage> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: Text("Discard Post?"),
-            content: Text("You have unsaved changes. Do you want to discard them?"),
+            title: const Text("Discard Post?"),
+            content: const Text("You have unsaved changes. Do you want to discard them?"),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false), // Stay on page
-                child: Text("Continue Editing"),
+                child: const Text("Continue Editing"),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context, true), // Discard post
-                child: Text("Discard"),
+                child: const Text("Discard"),
               ),
             ],
           );
@@ -65,9 +65,9 @@ class _AddPostPageState extends State<AddPostPage> {
       onWillPop: _onBackPressed,
       child: Scaffold(
         appBar: AppBar(
-          title: Text("Create Post"),
+          title: const Text("Create Post"),
           leading: IconButton(
-            icon: Icon(Icons.close),
+            icon: const Icon(Icons.close),
             onPressed: () async {
               if (await _onBackPressed()) {
                 Navigator.pop(context);
@@ -76,29 +76,29 @@ class _AddPostPageState extends State<AddPostPage> {
           ),
         ),
         body: Padding(
-          padding: EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
               TextField(
                 controller: _postController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: "What's on your mind?",
                   border: OutlineInputBorder(),
                 ),
                 maxLines: 5,
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               _selectedImage != null
                   ? Image.file(_selectedImage!, height: 150)
                   : TextButton.icon(
                       onPressed: _pickImage,
-                      icon: Icon(Icons.image),
-                      label: Text("Add Image"),
+                      icon: const Icon(Icons.image),
+                      label: const Text("Add Image"),
                     ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _submitPost,
-                child: Text("Post"),
+                child: const Text("Post"),
               ),
             ],
           ),

@@ -18,14 +18,14 @@ class CommunityPage extends StatelessWidget {
             onPressed: () {Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => AddPostPage(),
+                            builder: (context) => const AddPostPage(),
                           ),
                         );},
-            icon: Icon(CupertinoIcons.add)
+            icon: const Icon(CupertinoIcons.add)
           ),
         ],
       ),
-      body: Column(
+      body: const Column(
         children: [CommunityPostCard()],
       ),
     );

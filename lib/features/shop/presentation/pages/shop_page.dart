@@ -20,6 +20,8 @@ class Product {
 }
 
 class ShopPage extends StatefulWidget {
+  const ShopPage({super.key});
+
   @override
   _ShopPageState createState() => _ShopPageState();
 }
@@ -49,6 +51,15 @@ class _ShopPageState extends State<ShopPage> {
         name: "Dog Muzzle",
         image: "assets/images/dog_muzzle.jpg",
         price: 22.49),
+    Product(
+        name: "Dog Diapers", image: "assets/images/diapers.jpg", price: 22.49),
+    Product(name: "Dog Bed", image: "assets/images/bed.jpg", price: 15.49),
+    Product(
+        name: "Dog Feeder",
+        image: "assets/images/dog_feeder.jpg",
+        price: 14.39),
+    Product(
+        name: "Dog Snack", image: "assets/images/dog_snack.jpg", price: 20.49),
   ];
 
   List<Product> cart = [];
@@ -76,16 +87,18 @@ class _ShopPageState extends State<ShopPage> {
     return Scaffold(
       appBar: AppBar(
         // backgroundColor: Colors.deepPurple,
-        title: Text("FurrPal Shop",
-            style: TextStyle(
-                fontSize: 24.sp,
-                fontWeight: FontWeight.bold,
-                // color: Colors.white
-                ),),
+        title: Text(
+          "FurrPal Shop",
+          style: TextStyle(
+            fontSize: 24.sp,
+            fontWeight: FontWeight.bold,
+            // color: Colors.white
+          ),
+        ),
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(Icons.shopping_cart),
+            icon: const Icon(Icons.shopping_cart),
             onPressed: navigateToCart,
             color: Colors.amberAccent,
           ),
@@ -112,7 +125,8 @@ class _ShopPageState extends State<ShopPage> {
                   ),
                 );
               },
-              child: Card(color: whiteColor,
+              child: Card(
+                color: whiteColor,
                 elevation: 3,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.r)),
@@ -131,13 +145,18 @@ class _ShopPageState extends State<ShopPage> {
                           Text("\$${product.price.toStringAsFixed(2)}",
                               style: TextStyle(
                                   fontSize: 14.sp, color: Colors.green)),
-                          ButtonCustom(text: 'Add to Cart',
-                          btnHeight: 30.h,
-                          btnWidth: 140.w,
-                          borderRadius: BorderRadius.circular(15.r),
-                          // btnColor: ,
-                          textStyle: TextStyle(fontSize: 15.sp,color: blackColor,),
-                           callback: (){}, ),
+                          ButtonCustom(
+                            text: 'Add to Cart',
+                            btnHeight: 30.h,
+                            btnWidth: 140.w,
+                            borderRadius: BorderRadius.circular(15.r),
+                            // btnColor: ,
+                            textStyle: TextStyle(
+                              fontSize: 15.sp,
+                              color: blackColor,
+                            ),
+                            callback: () {},
+                          ),
                           // ElevatedButton(
                           //   onPressed: () => addToCart(product),
                           //   child: Text("Add to Cart"),

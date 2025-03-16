@@ -146,11 +146,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _showToast(String dogName, bool isLiked) {
-    _showCustomToast("${dogName} ${isLiked ? 'liked! ' : 'disliked '}");
+    _showCustomToast("$dogName ${isLiked ? 'liked! ' : 'disliked '}");
   }
 
   void _showSkipToast(String dogName) {
-    _showCustomToast("${dogName} skipped");
+    _showCustomToast("$dogName skipped");
   }
 
   @override
@@ -237,7 +237,7 @@ class _HomePageState extends State<HomePage> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => SearchFilterScreen()),
+                MaterialPageRoute(builder: (context) => const SearchFilterScreen()),
               );
             },
             child: Icon(Icons.search, color: Colors.grey.shade800, size: 28),

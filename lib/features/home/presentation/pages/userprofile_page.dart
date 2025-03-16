@@ -7,11 +7,11 @@ void main() {
 }
 
 class UserProfileApp extends StatelessWidget {
-  const UserProfileApp({Key? key}) : super(key: key);
+  const UserProfileApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
       home: UserProfileWidget(),
     );
@@ -19,7 +19,7 @@ class UserProfileApp extends StatelessWidget {
 }
 
 class UserProfileWidget extends StatefulWidget {
-  const UserProfileWidget({Key? key}) : super(key: key);
+  const UserProfileWidget({super.key});
 
   @override
   _UserProfileWidgetState createState() => _UserProfileWidgetState();
@@ -203,7 +203,6 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                           );
                         }
                       },
-                      child: const Text('Save Profile'),
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size(double.infinity, 50),
                         backgroundColor:
@@ -211,6 +210,7 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                         foregroundColor:
                         Colors.deepOrange.shade300, // Text color
                       ),
+                      child: const Text('Save Profile'),
                     ),
                   ],
                 ),

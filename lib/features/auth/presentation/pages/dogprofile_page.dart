@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class DogProfileScreen extends StatelessWidget {
+  const DogProfileScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,11 +18,11 @@ class DogProfileScreen extends StatelessWidget {
                 height: 150,
                 width: 150,
               ),
-              SizedBox(height: 25),
+              const SizedBox(height: 25),
 
               // Form Container
               Container(
-                padding: EdgeInsets.all(20),
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
                   gradient: LinearGradient(
@@ -33,27 +35,27 @@ class DogProfileScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start, // Align labels left
                   children: [
                     _buildLabeledTextField("Dog’s Name"),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
                     _buildLabeledTextField("Breed"),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
                     // Gender & Age Fields (Side by Side)
                     Row(
                       children: [
                         Expanded(child: _buildLabeledTextField("Gender")),
-                        SizedBox(width: 15),
+                        const SizedBox(width: 15),
                         Expanded(child: _buildLabeledTextField("Age")),
                       ],
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
                     _buildLabeledTextField("Health Conditions"),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
                     _buildLabeledTextField("Location of the pet",
                         hintText: "Eg: Nearest town of the user"),
-                    SizedBox(height: 50), // Space before the button
+                    const SizedBox(height: 50), // Space before the button
 
                     // Submit Button (Inside the Form)
                     Center(
@@ -63,12 +65,12 @@ class DogProfileScreen extends StatelessWidget {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          padding: EdgeInsets.symmetric(vertical: 15, horizontal: 60),
+                          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 60),
                         ),
                         onPressed: () {
                           // Handle form submission
                         },
-                        child: Text(
+                        child: const Text(
                           "Create user profile",
                           style: TextStyle(
                             color: Colors.white,
@@ -94,13 +96,13 @@ class DogProfileScreen extends StatelessWidget {
       children: [
         Text(
           label,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
             color: Colors.white, // Label color
           ),
         ),
-        SizedBox(height: 5), // Small spacing between label and field
+        const SizedBox(height: 5), // Small spacing between label and field
         TextField(
           decoration: InputDecoration(
             hintText: hintText,

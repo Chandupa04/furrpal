@@ -6,6 +6,8 @@ void main() {
 }
 
 class UserDetailsApp extends StatelessWidget {
+  const UserDetailsApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -16,6 +18,8 @@ class UserDetailsApp extends StatelessWidget {
 }
 
 class UserDetailsPage extends StatefulWidget {
+  const UserDetailsPage({super.key});
+
   @override
   _UserDetailsPageState createState() => _UserDetailsPageState();
 }
@@ -38,14 +42,14 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
             // Gradient Background
             Container(
               width: double.infinity,
-              padding: EdgeInsets.only(top: 70, bottom: 20),
+              padding: const EdgeInsets.only(top: 70, bottom: 20),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [Colors.deepOrange.shade400, Colors.deepOrange.shade200],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                 ),
-                borderRadius: BorderRadius.only(
+                borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(30),
                   bottomRight: Radius.circular(30),
                 ),
@@ -62,28 +66,28 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   // Display 'since' without edit icon
                   Text(
                     since,
-                    style: TextStyle(color: Colors.black87, fontSize: 18, fontWeight: FontWeight.w500),
+                    style: const TextStyle(color: Colors.black87, fontSize: 18, fontWeight: FontWeight.w500),
                   ),
                 ],
               ),
             ),
 
-            SizedBox(height: 30),
+            const SizedBox(height: 30),
 
             // User Details Card (Larger and more spacious)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Container(
                 width: double.infinity,
-                padding: EdgeInsets.all(30), // Increased padding for a taller card
+                padding: const EdgeInsets.all(30), // Increased padding for a taller card
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
+                  boxShadow: const [
                     BoxShadow(
                       color: Colors.black26,
                       blurRadius: 10,
@@ -95,11 +99,11 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildDetailRow("Name", name),
-                    SizedBox(height: 50), // Increased space between fields
+                    const SizedBox(height: 50), // Increased space between fields
                     _buildDetailRow("Email", email, isCopyable: true), // Email is now clickable & copyable
-                    SizedBox(height: 50), // Increased space between fields
+                    const SizedBox(height: 50), // Increased space between fields
                     _buildDetailRow("Address", address),
-                    SizedBox(height: 50), // Increased space between fields
+                    const SizedBox(height: 50), // Increased space between fields
                     _buildDetailRow("Contact number", contact, isCopyable: true), // Contact number is now clickable & copyable
                   ],
                 ),
@@ -118,9 +122,9 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
       children: [
         Text(
           "$label:",
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87),
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87),
         ),
-        SizedBox(height: 5),
+        const SizedBox(height: 5),
         isCopyable
             ? GestureDetector(
           onTap: () {
@@ -131,7 +135,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
           },
           child: Text(
             value,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 22,
               color: Colors.blue,
               // decoration: TextDecoration.underline, // Makes it look clickable
@@ -140,7 +144,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
         )
             : Text(
           value,
-          style: TextStyle(fontSize: 22, color: Colors.black87),
+          style: const TextStyle(fontSize: 22, color: Colors.black87),
         ),
       ],
     );
