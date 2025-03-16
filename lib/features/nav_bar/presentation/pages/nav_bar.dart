@@ -2,14 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:furrpal/app_data.dart';
 import 'package:furrpal/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:furrpal/features/community/presentation/pages/community_page.dart';
 import 'package:furrpal/features/home/presentation/pages/home_page.dart';
 import 'package:furrpal/features/notifications/presentation/pages/notification_page.dart';
 import 'package:furrpal/features/shop/presentation/pages/shop_page.dart';
 import 'package:furrpal/features/user_profile/presentation/pages/user_profile.dart';
-
 import '../../../../custom/container_custom.dart';
 
 class NavBar extends StatefulWidget {

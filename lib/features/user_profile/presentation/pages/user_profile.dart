@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:furrpal/constant/constant.dart';
 import 'package:furrpal/custom/text_custom.dart';
 import 'package:furrpal/features/auth/models/user_entity.dart';
 import 'package:furrpal/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:furrpal/features/auth/presentation/pages/start_page.dart';
+import 'package:furrpal/features/user_profile/domain/models/profile_user.dart';
 import 'package:furrpal/features/user_profile/presentation/cubit/profile_cubit.dart';
 import 'package:furrpal/features/user_profile/presentation/cubit/profile_state.dart';
+import 'package:furrpal/features/user_profile/presentation/pages/edit_user_profile.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
@@ -46,51 +49,6 @@ class _UserProfileState extends State<UserProfile> {
     authCubit.logout();
   }
 
-  void _showOptionsMenu() {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              ListTile(
-                leading: const Icon(Icons.edit),
-                title: const Text('Edit Profile'),
-                onTap: () {
-                  Navigator.pop(context);
-                  // Add edit profile logic here
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.settings),
-                title: const Text('Settings'),
-                onTap: () {
-                  Navigator.pop(context);
-                  // Add settings logic here
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.logout),
-                title: const Text('Logout'),
-                onTap: () {
-                  Navigator.pop(context);
-                  logout();
-                  Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => StartPage(),
-                      ),
-                      (route) => false);
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   Future<void> _pickImage() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
@@ -111,31 +69,29 @@ class _UserProfileState extends State<UserProfile> {
           //get loaded user
           final user = state.profileUser;
 
-          return Scaffold(
-            body: SafeArea(
-              child: SingleChildScrollView(
+          return SafeArea(
+            child: Scaffold(
+              appBar: AppBar(
+                title: Text(
+                  'My profile',
+                  style: appBarStyle,
+                ),
+                centerTitle: true,
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.more_vert),
+                    onPressed: () {
+                      showOptionsMenu(context, user);
+                    },
+                  ),
+                ],
+              ),
+              body: SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'My profile',
-                            style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.more_vert),
-                            onPressed: _showOptionsMenu,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -154,14 +110,13 @@ class _UserProfileState extends State<UserProfile> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  '${user.fName} ${user.lName}',
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                TextCustomWidget(
+                                  text: '${user.fName} ${user.lName}',
+                                  fontSize: 20.sp,
+                                  fontWeight: FontWeight.w700,
+                                  textColor: blackColor,
+                                  marginBottom: 5.h,
                                 ),
-                                const SizedBox(height: 8),
                                 buildInfoRow(Icons.email, user.email),
                                 const SizedBox(height: 4),
                                 buildInfoRow(Icons.location_on, user.address),
@@ -222,23 +177,15 @@ class _UserProfileState extends State<UserProfile> {
               ),
             ),
           );
-          // Navigator.pushAndRemoveUntil(
-          //     context,
-          //     MaterialPageRoute(
-          //       builder: (context) => StartPage(),
-          //     ),
-          //     (route) => false);
 
           //loading
         } else if (state is ProfileLoading) {
-          print('loading');
           return const Scaffold(
             body: Center(
               child: CircularProgressIndicator(),
             ),
           );
         } else {
-          print('no');
           return Center(
             child: Row(
               children: [
@@ -256,6 +203,56 @@ class _UserProfileState extends State<UserProfile> {
             ),
           );
         }
+      },
+    );
+  }
+
+  Future<dynamic> showOptionsMenu(BuildContext context, ProfileUser user) {
+    return showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ListTile(
+                leading: const Icon(Icons.edit),
+                title: const Text('Edit Profile'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EditUserProfile(user: user),
+                    ),
+                  );
+                },
+              ),
+              // ListTile(
+              //   leading: const Icon(Icons.settings),
+              //   title: const Text('Settings'),
+              //   onTap: () {
+              //     Navigator.pop(context);
+              //     // Add settings logic here
+              //   },
+              // ),
+              ListTile(
+                leading: const Icon(Icons.logout),
+                title: const Text('Logout'),
+                onTap: () {
+                  Navigator.pop(context);
+                  logout();
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => StartPage(),
+                      ),
+                      (route) => false);
+                },
+              ),
+            ],
+          ),
+        );
       },
     );
   }
