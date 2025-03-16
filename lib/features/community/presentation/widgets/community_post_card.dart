@@ -14,13 +14,13 @@ class CommunityPostCard extends StatefulWidget {
 }
 
 class _CommunityPostCardState extends State<CommunityPostCard> {
-  String _postContent = 'Original post content here';  // Initial post content
+  String _postContent = 'Original post content here'; // Initial post content
   final TextEditingController _editController = TextEditingController();
 
   void _editPost() {
     // Set initial value of controller to the current post content
     _editController.text = _postContent;
-    
+
     showDialog(
       context: context,
       builder: (context) {
@@ -44,7 +44,7 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
                 setState(() {
                   _postContent = _editController.text;
                 });
-                Navigator.pop(context);  // Close the dialog
+                Navigator.pop(context); // Close the dialog
               },
               child: const Text("Save"),
             ),
@@ -70,7 +70,8 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
               onPressed: () {
                 // Handle hide logic here (e.g., change state to hide the post)
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Post hidden')));
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(const SnackBar(content: Text('Post hidden')));
               },
               child: const Text("Hide"),
             ),
@@ -96,7 +97,8 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
               onPressed: () {
                 // Handle report logic here (e.g., send report to the backend)
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Post reported')));
+                ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Post reported')));
               },
               child: const Text("Report"),
             ),
@@ -112,7 +114,8 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
       builder: (context) {
         return AlertDialog(
           title: const Text("Delete Post?"),
-          content: const Text("Are you sure you want to delete this post? This action cannot be undone."),
+          content: const Text(
+              "Are you sure you want to delete this post? This action cannot be undone."),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -122,7 +125,8 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
               onPressed: () {
                 // Handle delete logic here (e.g., remove the post from the list)
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Post deleted')));
+                ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Post deleted')));
               },
               child: const Text("Delete"),
             ),
@@ -131,6 +135,7 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
       },
     );
   }
+
   bool isLiked = false;
 
   @override
@@ -207,7 +212,7 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w600,
                         textColor: blackColor,
-                      ),  // Show delete confirmation dialog
+                      ), // Show delete confirmation dialog
                     ),
                     PopupMenuItem(
                       value: "Hide",
@@ -218,7 +223,7 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w600,
                         textColor: blackColor,
-                      ),  // Show hide dialog
+                      ), // Show hide dialog
                     ),
                     PopupMenuItem(
                       value: "Report",
@@ -229,7 +234,7 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w600,
                         textColor: blackColor,
-                      ),  // Show report dialog
+                      ), // Show report dialog
                     ),
                   ],
                 ),
@@ -238,14 +243,21 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
           ),
           ContainerCustom(
             height: MediaQuery.of(context).size.height * 0.3,
+            child: Image.asset('assets/images/gallery.jpeg',
+            height: 250.h,
+            fit: BoxFit.contain,
+            ),
             width: double.infinity,
             marginTop: 10.h,
             marginBottom: 10.h,
-            bgColor: Colors.grey,
+            // bgColor: Colors.grey,
           ),
-          TextCustomWidget(text: _postContent,textColor: blackColor,),
           TextCustomWidget(
-            text: _postContent,  // Display the current post content
+            text: _postContent,
+            textColor: blackColor,
+          ),
+          TextCustomWidget(
+            text: _postContent, // Display the current post content
             fontSize: 16.sp,
             fontWeight: FontWeight.w600,
             marginLeft: 10.w,
@@ -265,8 +277,10 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
                         });
                       },
                       padding: EdgeInsets.zero,
-                      icon: Icon(isLiked==true?Icons.favorite: Icons.favorite_border_rounded),
-                      color:isLiked == true?Colors.red: null,
+                      icon: Icon(isLiked == true
+                          ? Icons.favorite
+                          : Icons.favorite_border_rounded),
+                      color: isLiked == true ? Colors.red : null,
                     ),
                   ),
                   TextCustomWidget(

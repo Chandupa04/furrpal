@@ -35,7 +35,7 @@ class _CommentPageState extends State<CommentPage> {
 
   void _addReply(int commentIndex) {
     TextEditingController replyController = TextEditingController();
-    
+
     showDialog(
       context: context,
       builder: (context) {
@@ -54,7 +54,9 @@ class _CommentPageState extends State<CommentPage> {
               onPressed: () {
                 if (replyController.text.isNotEmpty) {
                   setState(() {
-                    _replies.putIfAbsent(commentIndex, () => []).add(replyController.text);
+                    _replies
+                        .putIfAbsent(commentIndex, () => [])
+                        .add(replyController.text);
                   });
                   Navigator.pop(context);
                 }
@@ -94,8 +96,12 @@ class _CommentPageState extends State<CommentPage> {
                         children: [
                           IconButton(
                             icon: Icon(
-                              _likedComments[index] == true ? Icons.favorite : Icons.favorite_border,
-                              color: _likedComments[index] == true ? Colors.red : Colors.grey,
+                              _likedComments[index] == true
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
+                              color: _likedComments[index] == true
+                                  ? Colors.red
+                                  : Colors.grey,
                             ),
                             onPressed: () => _toggleLike(index),
                           ),
@@ -106,15 +112,17 @@ class _CommentPageState extends State<CommentPage> {
                         ],
                       ),
                     ),
-                    if (_replies.containsKey(index)) ..._replies[index]!.map((reply) {
-                      return Padding(
-                        padding: const EdgeInsets.only(left: 40.0),
-                        child: ListTile(
-                          title: Text(reply),
-                          leading: const Icon(Icons.reply, color: Colors.grey),
-                        ),
-                      );
-                    }),
+                    if (_replies.containsKey(index))
+                      ..._replies[index]!.map((reply) {
+                        return Padding(
+                          padding: const EdgeInsets.only(left: 40.0),
+                          child: ListTile(
+                            title: Text(reply),
+                            leading:
+                                const Icon(Icons.reply, color: Colors.grey),
+                          ),
+                        );
+                      }),
                   ],
                 );
               },

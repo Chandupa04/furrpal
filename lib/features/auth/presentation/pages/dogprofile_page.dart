@@ -26,13 +26,17 @@ class DogProfileScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
                   gradient: LinearGradient(
-                    colors: [Colors.deepOrange.shade300, Colors.deepOrange.shade100],
+                    colors: [
+                      Colors.deepOrange.shade300,
+                      Colors.deepOrange.shade100
+                    ],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                   ),
                 ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start, // Align labels left
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start, // Align labels left
                   children: [
                     _buildLabeledTextField("Dog’s Name"),
                     const SizedBox(height: 20),
@@ -65,7 +69,8 @@ class DogProfileScreen extends StatelessWidget {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 60),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 15, horizontal: 60),
                         ),
                         onPressed: () {
                           // Handle form submission

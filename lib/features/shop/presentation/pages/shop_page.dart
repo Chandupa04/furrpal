@@ -20,8 +20,6 @@ class Product {
 }
 
 class ShopPage extends StatefulWidget {
-  const ShopPage({super.key});
-
   @override
   _ShopPageState createState() => _ShopPageState();
 }
@@ -52,14 +50,7 @@ class _ShopPageState extends State<ShopPage> {
         image: "assets/images/dog_muzzle.jpg",
         price: 22.49),
     Product(
-        name: "Dog Diapers", image: "assets/images/diapers.jpg", price: 22.49),
-    Product(name: "Dog Bed", image: "assets/images/bed.jpg", price: 15.49),
-    Product(
-        name: "Dog Feeder",
-        image: "assets/images/dog_feeder.jpg",
-        price: 14.39),
-    Product(
-        name: "Dog Snack", image: "assets/images/dog_snack.jpg", price: 20.49),
+        name: "Dog Muzzle", image: "assets/images/dog_food.jpg", price: 20.49),
   ];
 
   List<Product> cart = [];
@@ -98,7 +89,7 @@ class _ShopPageState extends State<ShopPage> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.shopping_cart),
+            icon: Icon(Icons.shopping_cart),
             onPressed: navigateToCart,
             color: Colors.amberAccent,
           ),
@@ -155,10 +146,10 @@ class _ShopPageState extends State<ShopPage> {
                               fontSize: 15.sp,
                               color: blackColor,
                             ),
-                            callback: () {},
+                            callback: () => addToCart(product),
                           ),
                           // ElevatedButton(
-                          //   onPressed: () => addToCart(product),
+                          //   onPressed:
                           //   child: Text("Add to Cart"),
                           // ),
                         ],

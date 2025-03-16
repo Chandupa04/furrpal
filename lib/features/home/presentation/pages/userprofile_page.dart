@@ -80,12 +80,15 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                   onTap: _pickImage,
                   child: CircleAvatar(
                     radius: 60,
-                    backgroundColor: Colors.deepOrange.shade100, // Background color of the circle
+                    backgroundColor: Colors
+                        .deepOrange.shade100, // Background color of the circle
                     backgroundImage: _image != null
                         ? FileImage(_image!)
-                        : const AssetImage('assets/images/placeholder.jpg') as ImageProvider,
+                        : const AssetImage('assets/images/placeholder.jpg')
+                            as ImageProvider,
                     child: _image == null
-                        ? const Icon(Icons.add_a_photo, size: 40, color: Colors.white)
+                        ? const Icon(Icons.add_a_photo,
+                            size: 40, color: Colors.white)
                         : null,
                   ),
                 ),
@@ -130,7 +133,7 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                           prefixIcon: Icon(Icons.person),
                         ),
                         validator: (value) =>
-                        value!.isEmpty ? 'Please enter your name' : null,
+                            value!.isEmpty ? 'Please enter your name' : null,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -149,7 +152,7 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                         ),
                         keyboardType: TextInputType.emailAddress,
                         validator: (value) =>
-                        value!.isEmpty ? 'Please enter your email' : null,
+                            value!.isEmpty ? 'Please enter your email' : null,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -188,7 +191,7 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                         ),
                         maxLines: 3,
                         validator: (value) =>
-                        value!.isEmpty ? 'Please enter your address' : null,
+                            value!.isEmpty ? 'Please enter your address' : null,
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -205,10 +208,10 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                       },
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size(double.infinity, 50),
-                        backgroundColor:
-                        Colors.deepOrange.shade100, // Button background color
+                        backgroundColor: Colors
+                            .deepOrange.shade100, // Button background color
                         foregroundColor:
-                        Colors.deepOrange.shade300, // Text color
+                            Colors.deepOrange.shade300, // Text color
                       ),
                       child: const Text('Save Profile'),
                     ),

@@ -14,7 +14,8 @@ class _AddPostPageState extends State<AddPostPage> {
   File? _selectedImage;
 
   Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         _selectedImage = File(pickedFile.path);
@@ -40,7 +41,8 @@ class _AddPostPageState extends State<AddPostPage> {
         builder: (context) {
           return AlertDialog(
             title: const Text("Discard Post?"),
-            content: const Text("You have unsaved changes. Do you want to discard them?"),
+            content: const Text(
+                "You have unsaved changes. Do you want to discard them?"),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false), // Stay on page

@@ -15,14 +15,15 @@ class CommunityPage extends StatelessWidget {
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
-            onPressed: () {Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const AddPostPage(),
-                          ),
-                        );},
-            icon: const Icon(CupertinoIcons.add)
-          ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AddPostPage(),
+                  ),
+                );
+              },
+              icon: const Icon(CupertinoIcons.add)),
         ],
       ),
       body: const Column(
