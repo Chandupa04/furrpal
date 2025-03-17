@@ -21,7 +21,7 @@ class _NavBarState extends State<NavBar> {
     const HomePage(),
     const NotificationsPage(),
     const CommunityPage(),
-    const ShopPage(),
+    ShopPage(),
     const UserProfile(),
   ];
   int _currentIndex = 0;

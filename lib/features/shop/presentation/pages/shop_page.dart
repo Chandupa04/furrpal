@@ -20,8 +20,6 @@ class Product {
 }
 
 class ShopPage extends StatefulWidget {
-  const ShopPage({super.key});
-
   @override
   _ShopPageState createState() => _ShopPageState();
 }
@@ -114,7 +112,7 @@ class _ShopPageState extends State<ShopPage> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.shopping_cart),
+            icon: Icon(Icons.shopping_cart),
             onPressed: navigateToCart,
             color: Colors.amberAccent,
           ),
