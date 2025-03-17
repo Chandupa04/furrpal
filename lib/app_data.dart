@@ -8,6 +8,7 @@ import 'package:furrpal/features/auth/presentation/cubit/auth_state.dart';
 import 'package:furrpal/features/nav_bar/presentation/pages/nav_bar.dart';
 import 'package:furrpal/features/user_profile/data/firebase_user_profile_repo.dart';
 import 'package:furrpal/features/user_profile/presentation/cubit/profile_cubit.dart';
+import 'package:furrpal/features/user_profile/user_profile_picture/data/firebase_profile_picture_repo.dart';
 import 'custom/text_custom.dart';
 import 'features/auth/presentation/pages/start_page.dart';
 
@@ -15,10 +16,13 @@ class MyApp extends StatelessWidget {
   MyApp({super.key});
 
   // auth repo
-  final authRepo = FirebaseAuthRepo();
+  final firebaseAuthRepo = FirebaseAuthRepo();
 
   // profile repo
-  final profileRepo = FirebaseUserProfileRepo();
+  final firebaseProfileRepo = FirebaseUserProfileRepo();
+
+  // profile image repo
+  final firebasePictureRepo = FirebaseProfilePictureRepo();
 
   // This widget is the root of your application.
   @override
@@ -29,13 +33,15 @@ class MyApp extends StatelessWidget {
           providers: [
             // auth cubit
             BlocProvider<AuthCubit>(
-              create: (context) =>
-                  AuthCubit(authRepo: authRepo)..checkUserAuthentication(),
+              create: (context) => AuthCubit(authRepo: firebaseAuthRepo)
+                ..checkUserAuthentication(),
             ),
 
             //profile cubit
             BlocProvider<ProfileCubit>(
-              create: (context) => ProfileCubit(profileRepo: profileRepo),
+              create: (context) => ProfileCubit(
+                  profileRepo: firebaseProfileRepo,
+                  pictureRepo: firebasePictureRepo),
             ),
           ],
           child: MaterialApp(

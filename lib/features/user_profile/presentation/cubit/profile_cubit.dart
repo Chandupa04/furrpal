@@ -1,10 +1,13 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:furrpal/features/user_profile/domain/repositories/profile_repo.dart';
 import 'package:furrpal/features/user_profile/presentation/cubit/profile_state.dart';
+import 'package:furrpal/features/user_profile/user_profile_picture/domain/profile_picture_repo.dart';
 
 class ProfileCubit extends Cubit<ProfileState> {
   final ProfileRepo profileRepo;
-  ProfileCubit({required this.profileRepo}) : super(ProfileInitial());
+  final ProfilePictureRepo pictureRepo;
+  ProfileCubit({required this.profileRepo, required this.pictureRepo})
+      : super(ProfileInitial());
 
   //fetch user profile using repo
   Future<void> fetchUserProfile(String uid) async {
@@ -29,6 +32,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     String? newBio,
     String? newAddress,
     String? newPhoneNumber,
+    String? profileImagePath,
   }) async {
     emit(ProfileLoading());
     try {
@@ -36,6 +40,17 @@ class ProfileCubit extends Cubit<ProfileState> {
 
       if (currentUser == null) {
         emit(ProfileError("Failed to fetch user for profile update"));
+        return;
+      }
+      //profile image update
+      String? imageDownloadUrl;
+
+      if (profileImagePath != null) {
+        imageDownloadUrl =
+            await pictureRepo.uploadProfilePicture(profileImagePath, uid);
+      }
+      if (imageDownloadUrl == null) {
+        emit(ProfileError('Failed to upload profile Image'));
         return;
       }
 
@@ -46,6 +61,7 @@ class ProfileCubit extends Cubit<ProfileState> {
         newBio: newBio ?? currentUser.bio,
         newAddress: newAddress ?? currentUser.address,
         newPhoneNumber: newPhoneNumber ?? currentUser.phoneNumber,
+        newProfileImageUrl: imageDownloadUrl ?? currentUser.profileImageUrl,
       );
       await profileRepo.updateUserProfile(updateProfile);
       await fetchUserProfile(uid);

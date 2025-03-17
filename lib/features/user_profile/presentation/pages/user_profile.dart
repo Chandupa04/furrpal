@@ -1,7 +1,9 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:furrpal/constant/constant.dart';
+import 'package:furrpal/custom/container_custom.dart';
 import 'package:furrpal/custom/text_custom.dart';
 import 'package:furrpal/features/auth/models/user_entity.dart';
 import 'package:furrpal/features/auth/presentation/cubit/auth_cubit.dart';
@@ -10,8 +12,6 @@ import 'package:furrpal/features/user_profile/domain/models/profile_user.dart';
 import 'package:furrpal/features/user_profile/presentation/cubit/profile_cubit.dart';
 import 'package:furrpal/features/user_profile/presentation/cubit/profile_state.dart';
 import 'package:furrpal/features/user_profile/presentation/pages/edit_user_profile.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 
 import '../widgets/build_info_row.dart';
 
@@ -41,7 +41,7 @@ class _UserProfileState extends State<UserProfile> {
     profileCubit.fetchUserProfile(widget.uid);
   }
 
-  File? _profileImage;
+  // File? _profileImage;
   final List<String> dogs = ['Dog 1', 'Dog 2'];
 
   void logout() {
@@ -49,16 +49,16 @@ class _UserProfileState extends State<UserProfile> {
     authCubit.logout();
   }
 
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+  // Future<void> _pickImage() async {
+  //   final picker = ImagePicker();
+  //   final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
-    setState(() {
-      if (pickedFile != null) {
-        _profileImage = File(pickedFile.path);
-      }
-    });
-  }
+  //   setState(() {
+  //     if (pickedFile != null) {
+  //       _profileImage = File(pickedFile.path);
+  //     }
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -93,16 +93,36 @@ class _UserProfileState extends State<UserProfile> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        // crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          GestureDetector(
-                            onTap: _pickImage,
-                            child: CircleAvatar(
-                              radius: 50,
-                              backgroundImage: _profileImage != null
-                                  ? FileImage(_profileImage!)
-                                  : const AssetImage('assets/images/man.jpg')
-                                      as ImageProvider,
+                          // GestureDetector(
+                          //   onTap: _pickImage,
+                          //   child: CircleAvatar(
+                          //     radius: 50,
+                          //     backgroundImage: _profileImage != null
+                          //         ? FileImage(_profileImage!)
+                          //         : const AssetImage('assets/images/man.jpg')
+                          //             as ImageProvider,
+                          //   ),
+                          // ),
+                          CachedNetworkImage(
+                            imageUrl: user.profileImageUrl,
+                            placeholder: (context, url) =>
+                                const CircularProgressIndicator(),
+                            errorWidget: (context, url, error) => Icon(
+                              Icons.person,
+                              size: 72.h,
+                              color: Colors.blue,
+                            ),
+                            imageBuilder: (context, imageProvider) =>
+                                ContainerCustom(
+                              width: 120.w,
+                              height: 100.h,
+                              shape: BoxShape.circle,
+                              decorationImage: DecorationImage(
+                                image: imageProvider,
+                                fit: BoxFit.cover,
+                              ),
                             ),
                           ),
                           const SizedBox(width: 20),

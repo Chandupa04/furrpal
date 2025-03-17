@@ -1,3 +1,7 @@
+import 'dart:io';
+
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -24,6 +28,18 @@ class _EditUserProfileState extends State<EditUserProfile> {
   late TextEditingController bioTextController;
   late TextEditingController addressTextController;
   late TextEditingController phoneNumTextController;
+  PlatformFile? imagePickedFile;
+
+  Future<void> pickImage() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+    );
+    if (result != null) {
+      setState(() {
+        imagePickedFile = result.files.first;
+      });
+    }
+  }
 
   @override
   void initState() {
@@ -34,6 +50,7 @@ class _EditUserProfileState extends State<EditUserProfile> {
         TextEditingController(text: widget.user.phoneNumber);
     bioTextController = TextEditingController(text: widget.user.bio);
     addressTextController = TextEditingController(text: widget.user.address);
+    // imagePickedFile = PlatformFile(name: widget.user.profileImageUrl, size: 1);
   }
 
   @override
@@ -48,20 +65,25 @@ class _EditUserProfileState extends State<EditUserProfile> {
 
   void updateProfile() {
     final profileCubit = context.read<ProfileCubit>();
+    final String uid = widget.user.uid;
 
     if (fNameTextController.text.isNotEmpty ||
         lNameTextController.text.isNotEmpty ||
         phoneNumTextController.text.isNotEmpty ||
         bioTextController.text.isNotEmpty ||
-        addressTextController.text.isNotEmpty) {
+        addressTextController.text.isNotEmpty ||
+        imagePickedFile != null) {
       profileCubit.updateUserProfile(
-        uid: widget.user.uid,
+        uid: uid,
         newFName: fNameTextController.text,
         newLName: lNameTextController.text,
         newPhoneNumber: phoneNumTextController.text,
         newBio: bioTextController.text,
         newAddress: addressTextController.text,
+        profileImagePath: imagePickedFile?.path,
       );
+    } else {
+      Navigator.pop(context);
     }
   }
 
@@ -113,6 +135,33 @@ class _EditUserProfileState extends State<EditUserProfile> {
           marginRight: 24.w,
           child: Column(
             children: [
+              ContainerCustom(
+                callback: pickImage,
+                height: 200.h,
+                width: 200.h,
+                shape: BoxShape.circle,
+                bgColor: Colors.grey.shade500,
+                clipBehavior: Clip.hardEdge,
+                child: (imagePickedFile != null)
+                    ? Image.file(
+                        File(imagePickedFile!.path!),
+                        fit: BoxFit.cover,
+                      )
+                    : CachedNetworkImage(
+                        imageUrl: widget.user.profileImageUrl,
+                        placeholder: (context, url) =>
+                            const CircularProgressIndicator(),
+                        errorWidget: (context, url, error) => Icon(
+                          Icons.person,
+                          size: 72.h,
+                          color: Colors.blue,
+                        ),
+                        imageBuilder: (context, imageProvider) => Image(
+                          image: imageProvider,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+              ),
               TextCustomWidget(
                 text: 'First Name',
                 textStyle: textFieldLableStyle,
