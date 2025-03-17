@@ -15,7 +15,7 @@ class OrderDetailsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text("Order Details", style: TextStyle(fontSize: 20.sp)),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: const Color.fromARGB(255, 140, 204, 241),
       ),
       body: Padding(
         padding: EdgeInsets.all(10.w),

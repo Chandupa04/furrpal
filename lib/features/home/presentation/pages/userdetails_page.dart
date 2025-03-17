@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // Import Clipboard for copy function
 
 void main() {
-  runApp(UserDetailsApp());
+  runApp(const UserDetailsApp());
 }
 
 class UserDetailsApp extends StatelessWidget {
@@ -10,7 +10,7 @@ class UserDetailsApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
       home: UserDetailsPage(),
     );
