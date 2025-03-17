@@ -49,6 +49,8 @@ class _ShopPageState extends State<ShopPage> {
         name: "Dog Muzzle",
         image: "assets/images/dog_muzzle.jpg",
         price: 22.49),
+    Product(
+        name: "Dog Muzzle", image: "assets/images/dog_food.jpg", price: 20.49),
   ];
 
   List<Product> cart = [];
