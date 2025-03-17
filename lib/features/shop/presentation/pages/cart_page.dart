@@ -81,8 +81,14 @@ class _CartPageState extends State<CartPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Your Cart"),
-        backgroundColor: Colors.deepPurple,
+        title: const Text(
+          "My Cart",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+          ),
+        ),
+        backgroundColor: const Color.fromARGB(255, 177, 226, 245),
       ),
       body: widget.cart.isEmpty
           ? Center(
@@ -97,94 +103,110 @@ class _CartPageState extends State<CartPage> {
                   ),
                   const SizedBox(height: 10),
                   ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 156, 221, 233),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 12),
+                    ),
                     onPressed: () => Navigator.pop(context),
                     child: const Text("Continue Shopping"),
                   ),
                 ],
               ),
             )
-          : SingleChildScrollView(
-              child: Column(
-                children: [
-                  // Cart items list
-                  ListView.separated(
-                    shrinkWrap:
-                        true, // This makes the ListView occupy only necessary space
+          : Column(
+              children: [
+                Expanded(
+                  child: ListView.separated(
+                    padding: const EdgeInsets.all(10),
                     itemCount: widget.cart.length,
                     separatorBuilder: (context, index) =>
                         const Divider(thickness: 1),
                     itemBuilder: (context, index) {
                       final product = widget.cart[index];
-                      return ListTile(
-                        leading:
-                            Image.asset(product.image, width: 50, height: 50),
-                        title: Text(product.name),
-                        subtitle: Text(
-                            "\$${product.price.toStringAsFixed(2)} x ${product.quantity}"),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.remove_circle),
-                              onPressed: () => removeFromCart(product),
-                              color: Colors.red,
-                            ),
-                            Text("${product.quantity}",
-                                style: const TextStyle(fontSize: 16)),
-                            IconButton(
-                              icon: const Icon(Icons.add_circle),
-                              onPressed: () => addToCart(product),
-                              color: Colors.green,
-                            ),
-                          ],
+                      return Card(
+                        elevation: 3,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.all(12),
+                          leading: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.asset(product.image,
+                                width: 50, height: 50),
+                          ),
+                          title: Text(
+                            product.name,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                          subtitle: Text(
+                            "\$${product.price.toStringAsFixed(2)} x ${product.quantity}",
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.remove_circle),
+                                onPressed: () => removeFromCart(product),
+                                color: Colors.red,
+                              ),
+                              Text("${product.quantity}",
+                                  style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold)),
+                              IconButton(
+                                icon: const Icon(Icons.add_circle),
+                                onPressed: () => addToCart(product),
+                                color: Colors.green,
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     },
                   ),
-                  // Total Price with highlighted style
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: const BoxDecoration(
-                      border: Border(
-                        top: BorderSide(width: 1, color: Colors.grey),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.deepPurple[50],
+                    borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        "Total: \$${totalPrice.toStringAsFixed(2)}",
+                        style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.deepPurple),
+                        textAlign: TextAlign.center,
                       ),
-                    ),
-                    child: Column(
-                      children: [
-                        Container(
+                      const SizedBox(height: 10),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.deepPurple,
                           padding: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 20),
-                          decoration: BoxDecoration(
-                            color: Colors.amber[100],
+                              vertical: 14, horizontal: 24),
+                          shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: Colors.amber, width: 2),
-                          ),
-                          child: Text(
-                            "Total: \$${totalPrice.toStringAsFixed(2)}",
-                            style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green),
                           ),
                         ),
-                        const SizedBox(height: 10),
-                      ],
-                    ),
+                        onPressed: navigateToOrderDetails,
+                        child: const Text("Proceed to Checkout",
+                            style:
+                                TextStyle(fontSize: 18, color: Colors.white)),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-      // Floating Action Button for Checkout
-      floatingActionButton: widget.cart.isEmpty
-          ? null
-          : Padding(
-              padding: const EdgeInsets.only(bottom: 80), // Adjust for FAB
-              child: FloatingActionButton.extended(
-                onPressed: navigateToOrderDetails,
-                label: const Text("Checkout"),
-                icon: const Icon(Icons.shopping_cart),
-                backgroundColor: Colors.deepPurple,
-              ),
+                ),
+              ],
             ),
     );
   }
