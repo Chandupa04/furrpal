@@ -233,8 +233,14 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
                         text: "Report",
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w600,
+<<<<<<< HEAD
+                        textColor: const Color.fromARGB(255, 252, 0, 0),
+                      ),
+                      onTap: _reportPost,  // Show report dialog
+=======
                         textColor: blackColor,
                       ), // Show report dialog
+>>>>>>> f03f924396a554d442d3d9d25833296b7ecb996d
                     ),
                   ],
                 ),
