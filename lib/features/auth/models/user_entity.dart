@@ -6,13 +6,14 @@ class UserEntity {
   final String phoneNumber;
   final String address;
 
-  const UserEntity(
-      {required this.uid,
-      required this.email,
-      required this.fName,
-      required this.lName,
-      required this.phoneNumber,
-      required this.address});
+  const UserEntity({
+    required this.uid,
+    required this.email,
+    required this.fName,
+    required this.lName,
+    required this.phoneNumber,
+    required this.address,
+  });
 
   Map<String, dynamic> toJson() {
     return {

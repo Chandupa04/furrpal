@@ -16,14 +16,21 @@ class ProfileUser extends UserEntity {
   });
 
   // update the profile
-  ProfileUser copyWith({String? newProfileImageUrl, String? newBio}) {
+  ProfileUser copyWith({
+    String? newProfileImageUrl,
+    String? newFName,
+    String? newLName,
+    String? newBio,
+    String? newAddress,
+    String? newPhoneNumber,
+  }) {
     return ProfileUser(
       uid: uid,
       email: email,
-      fName: fName,
-      lName: lName,
-      phoneNumber: phoneNumber,
-      address: address,
+      fName: newFName ?? fName,
+      lName: newLName ?? lName,
+      phoneNumber: newPhoneNumber ?? phoneNumber,
+      address: newAddress ?? address,
       profileImageUrl: newProfileImageUrl ?? profileImageUrl,
       bio: newBio ?? bio,
     );

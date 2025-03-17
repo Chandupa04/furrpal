@@ -24,7 +24,11 @@ class ProfileCubit extends Cubit<ProfileState> {
   //update user profile
   Future<void> updateUserProfile({
     required String uid,
+    String? newFName,
+    String? newLName,
     String? newBio,
+    String? newAddress,
+    String? newPhoneNumber,
   }) async {
     emit(ProfileLoading());
     try {
@@ -36,8 +40,13 @@ class ProfileCubit extends Cubit<ProfileState> {
       }
 
       //update new profile
-      final updateProfile =
-          currentUser.copyWith(newBio: newBio ?? currentUser.bio);
+      final updateProfile = currentUser.copyWith(
+        newFName: newFName ?? currentUser.fName,
+        newLName: newLName ?? currentUser.lName,
+        newBio: newBio ?? currentUser.bio,
+        newAddress: newAddress ?? currentUser.address,
+        newPhoneNumber: newPhoneNumber ?? currentUser.phoneNumber,
+      );
       await profileRepo.updateUserProfile(updateProfile);
       await fetchUserProfile(uid);
     } catch (e) {

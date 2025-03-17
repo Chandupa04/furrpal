@@ -127,6 +127,14 @@ class _UserProfileState extends State<UserProfile> {
                           ),
                         ],
                       ),
+                      TextCustomWidget(
+                        text: 'Bio',
+                        textColor: blackColor,
+                      ),
+                      TextCustomWidget(
+                        text: user.bio,
+                        textColor: blackColor,
+                      ),
                       const SizedBox(height: 32),
                       const Text(
                         'Your Paws',

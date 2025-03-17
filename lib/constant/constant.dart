@@ -22,3 +22,8 @@ TextStyle appBarStyle = TextStyle(
   fontWeight: FontWeight.w700,
   color: blackColor,
 );
+
+TextStyle textFieldLableStyle = TextStyle(
+  fontSize: 17.sp,
+  color: blackColor,
+);

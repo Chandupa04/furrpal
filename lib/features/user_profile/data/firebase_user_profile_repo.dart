@@ -20,8 +20,8 @@ class FirebaseUserProfileRepo implements ProfileRepo {
             email: userData['email'],
             fName: userData['first name'],
             lName: userData['last name'],
-            phoneNumber: userData['phone number'] ?? '',
-            address: userData['address'] ?? '',
+            phoneNumber: userData['phone number'],
+            address: userData['address'],
             profileImageUrl: userData['profileImageUrl'].toString(),
             bio: userData['bio'] ?? '',
           );
@@ -42,7 +42,11 @@ class FirebaseUserProfileRepo implements ProfileRepo {
           .doc(updateProfile.uid)
           .update({
         'profileImageUrl': updateProfile.profileImageUrl,
+        'first name': updateProfile.fName,
+        'last name': updateProfile.lName,
         'bio': updateProfile.bio,
+        'address': updateProfile.address,
+        'phone number': updateProfile.phoneNumber
       });
     } catch (e) {
       throw Exception(e);

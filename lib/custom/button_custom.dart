@@ -27,6 +27,7 @@ class ButtonCustom extends StatelessWidget {
     this.gradient,
     this.mainAxisAlignment,
     this.disabledColor,
+    this.shadowColor,
     this.ischildPositionRight = false,
     // required bool isLoading,
   });
@@ -52,6 +53,7 @@ class ButtonCustom extends StatelessWidget {
   final Gradient? gradient;
   final MainAxisAlignment? mainAxisAlignment;
   final Color? disabledColor;
+  final Color? shadowColor;
   final bool? ischildPositionRight;
 
   @override
@@ -81,6 +83,7 @@ class ButtonCustom extends StatelessWidget {
       child: TextButton(
         style: TextButton.styleFrom(
           elevation: elevation,
+          shadowColor: shadowColor ?? blackColor,
           backgroundColor: btnColor ?? primaryColor,
           foregroundColor: splashColor ?? Colors.white24,
           padding: padding ?? const EdgeInsets.all(0),
