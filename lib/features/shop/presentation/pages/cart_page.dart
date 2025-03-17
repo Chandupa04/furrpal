@@ -60,7 +60,7 @@ class _CartPageState extends State<CartPage> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text("${product.name} quantity increased"),
+        content: Text("${product.name} added to cart!"),
         duration: const Duration(seconds: 1),
       ),
     );

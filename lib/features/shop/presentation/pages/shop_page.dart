@@ -17,6 +17,17 @@ class Product {
     required this.price,
     this.quantity = 0,
   });
+
+  // Override == operator to compare products by name
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is Product && other.name == name;
+  }
+
+  // Override hashCode to match the == operator
+  @override
+  int get hashCode => name.hashCode;
 }
 
 class ShopPage extends StatefulWidget {
@@ -77,14 +88,66 @@ class _ShopPageState extends State<ShopPage> {
   ];
 
   List<Product> cart = [];
+  List<Product> filteredProducts = [];
+  TextEditingController searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    filteredProducts =
+        List.from(products); // Initialize filteredProducts with all products
+  }
 
   void addToCart(Product product) {
     setState(() {
-      if (!cart.contains(product)) {
-        cart.add(product);
+      // Check if the product already exists in the cart
+      final existingProductIndex = cart.indexWhere((p) => p == product);
+
+      if (existingProductIndex != -1) {
+        // If the product exists, increase its quantity
+        cart[existingProductIndex].quantity++;
+      } else {
+        // If the product doesn't exist, add it to the cart with quantity 1
+        cart.add(Product(
+          name: product.name,
+          image: product.image,
+          price: product.price,
+          quantity: 1,
+        ));
       }
-      product.quantity++;
     });
+
+    // Show a SnackBar to confirm the item was added to the cart
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("${product.name} added to cart!"),
+        duration: const Duration(seconds: 2), // Adjust the duration as needed
+        behavior:
+            SnackBarBehavior.floating, // Optional: Makes the SnackBar float
+        action: SnackBarAction(
+          label: "Undo",
+          onPressed: () {
+            // Optional: Undo the action
+            setState(() {
+              final existingProductIndex = cart.indexWhere((p) => p == product);
+              if (existingProductIndex != -1) {
+                if (cart[existingProductIndex].quantity > 1) {
+                  cart[existingProductIndex].quantity--;
+                } else {
+                  cart.removeAt(existingProductIndex);
+                }
+              }
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("${product.name} removed from cart"),
+                duration: const Duration(seconds: 1),
+              ),
+            );
+          },
+        ),
+      ),
+    );
   }
 
   void navigateToCart() {
@@ -96,17 +159,30 @@ class _ShopPageState extends State<ShopPage> {
     });
   }
 
+  void filterProducts(String query) {
+    setState(() {
+      if (query.isEmpty) {
+        // If the search query is empty, show all products
+        filteredProducts = List.from(products);
+      } else {
+        // Filter products based on the search query
+        filteredProducts = products
+            .where((product) =>
+                product.name.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // backgroundColor: Colors.deepPurple,
         title: Text(
           "FurrPal Shop",
           style: TextStyle(
             fontSize: 24.sp,
             fontWeight: FontWeight.bold,
-            // color: Colors.white
           ),
         ),
         centerTitle: true,
@@ -117,6 +193,25 @@ class _ShopPageState extends State<ShopPage> {
             color: Colors.amberAccent,
           ),
         ],
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(60.h),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+            child: TextField(
+              controller: searchController,
+              decoration: InputDecoration(
+                hintText: "Search products...",
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.r),
+                ),
+                filled: true,
+                fillColor: Colors.white,
+              ),
+              onChanged: filterProducts,
+            ),
+          ),
+        ),
       ),
       body: Padding(
         padding: EdgeInsets.all(10.w),
@@ -127,9 +222,9 @@ class _ShopPageState extends State<ShopPage> {
             crossAxisSpacing: 10.w,
             mainAxisSpacing: 10.h,
           ),
-          itemCount: products.length,
+          itemCount: filteredProducts.length,
           itemBuilder: (context, index) {
-            final product = products[index];
+            final product = filteredProducts[index];
             return GestureDetector(
               onTap: () {
                 Navigator.push(
@@ -164,17 +259,12 @@ class _ShopPageState extends State<ShopPage> {
                             btnHeight: 30.h,
                             btnWidth: 140.w,
                             borderRadius: BorderRadius.circular(15.r),
-                            // btnColor: ,
                             textStyle: TextStyle(
                               fontSize: 15.sp,
                               color: blackColor,
                             ),
                             callback: () => addToCart(product),
                           ),
-                          // ElevatedButton(
-                          //   onPressed:
-                          //   child: Text("Add to Cart"),
-                          // ),
                         ],
                       ),
                     ),
