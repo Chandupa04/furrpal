@@ -178,10 +178,12 @@ class _ShopPageState extends State<ShopPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Color.fromARGB(156, 180, 50, 231),
         title: Text(
           "FurrPal Shop",
           style: TextStyle(
-            fontSize: 24.sp,
+            color: Color.fromARGB(156, 20, 3, 104),
+            fontSize: 30.sp,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -190,7 +192,7 @@ class _ShopPageState extends State<ShopPage> {
           IconButton(
             icon: Icon(Icons.shopping_cart),
             onPressed: navigateToCart,
-            color: Colors.amberAccent,
+            color: Colors.yellowAccent,
           ),
         ],
         bottom: PreferredSize(
@@ -249,11 +251,13 @@ class _ShopPageState extends State<ShopPage> {
                         children: [
                           Text(product.name,
                               style: TextStyle(
-                                  fontSize: 16.sp,
+                                  fontSize: 19.sp,
                                   fontWeight: FontWeight.bold)),
                           Text("\$${product.price.toStringAsFixed(2)}",
                               style: TextStyle(
-                                  fontSize: 14.sp, color: Colors.green)),
+                                  fontSize: 20.sp,
+                                  color: Colors.green,
+                                  fontWeight: FontWeight.bold)),
                           ButtonCustom(
                             text: 'Add to Cart',
                             btnHeight: 30.h,
