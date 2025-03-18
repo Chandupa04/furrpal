@@ -345,6 +345,13 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
   }
 
   Future<void> _createDogProfile() async {
+    if (_imageFile == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please add a profile picture')),
+      );
+      return;
+    }
+
     if (_nameController.text.isEmpty ||
         _breedController.text.isEmpty ||
         selectedGender == null ||

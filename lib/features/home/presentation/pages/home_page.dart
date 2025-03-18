@@ -200,9 +200,45 @@ class _HomePageState extends State<HomePage> {
         .catchError((e) {
       print('Error liking dog: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to like dog: $e')),
-        );
+        if (e.toString().contains('24-hour like limit')) {
+          // Show payment page when limit is reached
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Like Limit Reached'),
+                content: const Text(
+                    'You have reached your 24-hour like limit. Upgrade to continue liking more profiles!'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Close dialog
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const PaymentPage(),
+                        ),
+                      );
+                    },
+                    child: const Text('Upgrade Now'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Close dialog
+                      Navigator.of(context)
+                          .pop(); // Pop the current route to go back
+                    },
+                    child: const Text('Cancel'),
+                  ),
+                ],
+              );
+            },
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to like dog: $e')),
+          );
+        }
       }
     });
   }
@@ -469,10 +505,12 @@ class DogProfileCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: ElevatedButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const UserDetailsScreen()),
+                // Show a message that this feature is coming soon
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('This feature is coming soon!'),
+                    duration: Duration(seconds: 2),
+                  ),
                 );
               },
               style: ElevatedButton.styleFrom(

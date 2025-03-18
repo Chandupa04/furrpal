@@ -160,7 +160,30 @@ class FirebaseService {
     }
   }
 
-  // Store a like interaction
+  // Check if user has reached the 24-hour like limit
+  Future<bool> hasReachedLikeLimit(String userId) async {
+    try {
+      // Get likes from the last 24 hours
+      final DateTime now = DateTime.now();
+      final DateTime twentyFourHoursAgo =
+          now.subtract(const Duration(hours: 24));
+
+      final QuerySnapshot likesSnapshot = await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('likes')
+          .where('timestamp', isGreaterThanOrEqualTo: twentyFourHoursAgo)
+          .get();
+
+      print('Number of likes in last 24 hours: ${likesSnapshot.docs.length}');
+      return likesSnapshot.docs.length >= 6;
+    } catch (e) {
+      print('Error checking like limit: $e');
+      return false;
+    }
+  }
+
+  // Store a like interaction with timestamp
   Future<void> storeDogLike({
     required String currentUserId,
     required String dogOwnerId,
@@ -169,6 +192,14 @@ class FirebaseService {
   }) async {
     try {
       print('Starting to store like for dog: $dogName');
+
+      // Check if user has reached the 24-hour limit
+      final bool hasReachedLimit = await hasReachedLikeLimit(currentUserId);
+      if (hasReachedLimit) {
+        print('User has reached the 24-hour like limit');
+        throw Exception(
+            'You have reached the 24-hour like limit. Please upgrade to continue.');
+      }
 
       // Get current user details with full name
       final userDoc =
@@ -250,6 +281,18 @@ class FirebaseService {
       // Update the likes array
       await dogRef.update({
         'likes': currentLikes,
+      });
+
+      // Store the like with timestamp
+      await _firestore
+          .collection('users')
+          .doc(currentUserId)
+          .collection('likes')
+          .add({
+        'dogId': dogId,
+        'dogOwnerId': dogOwnerId,
+        'dogName': dogName,
+        'timestamp': FieldValue.serverTimestamp(),
       });
 
       // Verify the update
