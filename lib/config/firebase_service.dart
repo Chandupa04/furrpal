@@ -19,33 +19,77 @@ class FirebaseService {
     File? imageFile,
   }) async {
     User? user = FirebaseAuth.instance.currentUser;
-    String userId = user!.uid;
+    if (user == null) {
+      print('Error: No user logged in');
+      throw Exception('No user logged in');
+    }
+    String userId = user.uid;
+    print('Creating dog profile for user: $userId');
 
     try {
       // Upload image if provided
       String? imageUrl;
       if (imageFile != null) {
-        final storageRef = _storage
-            .ref()
-            .child('dog_images/${DateTime.now().millisecondsSinceEpoch}');
-        final uploadTask = storageRef.putFile(imageFile);
-        final snapshot = await uploadTask;
-        imageUrl = await snapshot.ref.getDownloadURL();
+        print('Image file exists: ${imageFile.existsSync()}');
+        print('Image file size: ${imageFile.lengthSync()} bytes');
+
+        // Create a unique filename
+        final String fileName =
+            '${DateTime.now().millisecondsSinceEpoch}_${imageFile.path.split('/').last}';
+        final storageRef = _storage.ref().child('dog_images/$userId/$fileName');
+        print('Storage path: ${storageRef.fullPath}');
+
+        try {
+          final uploadTask = storageRef.putFile(imageFile);
+          final snapshot = await uploadTask;
+          imageUrl = await snapshot.ref.getDownloadURL();
+          print('Image uploaded successfully. URL: $imageUrl');
+
+          // Verify the URL is accessible
+          try {
+            final response = await HttpClient().getUrl(Uri.parse(imageUrl));
+            final httpResponse = await response.close();
+            print(
+                'Image URL is accessible. Status code: ${httpResponse.statusCode}');
+          } catch (e) {
+            print('Warning: Could not verify image URL accessibility: $e');
+          }
+        } catch (e) {
+          print('Error uploading image: $e');
+          throw Exception('Failed to upload image: $e');
+        }
       }
 
-      // Create dog profile document with empty likes and dislikes arrays
-      await _firestore.collection('users').doc(userId).collection('dogs').add({
+      // Create dog profile document
+      final dogData = {
         'name': name,
         'breed': breed,
         'gender': gender,
         'age': age,
         'healthConditions': healthConditions ?? '',
         'location': location,
-        'image': imageUrl ?? '',
+        'imageUrl': imageUrl ?? '', // Changed from 'image' to 'imageUrl'
         'createdAt': FieldValue.serverTimestamp(),
-        'likes': [], // Initialize empty likes array
-        'dislikes': [], // Initialize empty dislikes array
-      });
+        'likes': [],
+        'dislikes': [],
+      };
+      print('Creating dog document with data: $dogData');
+
+      final docRef = await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('dogs')
+          .add(dogData);
+      print('Dog profile created successfully with ID: ${docRef.id}');
+
+      // Verify the document was created
+      final docSnapshot = await docRef.get();
+      if (docSnapshot.exists) {
+        print('Verified document exists with data: ${docSnapshot.data()}');
+      } else {
+        print('Error: Document was not created');
+        throw Exception('Failed to create dog profile document');
+      }
     } catch (e) {
       print('Error creating dog profile: $e');
       rethrow;
@@ -116,7 +160,30 @@ class FirebaseService {
     }
   }
 
-  // Store a like interaction
+  // Check if user has reached the 24-hour like limit
+  Future<bool> hasReachedLikeLimit(String userId) async {
+    try {
+      // Get likes from the last 24 hours
+      final DateTime now = DateTime.now();
+      final DateTime twentyFourHoursAgo =
+          now.subtract(const Duration(hours: 24));
+
+      final QuerySnapshot likesSnapshot = await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('likes')
+          .where('timestamp', isGreaterThanOrEqualTo: twentyFourHoursAgo)
+          .get();
+
+      print('Number of likes in last 24 hours: ${likesSnapshot.docs.length}');
+      return likesSnapshot.docs.length >= 6;
+    } catch (e) {
+      print('Error checking like limit: $e');
+      return false;
+    }
+  }
+
+  // Store a like interaction with timestamp
   Future<void> storeDogLike({
     required String currentUserId,
     required String dogOwnerId,
@@ -125,6 +192,14 @@ class FirebaseService {
   }) async {
     try {
       print('Starting to store like for dog: $dogName');
+
+      // Check if user has reached the 24-hour limit
+      final bool hasReachedLimit = await hasReachedLikeLimit(currentUserId);
+      if (hasReachedLimit) {
+        print('User has reached the 24-hour like limit');
+        throw Exception(
+            'You have reached the 24-hour like limit. Please upgrade to continue.');
+      }
 
       // Get current user details with full name
       final userDoc =
@@ -182,22 +257,21 @@ class FirebaseService {
         return;
       }
 
-      // Check for existing notification BEFORE updating likes
-      print('Checking for existing notifications...');
-      final existingNotifications = await _firestore
+      // Create a unique notification ID to prevent duplicates
+      final String notificationId =
+          '${dogOwnerId}_${dogId}_${currentUserId}_like';
+
+      // Check for existing notification using the unique ID
+      print('Checking for existing notification with ID: $notificationId');
+      final existingNotification = await _firestore
           .collection('users')
           .doc(dogOwnerId)
           .collection('notifications')
-          .where('type', isEqualTo: 'like')
-          .where('dogId', isEqualTo: dogId)
-          .where('likedByUserId', isEqualTo: currentUserId)
+          .doc(notificationId)
           .get();
 
-      print(
-          'Found ${existingNotifications.docs.length} existing notifications');
-
-      if (existingNotifications.docs.isNotEmpty) {
-        print('Notification already exists for this like, skipping...');
+      if (existingNotification.exists) {
+        print('Notification already exists, skipping...');
         return;
       }
 
@@ -207,6 +281,18 @@ class FirebaseService {
       // Update the likes array
       await dogRef.update({
         'likes': currentLikes,
+      });
+
+      // Store the like with timestamp
+      await _firestore
+          .collection('users')
+          .doc(currentUserId)
+          .collection('likes')
+          .add({
+        'dogId': dogId,
+        'dogOwnerId': dogOwnerId,
+        'dogName': dogName,
+        'timestamp': FieldValue.serverTimestamp(),
       });
 
       // Verify the update
@@ -219,13 +305,15 @@ class FirebaseService {
       // Get user profile picture if available
       String userProfilePic = userData['profilePicture'] ?? '';
 
-      // Create notification for dog owner
+      // Create notification for dog owner using the unique ID
       print('Creating notification for dog owner: $dogOwnerId');
-      final notificationRef = await _firestore
+      final notificationRef = _firestore
           .collection('users')
           .doc(dogOwnerId)
           .collection('notifications')
-          .add({
+          .doc(notificationId);
+
+      await notificationRef.set({
         'type': 'like',
         'dogId': dogId,
         'dogName': dogName,

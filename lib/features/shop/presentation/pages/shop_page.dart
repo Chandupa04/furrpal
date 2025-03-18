@@ -100,13 +100,24 @@ class _ShopPageState extends State<ShopPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // backgroundColor: Colors.deepPurple,
-        title: Text(
-          "FurrPal Shop",
-          style: TextStyle(
-            fontSize: 24.sp,
-            fontWeight: FontWeight.bold,
-            // color: Colors.white
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: const SizedBox(width: 0), // Remove leading space
+        title: Container(
+          padding: const EdgeInsets.symmetric(vertical: 4.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [
+              Text(
+                "FurrPal",
+                style: TextStyle(
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+              SizedBox(width: 8),
+            ],
           ),
         ),
         centerTitle: true,
