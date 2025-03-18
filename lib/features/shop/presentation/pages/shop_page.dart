@@ -20,8 +20,6 @@ class Product {
 }
 
 class ShopPage extends StatefulWidget {
-  const ShopPage({super.key});
-
   @override
   _ShopPageState createState() => _ShopPageState();
 }
@@ -48,9 +46,34 @@ class _ShopPageState extends State<ShopPage> {
     Product(
         name: "Dog Chain", image: "assets/images/dog_chain.jpg", price: 12.49),
     Product(
-        name: "Dog Muzzle",
-        image: "assets/images/dog_muzzle.jpg",
-        price: 22.49),
+        name: "Dog Food Bowl",
+        image: "assets/images/food_bowl.jpg",
+        price: 17.49),
+    Product(
+        name: "Male Dog Diapers",
+        image: "assets/images/diapers.jpg",
+        price: 23.49),
+    Product(
+        name: "Dog Hair Brush",
+        image: "assets/images/dog_hair.jpg",
+        price: 17.49),
+    Product(
+        name: "Female Dog Diapers",
+        image: "assets/images/diapersg.jpg",
+        price: 16.00),
+    Product(name: "Dog Toys", image: "assets/images/toys.jpg", price: 8.59),
+    Product(
+        name: "Pet Nails Cutter",
+        image: "assets/images/pet_nail.jpg",
+        price: 6.29),
+    Product(
+        name: "Pet Poop Scooper With Poop Wast Bag",
+        image: "assets/images/poop.jpg",
+        price: 15.59),
+    Product(
+        name: "Pet Carrier Basket",
+        image: "assets/images/pet_carrier.jpg",
+        price: 5.59),
   ];
 
   List<Product> cart = [];
@@ -100,7 +123,7 @@ class _ShopPageState extends State<ShopPage> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.shopping_cart),
+            icon: Icon(Icons.shopping_cart),
             onPressed: navigateToCart,
             color: Colors.amberAccent,
           ),
@@ -157,10 +180,10 @@ class _ShopPageState extends State<ShopPage> {
                               fontSize: 15.sp,
                               color: blackColor,
                             ),
-                            callback: () {},
+                            callback: () => addToCart(product),
                           ),
                           // ElevatedButton(
-                          //   onPressed: () => addToCart(product),
+                          //   onPressed:
                           //   child: Text("Add to Cart"),
                           // ),
                         ],
