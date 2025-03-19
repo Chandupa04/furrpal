@@ -21,7 +21,9 @@ class _DogProfilePageState extends State<DogProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: blackColor,
       appBar: AppBar(
+        backgroundColor: blackColor,
         title: Text(
           'Dog Profile',
           style: appBarStyle,
@@ -69,7 +71,7 @@ class _DogProfilePageState extends State<DogProfilePage> {
                   text: widget.dog.name.toUpperCase(),
                   fontSize: 40.sp,
                   fontWeight: FontWeight.w500,
-                  textColor: blackColor,
+                  // textColor: blackColor,
                   containerAlignment: Alignment.center,
                 ),
                 dogDetailsCard(

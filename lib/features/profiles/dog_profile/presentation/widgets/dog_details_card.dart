@@ -12,7 +12,7 @@ Widget dogDetailsCard({
   return ContainerCustom(
     shadow: [
       BoxShadow(
-        color: Colors.grey.withOpacity(0.5),
+        color: primaryColor.withOpacity(0.6),
         spreadRadius: 1,
         blurRadius: 7,
         offset: Offset(0, 3.h),
