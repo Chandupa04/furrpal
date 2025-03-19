@@ -35,23 +35,6 @@ class _SignupPageState extends State<SignupPage> {
 
   void signUp() {
     isValid = EmailValidator.validate(emailController.text.trim());
-    if (!isValid) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: blackColor,
-          shape: ContinuousRectangleBorder(
-              borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20.r),
-                  topRight: Radius.circular(20.r))),
-          content: TextCustomWidget(
-            text: 'Email is not valid',
-            fontSize: 17.sp,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      );
-      return;
-    }
 
     final String email = emailController.text;
     final String password = passwordController.text;
@@ -62,36 +45,74 @@ class _SignupPageState extends State<SignupPage> {
     final String phone = phoneController.text;
 
     final authCubit = context.read<AuthCubit>();
-    if (fName.isNotEmpty &&
+
+    bool allField = fName.isNotEmpty &&
         lName.isNotEmpty &&
         email.isNotEmpty &&
         address.isNotEmpty &&
         phone.isNotEmpty &&
         password.isNotEmpty &&
-        confirmPassword.isNotEmpty) {
-      if (password == confirmPassword) {
-        setState(() {
-          inProgress = true;
-        });
-        authCubit.register(
-            fName, lName, email, address, phone, password, confirmPassword);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: TextCustomWidget(
-              text: 'Passwords do not match',
-              fontSize: 17.sp,
-              fontWeight: FontWeight.bold,
-            ),
+        confirmPassword.isNotEmpty;
+
+    if (allField == false) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: blackColor,
+          shape: ContinuousRectangleBorder(
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20.r),
+                  topRight: Radius.circular(20.r))),
+          content: TextCustomWidget(
+            text: 'Please Enter all fields',
+            fontSize: 15.sp,
+            fontWeight: FontWeight.bold,
           ),
-        );
-      }
+        ),
+      );
+    } else if (!isValid) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: blackColor,
+          shape: ContinuousRectangleBorder(
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20.r),
+                  topRight: Radius.circular(20.r))),
+          content: TextCustomWidget(
+            text: 'Email is not valid',
+            fontSize: 15.sp,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      );
+      return;
+      // } else {
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(
+      //     backgroundColor: blackColor,
+      //     shape: ContinuousRectangleBorder(
+      //         borderRadius: BorderRadius.only(
+      //             topLeft: Radius.circular(20.r),
+      //             topRight: Radius.circular(20.r))),
+      //     content: TextCustomWidget(
+      //       text: 'Please Enter all fields',
+      //       fontSize: 15.sp,
+      //       fontWeight: FontWeight.bold,
+      //     ),
+      //   ),
+      // );
+    } else if (password == confirmPassword) {
+      setState(() {
+        inProgress = true;
+      });
+      authCubit.register(
+          fName, lName, email, address, phone, password, confirmPassword);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: TextCustomWidget(
-            text: 'Please Enter all fields',
-            fontSize: 12.sp,
+            text: 'Passwords do not match',
+            fontSize: 17.sp,
+            fontWeight: FontWeight.bold,
           ),
         ),
       );
@@ -114,7 +135,24 @@ class _SignupPageState extends State<SignupPage> {
   Widget build(BuildContext context) {
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
-        if (state is Authenticated) {
+        if (state is AuthError) {
+          setState(() {
+            inProgress = false;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              shape: ContinuousRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(20.r),
+                      topRight: Radius.circular(20.r))),
+              content: TextCustomWidget(
+                text: 'The email address is already in use by another account',
+                fontSize: 15.sp,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          );
+        } else if (state is Authenticated) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -250,17 +288,6 @@ class _SignupPageState extends State<SignupPage> {
                       text: 'Continue',
                       callback: signUp,
                       inProgress: inProgress,
-                      // isLoading: false,
-
-                      // () {
-                      //   Navigator.push(
-                      //     context,
-                      //     MaterialPageRoute(
-                      //       builder: (context) => DogProfileCreatPage(),
-                      //     ),
-                      //   );
-                      // },
-
                       isDisabled:
                           isChecked == false ? true : false || inProgress,
                       disabledColor: inProgress == true ? primaryColor : null,
