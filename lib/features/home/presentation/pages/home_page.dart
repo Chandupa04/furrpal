@@ -6,6 +6,7 @@ import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:furrpal/features/home/presentation/pages/payment_page.dart';
 import 'package:furrpal/features/home/presentation/pages/filter_search_page.dart';
 import 'package:furrpal/config/firebase_service.dart';
+import 'package:flutter/cupertino.dart';
 
 class HomePage extends StatefulWidget {
   final String? focusBreed;
@@ -342,14 +343,24 @@ class _HomePageState extends State<HomePage> {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 20),
-                  ElevatedButton(
+                  CupertinoButton(
                     onPressed: _loadDogProfiles,
-                    child: const Text("Refresh"),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    child: const Text(
+                      "Refresh",
+                      style: TextStyle(color: Colors.black),
+                    ),
                   ),
                   const SizedBox(height: 10),
-                  ElevatedButton(
+                  CupertinoButton(
                     onPressed: _testFirestore,
-                    child: const Text("Test Firestore Connection"),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    child: const Text(
+                      "Test Firestore Connection",
+                      style: TextStyle(color: Colors.black),
+                    ),
                   ),
                 ],
               ),
@@ -387,10 +398,6 @@ class _HomePageState extends State<HomePage> {
             ),
           const Spacer(),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _loadDogProfiles,
-        child: const Icon(Icons.refresh),
       ),
     );
   }

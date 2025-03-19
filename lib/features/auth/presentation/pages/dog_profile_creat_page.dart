@@ -21,14 +21,19 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
   final FirebaseService _firebaseService = FirebaseService();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _breedController = TextEditingController();
-  final TextEditingController _ageController = TextEditingController();
   final TextEditingController _healthController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
 
   String? selectedGender;
   String? selectedBreed;
+  int? selectedYears;
+  int? selectedMonths;
   List<String> filteredBreeds = [];
   bool showBreedDropdown = false;
+
+  // Define the range for dog age - most dogs live between 10-15 years
+  final List<int> years = List.generate(16, (index) => index); // 0-15 years
+  final List<int> months = List.generate(12, (index) => index); // 0-11 months
 
   final List<String> breeds = [
     'Labrador Retriever',
@@ -50,7 +55,30 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
     'Boxer',
     'Maltese',
     'Pomeranian',
-    'Saint Bernard'
+    'Saint Bernard',
+    'Dalmatian',
+    'Spitz',
+    'German Spitz',
+    'Sri Lankan Hound',
+    'Sri Lankan Mastiff',
+    'Japanese Spitz',
+    'Lhasa Apso',
+    'Pekingese',
+    'Terrier',
+    'Indian Pariah Dog (Desi Dog)',
+    'Mixed Breed (Mongrel)',
+    'Basset Hound',
+    'French Bulldog',
+    'American Bully',
+    'Jack Russell Terrier',
+    'Great Pyrenees',
+    'Samoyed',
+    'Belgian Malinois',
+    'Weimaraner',
+    'American Staffordshire Terrier',
+    'Whippet',
+    'Afghan Hound',
+    'Tibetan Mastiff',
   ];
 
   final List<String> genders = ['Male', 'Female'];
@@ -115,10 +143,126 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
   void dispose() {
     _nameController.dispose();
     _breedController.dispose();
-    _ageController.dispose();
     _healthController.dispose();
     _locationController.dispose();
     super.dispose();
+  }
+
+  String getFormattedAge() {
+    if (selectedYears == null && selectedMonths == null) {
+      return '';
+    }
+
+    final years = selectedYears ?? 0;
+    final months = selectedMonths ?? 0;
+
+    if (years > 0 && months > 0) {
+      return '$years years, $months months';
+    } else if (years > 0) {
+      return '$years years';
+    } else {
+      return '$months months';
+    }
+  }
+
+  Widget _buildAgeDropdowns() {
+    return Container(
+      margin: EdgeInsets.only(bottom: 15.h),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              // Years dropdown
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextCustomWidget(
+                      text: 'Years',
+                      fontSize: 14.sp,
+                      marginLeft: 9.w,
+                      marginBottom: 4.h,
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10.r),
+                      ),
+                      child: DropdownButtonFormField<int>(
+                        value: selectedYears,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.r),
+                          ),
+                          contentPadding:
+                              EdgeInsets.symmetric(horizontal: 16.w),
+                        ),
+                        hint: Text('Years'),
+                        items: years.map((int year) {
+                          return DropdownMenuItem<int>(
+                            value: year,
+                            child: Text('$year'),
+                          );
+                        }).toList(),
+                        onChanged: (int? value) {
+                          setState(() {
+                            selectedYears = value;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(width: 16.w),
+              // Months dropdown
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextCustomWidget(
+                      text: 'Months',
+                      fontSize: 14.sp,
+                      marginLeft: 9.w,
+                      marginBottom: 4.h,
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10.r),
+                      ),
+                      child: DropdownButtonFormField<int>(
+                        value: selectedMonths,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.r),
+                          ),
+                          contentPadding:
+                              EdgeInsets.symmetric(horizontal: 16.w),
+                        ),
+                        hint: Text('Months'),
+                        items: months.map((int month) {
+                          return DropdownMenuItem<int>(
+                            value: month,
+                            child: Text('$month'),
+                          );
+                        }).toList(),
+                        onChanged: (int? value) {
+                          setState(() {
+                            selectedMonths = value;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -307,9 +451,7 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
                     marginLeft: 9.w,
                     marginBottom: 4.h,
                   ),
-                  TextFieldCustom(
-                    controller: _ageController,
-                  ),
+                  _buildAgeDropdowns(),
                   TextCustomWidget(
                     text: 'Health Conditions',
                     fontSize: 17.sp,
@@ -355,7 +497,7 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
     if (_nameController.text.isEmpty ||
         _breedController.text.isEmpty ||
         selectedGender == null ||
-        _ageController.text.isEmpty ||
+        (selectedYears == null && selectedMonths == null) ||
         _locationController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill all required fields')),
@@ -363,12 +505,14 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
       return;
     }
 
+    final String formattedAge = getFormattedAge();
+
     try {
       await _firebaseService.createDogProfile(
         name: _nameController.text,
         breed: _breedController.text,
         gender: selectedGender!,
-        age: _ageController.text,
+        age: formattedAge,
         healthConditions: _healthController.text,
         location: _locationController.text,
         imageFile: _imageFile,
