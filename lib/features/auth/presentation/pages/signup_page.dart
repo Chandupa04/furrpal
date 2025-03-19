@@ -45,30 +45,30 @@ class _SignupPageState extends State<SignupPage> {
     final String phone = phoneController.text;
 
     final authCubit = context.read<AuthCubit>();
-    if (fName.isNotEmpty &&
+
+    bool allField = fName.isNotEmpty &&
         lName.isNotEmpty &&
         email.isNotEmpty &&
         address.isNotEmpty &&
         phone.isNotEmpty &&
         password.isNotEmpty &&
-        confirmPassword.isNotEmpty) {
-      if (password == confirmPassword) {
-        setState(() {
-          inProgress = true;
-        });
-        authCubit.register(
-            fName, lName, email, address, phone, password, confirmPassword);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: TextCustomWidget(
-              text: 'Passwords do not match',
-              fontSize: 17.sp,
-              fontWeight: FontWeight.bold,
-            ),
+        confirmPassword.isNotEmpty;
+
+    if (allField == false) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: blackColor,
+          shape: ContinuousRectangleBorder(
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20.r),
+                  topRight: Radius.circular(20.r))),
+          content: TextCustomWidget(
+            text: 'Please Enter all fields',
+            fontSize: 15.sp,
+            fontWeight: FontWeight.bold,
           ),
-        );
-      }
+        ),
+      );
     } else if (!isValid) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -85,17 +85,33 @@ class _SignupPageState extends State<SignupPage> {
         ),
       );
       return;
+      // } else {
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(
+      //     backgroundColor: blackColor,
+      //     shape: ContinuousRectangleBorder(
+      //         borderRadius: BorderRadius.only(
+      //             topLeft: Radius.circular(20.r),
+      //             topRight: Radius.circular(20.r))),
+      //     content: TextCustomWidget(
+      //       text: 'Please Enter all fields',
+      //       fontSize: 15.sp,
+      //       fontWeight: FontWeight.bold,
+      //     ),
+      //   ),
+      // );
+    } else if (password == confirmPassword) {
+      setState(() {
+        inProgress = true;
+      });
+      authCubit.register(
+          fName, lName, email, address, phone, password, confirmPassword);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          backgroundColor: blackColor,
-          shape: ContinuousRectangleBorder(
-              borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20.r),
-                  topRight: Radius.circular(20.r))),
           content: TextCustomWidget(
-            text: 'Please Enter all fields',
-            fontSize: 15.sp,
+            text: 'Passwords do not match',
+            fontSize: 17.sp,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -140,7 +156,7 @@ class _SignupPageState extends State<SignupPage> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => DogProfileCreatPage(),
+              builder: (context) => const DogProfileCreatPage(),
             ),
           );
         }

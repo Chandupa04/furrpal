@@ -12,20 +12,41 @@ class CommunityPage extends StatelessWidget {
       // backgroundColor: primaryColor,
       appBar: AppBar(
         // backgroundColor: primaryColor,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: const SizedBox(width: 0), // Remove leading space
+        title: Container(
+          padding: const EdgeInsets.symmetric(vertical: 4.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [
+              Text(
+                "FurrPal",
+                style: TextStyle(
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+              SizedBox(width: 8),
+            ],
+          ),
+        ),
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
-            onPressed: () {Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => AddPostPage(),
-                          ),
-                        );},
-            icon: Icon(CupertinoIcons.add)
-          ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AddPostPage(),
+                  ),
+                );
+              },
+              icon: const Icon(CupertinoIcons.add)),
         ],
       ),
-      body: Column(
+      body: const Column(
         children: [CommunityPostCard()],
       ),
     );

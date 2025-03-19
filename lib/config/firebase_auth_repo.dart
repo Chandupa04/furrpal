@@ -53,6 +53,7 @@ class FirebaseAuthRepo implements AuthRepo {
         lName: lName,
         address: address,
         phoneNumber: phone,
+        createdAt: Timestamp.now(),
       );
 
       //save the data to database

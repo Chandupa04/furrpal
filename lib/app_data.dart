@@ -6,11 +6,13 @@ import 'package:furrpal/config/firebase_auth_repo.dart';
 import 'package:furrpal/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:furrpal/features/auth/presentation/cubit/auth_state.dart';
 import 'package:furrpal/features/nav_bar/presentation/pages/nav_bar.dart';
-import 'package:furrpal/features/user_profile/data/firebase_user_profile_repo.dart';
-import 'package:furrpal/features/user_profile/presentation/cubit/profile_cubit.dart';
-import 'package:furrpal/features/user_profile/user_profile_picture/data/firebase_profile_picture_repo.dart';
+import 'package:furrpal/features/profiles/dog_profile/presentation/cubit/dog_profile_cubit.dart';
+import 'package:furrpal/features/profiles/user_profile/data/firebase_user_profile_repo.dart';
+import 'package:furrpal/features/profiles/user_profile/presentation/cubit/profile_cubit.dart';
+import 'package:furrpal/features/profiles/user_profile/user_profile_picture/data/firebase_profile_picture_repo.dart';
 import 'custom/text_custom.dart';
 import 'features/auth/presentation/pages/start_page.dart';
+import 'features/profiles/dog_profile/data/firebase_dog_profile_repo.dart';
 
 class MyApp extends StatelessWidget {
   MyApp({super.key});
@@ -23,6 +25,8 @@ class MyApp extends StatelessWidget {
 
   // profile image repo
   final firebasePictureRepo = FirebaseProfilePictureRepo();
+
+  final firebasedogProfileRepo = FirebaseDogProfileRepo();
 
   // This widget is the root of your application.
   @override
@@ -43,6 +47,13 @@ class MyApp extends StatelessWidget {
                   profileRepo: firebaseProfileRepo,
                   pictureRepo: firebasePictureRepo),
             ),
+
+            // dog profile cubit
+            BlocProvider<DogProfileCubit>(
+              create: (context) => DogProfileCubit(
+                dogProfileRepo: firebasedogProfileRepo,
+              ),
+            ),
           ],
           child: MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -55,7 +66,7 @@ class MyApp extends StatelessWidget {
               ),
               useMaterial3: true,
             ),
-            home: BlocConsumer<AuthCubit, AuthState>(
+            home: BlocBuilder<AuthCubit, AuthState>(
               builder: (context, authState) {
                 print(authState);
 
@@ -72,13 +83,13 @@ class MyApp extends StatelessWidget {
                   );
                 }
               },
-              listener: (context, state) {
-                if (state is AuthError) {
-                  print(state.message);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: TextCustomWidget(text: state.message)));
-                }
-              },
+              // listener: (context, state) {
+              //   if (state is AuthError) {
+              //     print(state.message);
+              //     ScaffoldMessenger.of(context).showSnackBar(
+              //         SnackBar(content: TextCustomWidget(text: state.message)));
+              //   }
+              // },
             ),
           ),
         ));

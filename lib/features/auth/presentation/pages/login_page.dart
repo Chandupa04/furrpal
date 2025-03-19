@@ -81,6 +81,8 @@ class _LoginPageState extends State<LoginPage> {
           setState(() {
             inProgress = false;
           });
+          if (!mounted) return;
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               backgroundColor: blackColor,

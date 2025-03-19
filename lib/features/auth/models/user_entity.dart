@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class UserEntity {
   final String uid;
   final String email;
@@ -5,6 +7,7 @@ class UserEntity {
   final String lName;
   final String phoneNumber;
   final String address;
+  final Timestamp? createdAt;
 
   const UserEntity({
     required this.uid,
@@ -13,6 +16,7 @@ class UserEntity {
     required this.lName,
     required this.phoneNumber,
     required this.address,
+    this.createdAt,
   });
 
   Map<String, dynamic> toJson() {
@@ -23,6 +27,7 @@ class UserEntity {
       'last name': lName,
       'phone number': phoneNumber,
       'address': address,
+      'created_at': createdAt,
     };
   }
 
@@ -34,6 +39,7 @@ class UserEntity {
       lName: jsonUser['last name'],
       phoneNumber: jsonUser['phone number'],
       address: jsonUser['address'],
+      createdAt: jsonUser['created_at'],
     );
   }
 }
