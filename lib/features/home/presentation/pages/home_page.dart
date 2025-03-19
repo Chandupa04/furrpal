@@ -8,8 +8,9 @@ import 'package:furrpal/features/home/presentation/pages/filter_search_page.dart
 import 'package:furrpal/config/firebase_service.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final String? focusBreed;
 
+  const HomePage({super.key, this.focusBreed});
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -20,6 +21,7 @@ class _HomePageState extends State<HomePage> {
   bool isLoading = true;
   bool _disposed = false;
   String? currentUserId;
+  String? _focusBreed;
 
   final CardSwiperController swiperController = CardSwiperController();
   OverlayEntry? _overlayEntry;
@@ -28,6 +30,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _getCurrentUserId();
+    _focusBreed = widget.focusBreed;
     _loadDogProfiles();
   }
 
@@ -62,10 +65,44 @@ class _HomePageState extends State<HomePage> {
     });
 
     try {
-      final dogProfiles = await _firebaseService.getAllDogProfiles();
+      final dogProfiles = _focusBreed != null
+          ? await _firebaseService
+              .getAllDogProfilesByBreedPriority(_focusBreed!)
+          : await _firebaseService.getAllDogProfiles();
 
-      // Debug: Print the number of profiles retrieved
       print('Loaded ${dogProfiles.length} dog profiles');
+      if (_focusBreed != null) {
+        print('Prioritized by breed: $_focusBreed');
+
+        // Count exact matches
+        int exactMatches = dogProfiles
+            .where((dog) =>
+                (dog['breed'] ?? '').toString().toLowerCase() ==
+                _focusBreed!.toLowerCase())
+            .length;
+
+        // Show popup if no exact matches found
+        if (exactMatches == 0 && mounted) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('No Exact Matches'),
+                content: Text(
+                    'No profiles found with the exact breed "$_focusBreed". '),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
+        }
+      }
 
       _safeSetState(() {
         dogs = dogProfiles;
@@ -78,7 +115,6 @@ class _HomePageState extends State<HomePage> {
           isLoading = false;
         });
 
-        // Show error message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to load dog profiles: $e')),
         );
@@ -366,12 +402,20 @@ class _HomePageState extends State<HomePage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           GestureDetector(
-            onTap: () {
-              Navigator.push(
+            onTap: () async {
+              final selectedBreed = await Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => const SearchFilterScreen()),
+                  builder: (context) => const SearchFilterScreen(),
+                ),
               );
+
+              if (selectedBreed != null) {
+                setState(() {
+                  _focusBreed = selectedBreed;
+                });
+                _loadDogProfiles();
+              }
             },
             child: Icon(Icons.search, color: Colors.grey.shade800, size: 28),
           ),

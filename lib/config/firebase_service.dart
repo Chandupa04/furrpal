@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
+import 'dart:math' show min;
 
 class FirebaseService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -92,6 +93,87 @@ class FirebaseService {
       }
     } catch (e) {
       print('Error creating dog profile: $e');
+      rethrow;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getAllDogProfilesByBreedPriority(
+      String breedQuery) async {
+    try {
+      final currentUser = _auth.currentUser;
+      if (currentUser == null) {
+        print('Error: No user logged in');
+        return [];
+      }
+
+      print('Fetching dogs with breed priority for: $breedQuery');
+      final queryLower = breedQuery.toLowerCase();
+
+      final QuerySnapshot usersSnapshot = await _firestore
+          .collection('users')
+          .where(FieldPath.documentId, isNotEqualTo: currentUser.uid)
+          .get();
+
+      List<Map<String, dynamic>> allDogs = [];
+
+      for (var userDoc in usersSnapshot.docs) {
+        final QuerySnapshot dogsSnapshot = await _firestore
+            .collection('users')
+            .doc(userDoc.id)
+            .collection('dogs')
+            .orderBy('createdAt', descending: true)
+            .get();
+
+        final dogs = dogsSnapshot.docs.map((doc) {
+          Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+          data['id'] = doc.id;
+          data['ownerId'] = userDoc.id;
+          return data;
+        }).toList();
+
+        allDogs.addAll(dogs);
+      }
+
+      print('Found ${allDogs.length} total dogs before breed filtering');
+
+      // Sort dogs: exact breed match first, then partial matches, then others
+      allDogs.sort((a, b) {
+        final breedA = (a['breed'] ?? '').toString().toLowerCase();
+        final breedB = (b['breed'] ?? '').toString().toLowerCase();
+
+        int score(String breed) {
+          if (breed == queryLower) return 2;
+          if (breed.contains(queryLower)) return 1;
+          return 0;
+        }
+
+        return score(breedB).compareTo(score(breedA));
+      });
+
+      // Count matches for debugging
+      int exactMatches = allDogs
+          .where((dog) =>
+              (dog['breed'] ?? '').toString().toLowerCase() == queryLower)
+          .length;
+      int partialMatches = allDogs
+          .where((dog) =>
+              (dog['breed'] ?? '')
+                  .toString()
+                  .toLowerCase()
+                  .contains(queryLower) &&
+              (dog['breed'] ?? '').toString().toLowerCase() != queryLower)
+          .length;
+
+      print(
+          'Found $exactMatches exact matches and $partialMatches partial matches for breed: $breedQuery');
+      print('First few dogs after sorting:');
+      for (var i = 0; i < min(3, allDogs.length); i++) {
+        print('${i + 1}. ${allDogs[i]['name']} (${allDogs[i]['breed']})');
+      }
+
+      return allDogs;
+    } catch (e) {
+      print('Error fetching breed prioritized dog profiles: $e');
       rethrow;
     }
   }
