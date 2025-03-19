@@ -16,48 +16,21 @@ class NavBar extends StatefulWidget {
   State<NavBar> createState() => _NavBarState();
 }
 
-// class _NavBarState extends State<NavBar> {
-//   List pages = [
-//     const HomePage(),
-//     const NotificationsPage(),
-//     const CommunityPage(),
-//     ShopPage(),
-//     const UserProfile(),
-//   ];
-//   int _currentIndex = 0;
-
 class _NavBarState extends State<NavBar> {
-  final GlobalKey<HomePageState> _homePageKey = GlobalKey<HomePageState>();
-  int _currentIndex = 0;
-
-  List<Widget> get pages => [
-    HomePage(key: _homePageKey), // Home Page with GlobalKey
+  List pages = [
+    const HomePage(),
     const NotificationsPage(),
     const CommunityPage(),
     ShopPage(),
     const UserProfile(),
   ];
+  int _currentIndex = 0;
 
   void _onItemTap(int index) {
-    if (_currentIndex == index) {
-      // If the same tab is tapped again, refresh the HomePage
-      if (index == 0) {
-        _homePageKey.currentState?.refreshPage();
-      }
-    } else {
-      setState(() {
-        _currentIndex = index;
-      });
-    }
+    setState(() {
+      _currentIndex = index;
+    });
   }
-
-  // void _onItemTap(int index) {
-  //   setState(() {
-  //     _currentIndex = index;
-  //   });
-  // }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -140,3 +113,4 @@ class _NavBarState extends State<NavBar> {
     );
   }
 }
+
