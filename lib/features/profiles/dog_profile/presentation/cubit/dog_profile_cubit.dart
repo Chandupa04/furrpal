@@ -19,8 +19,4 @@ class DogProfileCubit extends Cubit<DogProfileState> {
       DogProfileError(e.toString());
     }
   }
-
-  // get current dog profile
-
-  // DogEntity? get currentDog => currentDogProfile;
 }

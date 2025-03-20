@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:furrpal/constant/constant.dart';
-import 'package:furrpal/custom/button_custom.dart';
 import 'package:furrpal/custom/container_custom.dart';
 import 'package:furrpal/custom/text_custom.dart';
 import 'package:furrpal/features/auth/models/user_entity.dart';
@@ -102,20 +101,13 @@ class _UserProfileState extends State<UserProfile> {
                       Row(
                         // crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // GestureDetector(
-                          //   onTap: _pickImage,
-                          //   child: CircleAvatar(
-                          //     radius: 50,
-                          //     backgroundImage: _profileImage != null
-                          //         ? FileImage(_profileImage!)
-                          //         : const AssetImage('assets/images/man.jpg')
-                          //             as ImageProvider,
-                          //   ),
-                          // ),
                           CachedNetworkImage(
                             imageUrl: user.profileImageUrl,
-                            placeholder: (context, url) =>
-                                const CircularProgressIndicator(),
+                            placeholder: (context, url) => ContainerCustom(
+                              width: 120.w,
+                              height: 100.h,
+                              child: const CircularProgressIndicator(),
+                            ),
                             errorWidget: (context, url, error) => Icon(
                               Icons.person,
                               size: 72.h,
@@ -147,7 +139,7 @@ class _UserProfileState extends State<UserProfile> {
                                 buildInfoRow(Icons.email, user.email),
                                 const SizedBox(height: 4),
                                 buildInfoRow(Icons.location_on, user.address),
-                                const SizedBox(height: 4),
+                                SizedBox(height: 4),
                                 buildInfoRow(Icons.phone, user.phoneNumber),
                               ],
                             ),
@@ -156,10 +148,15 @@ class _UserProfileState extends State<UserProfile> {
                       ),
                       TextCustomWidget(
                         text: 'Bio',
+                        marginTop: 10.h,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16.sp,
                         textColor: blackColor,
                       ),
                       TextCustomWidget(
                         text: user.bio,
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w400,
                         textColor: blackColor,
                       ),
                       const SizedBox(height: 32),
@@ -177,7 +174,7 @@ class _UserProfileState extends State<UserProfile> {
                           final dogs = state.dogEntity;
                           return ContainerCustom(
                             alignment: Alignment.centerLeft,
-                            height: 150.h,
+                            height: 130.h,
                             child: ListView.builder(
                               shrinkWrap: true,
                               itemCount: dogs.length,
@@ -323,20 +320,40 @@ class _UserProfileState extends State<UserProfile> {
           ),
         );
       },
-      width: 120,
-      height: 150,
-      margin: const EdgeInsets.only(right: 12),
-      bgColor: Colors.deepOrange.shade200,
-      borderRadius: BorderRadius.circular(12),
+      shadow: [
+        BoxShadow(
+          color: Colors.grey.withOpacity(0.5),
+          spreadRadius: 1,
+          blurRadius: 7,
+          offset: Offset(0, 3.h),
+        ),
+      ],
+      width: 120.w,
+      height: 130.h,
+      padding: EdgeInsets.all(10.w),
+      marginRight: 12.w,
+      bgColor: postColor,
+      borderRadius: BorderRadius.circular(10.r),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.network(dog.imageURL!,
-              width: 80, height: 80, fit: BoxFit.cover),
-          const SizedBox(height: 8),
-          Text(dog.name,
-              style: const TextStyle(
-                  color: Colors.black87, fontWeight: FontWeight.bold)),
+          ContainerCustom(
+            borderRadius: BorderRadius.circular(5.r),
+            child: Image.network(
+              dog.imageURL!,
+              fit: BoxFit.cover,
+              width: 80.w,
+              height: 80.h,
+            ),
+          ),
+          TextCustomWidget(
+            text: dog.name.toUpperCase(),
+            fontSize: 16.sp,
+            marginTop: 10.h,
+            containerAlignment: Alignment.center,
+            textColor: Colors.black87,
+            fontWeight: FontWeight.bold,
+          ),
         ],
       ),
     );

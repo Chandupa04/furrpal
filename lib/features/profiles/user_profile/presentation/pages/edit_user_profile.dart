@@ -30,6 +30,8 @@ class _EditUserProfileState extends State<EditUserProfile> {
   late TextEditingController phoneNumTextController;
   PlatformFile? imagePickedFile;
 
+  //add image picker
+
   Future<void> pickImage() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.image,
