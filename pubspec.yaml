@@ -60,6 +60,8 @@ dependencies:
   email_validator: ^3.0.0
   google_sign_in: ^6.2.2
   timeago: ^3.7.0
+  flutter_stripe: ^11.4.0
+  dio: ^5.8.0+1
 
 
 dev_dependencies:
