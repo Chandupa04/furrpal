@@ -42,7 +42,6 @@ class _SearchFilterScreenState extends State<SearchFilterScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Find Your Perfect Match'),
-        title: const Text('Find Your Perfect Match'),
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
