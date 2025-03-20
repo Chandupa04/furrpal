@@ -11,8 +11,7 @@ abstract class AuthRepo {
       String address,
       String phone,
       String password,
-      String confirmPassword,
-      {String? profileImageUrl});
+      String confirmPassword);
 
   Future<void> logout();
 
