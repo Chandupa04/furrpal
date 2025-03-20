@@ -1,7 +1,7 @@
 import 'dart:io';
 
 class DogEntity {
-  // final String dogId;
+  final String dogId;
   final String name;
   final String breed;
   final String gender;
@@ -11,7 +11,7 @@ class DogEntity {
   final String? imageURL;
 
   DogEntity({
-    // required this.dogId,
+    required this.dogId,
     required this.name,
     required this.breed,
     required this.gender,
@@ -23,7 +23,7 @@ class DogEntity {
 
   factory DogEntity.fromJson(Map<String, dynamic> json) {
     return DogEntity(
-      // dogId: json['dog_id'],
+      dogId: json['dog_id'],
       name: json['name'],
       breed: json['breed'],
       gender: json['gender'],
@@ -36,7 +36,7 @@ class DogEntity {
 
   Map<String, dynamic> toJson() {
     return {
-      // 'dog_id': dogId,
+      'dog_id': dogId,
       'name': name,
       'breed': breed,
       'gender': gender,
