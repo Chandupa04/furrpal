@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:furrpal/constant/constant.dart';
+import 'package:furrpal/custom/button_custom.dart';
 import 'cart_page.dart';
 import 'product_details_page.dart';
 
@@ -44,9 +46,34 @@ class _ShopPageState extends State<ShopPage> {
     Product(
         name: "Dog Chain", image: "assets/images/dog_chain.jpg", price: 12.49),
     Product(
-        name: "Dog Muzzle",
-        image: "assets/images/dog_muzzle.jpg",
-        price: 22.49),
+        name: "Dog Food Bowl",
+        image: "assets/images/food_bowl.jpg",
+        price: 17.49),
+    Product(
+        name: "Male Dog Diapers",
+        image: "assets/images/diapers.jpg",
+        price: 23.49),
+    Product(
+        name: "Dog Hair Brush",
+        image: "assets/images/dog_hair.jpg",
+        price: 17.49),
+    Product(
+        name: "Female Dog Diapers",
+        image: "assets/images/diapersg.jpg",
+        price: 16.00),
+    Product(name: "Dog Toys", image: "assets/images/toys.jpg", price: 8.59),
+    Product(
+        name: "Pet Nails Cutter",
+        image: "assets/images/pet_nail.jpg",
+        price: 6.29),
+    Product(
+        name: "Pet Poop Scooper With Poop Wast Bag",
+        image: "assets/images/poop.jpg",
+        price: 15.59),
+    Product(
+        name: "Pet Carrier Basket",
+        image: "assets/images/pet_carrier.jpg",
+        price: 5.59),
   ];
 
   List<Product> cart = [];
@@ -73,12 +100,26 @@ class _ShopPageState extends State<ShopPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.deepPurple,
-        title: Text("FurrPal Shop",
-            style: TextStyle(
-                fontSize: 24.sp,
-                fontWeight: FontWeight.bold,
-                color: Colors.white)),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: const SizedBox(width: 0), // Remove leading space
+        title: Container(
+          padding: const EdgeInsets.symmetric(vertical: 4.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [
+              Text(
+                "FurrPal",
+                style: TextStyle(
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+              SizedBox(width: 8),
+            ],
+          ),
+        ),
         centerTitle: true,
         actions: [
           IconButton(
@@ -110,6 +151,7 @@ class _ShopPageState extends State<ShopPage> {
                 );
               },
               child: Card(
+                color: whiteColor,
                 elevation: 3,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.r)),
@@ -128,10 +170,22 @@ class _ShopPageState extends State<ShopPage> {
                           Text("\$${product.price.toStringAsFixed(2)}",
                               style: TextStyle(
                                   fontSize: 14.sp, color: Colors.green)),
-                          ElevatedButton(
-                            onPressed: () => addToCart(product),
-                            child: Text("Add to Cart"),
+                          ButtonCustom(
+                            text: 'Add to Cart',
+                            btnHeight: 30.h,
+                            btnWidth: 140.w,
+                            borderRadius: BorderRadius.circular(15.r),
+                            // btnColor: ,
+                            textStyle: TextStyle(
+                              fontSize: 15.sp,
+                              color: blackColor,
+                            ),
+                            callback: () => addToCart(product),
                           ),
+                          // ElevatedButton(
+                          //   onPressed:
+                          //   child: Text("Add to Cart"),
+                          // ),
                         ],
                       ),
                     ),
