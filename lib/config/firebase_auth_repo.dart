@@ -40,7 +40,8 @@ class FirebaseAuthRepo implements AuthRepo {
       String address,
       String phone,
       String password,
-      String confirmPassword) async {
+      String confirmPassword,
+      {String? profileImageUrl}) async {
     try {
       //attempt sign in
       UserCredential userCredential = await firebaseAuth
@@ -54,6 +55,7 @@ class FirebaseAuthRepo implements AuthRepo {
         address: address,
         phoneNumber: phone,
         createdAt: Timestamp.now(),
+        profileImageUrl: profileImageUrl,
       );
 
       //save the data to database

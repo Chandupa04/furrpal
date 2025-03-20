@@ -577,6 +577,7 @@ class FirebaseService {
   Future<String?> uploadUserProfileImage(String userId, File imageFile) async {
     try {
       print('Starting profile image upload for user: $userId');
+      print('Image file size: ${imageFile.lengthSync()} bytes');
 
       // Create a unique filename
       final String fileName =
@@ -593,10 +594,22 @@ class FirebaseService {
 
       print('Image uploaded successfully. URL: $downloadUrl');
 
-      // Update the user document with the new image URL
-      await _firestore.collection('users').doc(userId).update({
-        'profileImageUrl': downloadUrl,
-      });
+      // Only update the user document if it already exists
+      // During registration, the document doesn't exist yet
+      try {
+        final userDoc = await _firestore.collection('users').doc(userId).get();
+        if (userDoc.exists) {
+          print('Updating existing user document with profile image URL');
+          await _firestore.collection('users').doc(userId).update({
+            'profileImageUrl': downloadUrl,
+          });
+        } else {
+          print('User document does not exist yet, skipping Firestore update');
+        }
+      } catch (e) {
+        print('Note: Could not update user document: $e');
+        // Don't rethrow here, as we still want to return the download URL
+      }
 
       return downloadUrl;
     } catch (e) {

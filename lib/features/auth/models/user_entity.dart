@@ -8,6 +8,7 @@ class UserEntity {
   final String phoneNumber;
   final String address;
   final Timestamp? createdAt;
+  final String? profileImageUrl;
 
   const UserEntity({
     required this.uid,
@@ -17,6 +18,7 @@ class UserEntity {
     required this.phoneNumber,
     required this.address,
     this.createdAt,
+    this.profileImageUrl,
   });
 
   Map<String, dynamic> toJson() {
@@ -28,6 +30,7 @@ class UserEntity {
       'phone number': phoneNumber,
       'address': address,
       'created_at': createdAt,
+      'profileImageUrl': profileImageUrl,
     };
   }
 
@@ -40,6 +43,7 @@ class UserEntity {
       phoneNumber: jsonUser['phone number'],
       address: jsonUser['address'],
       createdAt: jsonUser['created_at'],
+      profileImageUrl: jsonUser['profileImageUrl'],
     );
   }
 }

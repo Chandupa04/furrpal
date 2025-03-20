@@ -11,6 +11,9 @@ import '../../../../custom/text_custom.dart';
 import '../../../../custom/textfield_custom.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'package:furrpal/config/firebase_service.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -28,12 +31,72 @@ class _SignupPageState extends State<SignupPage> {
   final addressController = TextEditingController();
   final phoneController = TextEditingController();
 
+  File? _imageFile;
+  final FirebaseService _firebaseService = FirebaseService();
+
   bool isobscutured = false;
   bool isChecked = false;
   bool inProgress = false;
   bool isValid = false;
 
-  void signUp() {
+  Future<void> _pickImage() async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 85,
+      );
+
+      if (image != null) {
+        setState(() {
+          _imageFile = File(image.path);
+        });
+        print('Image selected successfully: ${image.path}');
+      } else {
+        print('No image selected');
+      }
+    } catch (e) {
+      print('Error picking image: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to select image: $e')),
+      );
+    }
+  }
+
+  Future<String?> _uploadImageToFirebase(String email) async {
+    if (_imageFile == null) return null;
+
+    try {
+      print('Starting upload process for image: ${_imageFile!.path}');
+      print('Image size: ${_imageFile!.lengthSync()} bytes');
+
+      // Using email as a temporary identifier for the upload
+      // Later we'll update it with the user's actual UID
+      final String tempId = email.replaceAll('.', '_');
+      print('Using temporary ID for upload: $tempId');
+
+      final downloadUrl =
+          await _firebaseService.uploadUserProfileImage(tempId, _imageFile!);
+
+      if (downloadUrl != null) {
+        print('Image successfully uploaded. Download URL: $downloadUrl');
+      } else {
+        print('Failed to get download URL from Firebase Storage');
+      }
+
+      return downloadUrl;
+    } catch (e) {
+      print('Error uploading image: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to upload image: $e')),
+      );
+      return null;
+    }
+  }
+
+  void signUp() async {
     isValid = EmailValidator.validate(emailController.text.trim());
 
     final String email = emailController.text;
@@ -85,27 +148,19 @@ class _SignupPageState extends State<SignupPage> {
         ),
       );
       return;
-      // } else {
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   SnackBar(
-      //     backgroundColor: blackColor,
-      //     shape: ContinuousRectangleBorder(
-      //         borderRadius: BorderRadius.only(
-      //             topLeft: Radius.circular(20.r),
-      //             topRight: Radius.circular(20.r))),
-      //     content: TextCustomWidget(
-      //       text: 'Please Enter all fields',
-      //       fontSize: 15.sp,
-      //       fontWeight: FontWeight.bold,
-      //     ),
-      //   ),
-      // );
     } else if (password == confirmPassword) {
       setState(() {
         inProgress = true;
       });
+
+      String? imageUrl;
+      if (_imageFile != null) {
+        imageUrl = await _uploadImageToFirebase(email);
+      }
+
       authCubit.register(
-          fName, lName, email, address, phone, password, confirmPassword);
+          fName, lName, email, address, phone, password, confirmPassword,
+          profileImageUrl: imageUrl);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -170,10 +225,43 @@ class _SignupPageState extends State<SignupPage> {
         body: SingleChildScrollView(
           child: Column(
             children: [
-              Image.asset(
-                logoImage,
-                width: 150.w,
-                height: 150.h,
+              GestureDetector(
+                onTap: _pickImage,
+                child: _imageFile != null
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(75.r),
+                        child: Image.file(
+                          _imageFile!,
+                          width: 150.w,
+                          height: 150.h,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Image.asset(
+                            logoImage,
+                            width: 150.w,
+                            height: 150.h,
+                          ),
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: Container(
+                              padding: EdgeInsets.all(8.r),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.camera_alt,
+                                size: 24.r,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
               ),
               ContainerCustom(
                 height: 800.h,

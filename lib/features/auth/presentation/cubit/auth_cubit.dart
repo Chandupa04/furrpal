@@ -42,18 +42,14 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   //register with email and password
-  Future<void> register(
-      String fName,
-      String lName,
-      String email,
-      String address,
-      String phone,
-      String password,
-      String confirmPassword) async {
+  Future<void> register(String fName, String lName, String email,
+      String address, String phone, String password, String confirmPassword,
+      {String? profileImageUrl}) async {
     try {
       emit(AuthLoading());
       final user = await authRepo.registerwithEmailPassword(
-          fName, lName, email, address, phone, password, confirmPassword);
+          fName, lName, email, address, phone, password, confirmPassword,
+          profileImageUrl: profileImageUrl);
 
       if (user != null) {
         currentUser = user;
