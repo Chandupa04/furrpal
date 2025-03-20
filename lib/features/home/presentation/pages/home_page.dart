@@ -254,7 +254,7 @@ class _HomePageState extends State<HomePage> {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const PaymentPage(),
+                          builder: (context) => const PricingPlansScreen(),
                         ),
                       );
                     },
@@ -505,40 +505,40 @@ class _DogProfileCardState extends State<DogProfileCard> {
                   borderRadius: BorderRadius.circular(20),
                   child: imageUrl.isNotEmpty
                       ? Image.network(
-                          imageUrl,
-                          height: 200,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return Container(
-                              height: 200,
-                              width: double.infinity,
-                              color: Colors.grey[200],
-                              child: const Center(
-                                child: CircularProgressIndicator(),
-                              ),
-                            );
-                          },
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              height: 200,
-                              width: double.infinity,
-                              color: Colors.grey[200],
-                              child: const Icon(
-                                Icons.error,
-                                color: Colors.red,
-                                size: 50,
-                              ),
-                            );
-                          },
-                        )
-                      : Image.asset(
-                          "assets/images/dog_placeholder.jpg",
-                          height: 200,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
+                    imageUrl,
+                    height: 200,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Container(
+                        height: 200,
+                        width: double.infinity,
+                        color: Colors.grey[200],
+                        child: const Center(
+                          child: CircularProgressIndicator(),
                         ),
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        height: 200,
+                        width: double.infinity,
+                        color: Colors.grey[200],
+                        child: const Icon(
+                          Icons.error,
+                          color: Colors.red,
+                          size: 50,
+                        ),
+                      );
+                    },
+                  )
+                      : Image.asset(
+                    "assets/images/dog_placeholder.jpg",
+                    height: 200,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
                 ),
                 const SizedBox(height: 20),
                 Text(
@@ -605,7 +605,7 @@ class _DogProfileCardState extends State<DogProfileCard> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
               ),
               child: const Text(
                 "Show User Details",

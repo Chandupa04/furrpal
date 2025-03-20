@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:furrpal/features/home/presentation/pages/home_page.dart';
+import 'package:furrpal/features/home/presentation/pages/home_page.dart';
 
 class SearchFilterScreen extends StatefulWidget {
   const SearchFilterScreen({super.key});
@@ -26,6 +27,7 @@ class _SearchFilterScreenState extends State<SearchFilterScreen> {
     'Great Dane',
     'Pug',
     'husky',
+    'husky',
     'Cocker Spaniel',
     'Border Collie',
     'Siberian Husky',
@@ -40,6 +42,7 @@ class _SearchFilterScreenState extends State<SearchFilterScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Find Your Perfect Match'),
+        title: const Text('Find Your Perfect Match'),
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
@@ -50,6 +53,26 @@ class _SearchFilterScreenState extends State<SearchFilterScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            DropdownButtonFormField<String>(
+              value: selectedBreed,
+              decoration: InputDecoration(
+                labelText: 'Breed',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              items: breeds.map((String breed) {
+                return DropdownMenuItem<String>(
+                  value: breed,
+                  child: Text(breed),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  selectedBreed = value;
+                });
+              },
+            ),
             DropdownButtonFormField<String>(
               value: selectedBreed,
               decoration: InputDecoration(

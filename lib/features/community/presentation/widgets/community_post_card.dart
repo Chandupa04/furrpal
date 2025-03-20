@@ -246,9 +246,10 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
             width: double.infinity,
             marginTop: 10.h,
             marginBottom: 10.h,
-            child: Image.asset('assets/images/gallery.jpeg',
-            height: 250.h,
-            fit: BoxFit.contain,
+            child: Image.asset(
+              'assets/images/gallery.jpeg',
+              height: 250.h,
+              fit: BoxFit.contain,
             ),
             // bgColor: Colors.grey,
           ),

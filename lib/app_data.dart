@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -10,6 +11,8 @@ import 'package:furrpal/features/profiles/dog_profile/presentation/cubit/dog_pro
 import 'package:furrpal/features/profiles/user_profile/data/firebase_user_profile_repo.dart';
 import 'package:furrpal/features/profiles/user_profile/presentation/cubit/profile_cubit.dart';
 import 'package:furrpal/features/profiles/user_profile/user_profile_picture/data/firebase_profile_picture_repo.dart';
+import 'package:provider/provider.dart';
+import 'package:furrpal/features/shop/presentation/pages/cart_provider.dart';
 import 'custom/text_custom.dart';
 import 'features/auth/presentation/pages/start_page.dart';
 import 'features/profiles/dog_profile/data/firebase_dog_profile_repo.dart';
@@ -17,82 +20,81 @@ import 'features/profiles/dog_profile/data/firebase_dog_profile_repo.dart';
 class MyApp extends StatelessWidget {
   MyApp({super.key});
 
-  // auth repo
+  // Auth repo
   final firebaseAuthRepo = FirebaseAuthRepo();
 
-  // profile repo
+  // Profile repo
   final firebaseProfileRepo = FirebaseUserProfileRepo();
 
-  // profile image repo
+  // Profile image repo
   final firebasePictureRepo = FirebaseProfilePictureRepo();
 
   final firebasedogProfileRepo = FirebaseDogProfileRepo();
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-        designSize: const Size(452, 778),
-        child: MultiBlocProvider(
-          providers: [
-            // auth cubit
-            BlocProvider<AuthCubit>(
-              create: (context) => AuthCubit(authRepo: firebaseAuthRepo)
-                ..checkUserAuthentication(),
-            ),
+      designSize: const Size(452, 778),
+      child: MultiBlocProvider(
+        providers: [
+          // Auth cubit
+          BlocProvider<AuthCubit>(
+            create: (context) => AuthCubit(authRepo: firebaseAuthRepo)
+              ..checkUserAuthentication(),
+          ),
 
-            //profile cubit
-            BlocProvider<ProfileCubit>(
-              create: (context) => ProfileCubit(
-                  profileRepo: firebaseProfileRepo,
-                  pictureRepo: firebasePictureRepo),
-            ),
+          // Profile cubit
+          BlocProvider<ProfileCubit>(
+            create: (context) => ProfileCubit(
+                profileRepo: firebaseProfileRepo,
+                pictureRepo: firebasePictureRepo),
+          ),
 
-            // dog profile cubit
-            BlocProvider<DogProfileCubit>(
-              create: (context) => DogProfileCubit(
-                dogProfileRepo: firebasedogProfileRepo,
-              ),
-            ),
-          ],
-          child: MaterialApp(
-            debugShowCheckedModeBanner: false,
-            theme: ThemeData(
-              colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-              scaffoldBackgroundColor: whiteColor,
-              appBarTheme: const AppBarTheme(
-                backgroundColor: whiteColor,
-                foregroundColor: blackColor,
-              ),
-              useMaterial3: true,
-            ),
-            home: BlocBuilder<AuthCubit, AuthState>(
-              builder: (context, authState) {
-                print(authState);
-
-                if (authState is UnAuthenticated) {
-                  return const StartPage();
-                }
-                if (authState is Authenticated) {
-                  return NavBar();
-                } else {
-                  return const Scaffold(
-                    body: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  );
-                }
-              },
-              // listener: (context, state) {
-              //   if (state is AuthError) {
-              //     print(state.message);
-              //     ScaffoldMessenger.of(context).showSnackBar(
-              //         SnackBar(content: TextCustomWidget(text: state.message)));
-              //   }
-              // },
+          // Dog profile cubit
+          BlocProvider<DogProfileCubit>(
+            create: (context) => DogProfileCubit(
+              dogProfileRepo: firebasedogProfileRepo,
             ),
           ),
-        ));
-    // );
+
+          // Cart provider
+          ChangeNotifierProvider(create: (_) => CartProvider()),
+        ],
+        child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+            scaffoldBackgroundColor: whiteColor,
+            appBarTheme: const AppBarTheme(
+              backgroundColor: whiteColor,
+              foregroundColor: blackColor,
+            ),
+            useMaterial3: true,
+          ),
+          home: BlocBuilder<AuthCubit, AuthState>(
+            builder: (context, authState) {
+              print(authState);
+
+              if (authState is UnAuthenticated) {
+                return const StartPage();
+              }
+              if (authState is Authenticated) {
+                // Initialize CartProvider with the user ID
+                final cartProvider =
+                    Provider.of<CartProvider>(context, listen: false);
+                cartProvider.setUserId(authState.user.uid);
+                return NavBar();
+              } else {
+                return const Scaffold(
+                  body: Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
+            },
+          ),
+        ),
+      ),
+    );
   }
 }

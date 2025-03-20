@@ -1,158 +1,295 @@
 import 'package:flutter/material.dart';
+import '../../../../stripe_payment_page/services/stripe_service.dart'; // Import the StripeService
 
-class PaymentPage extends StatelessWidget {
-  const PaymentPage({super.key});
+class PricingPlansScreen extends StatefulWidget {
+  const PricingPlansScreen({Key? key}) : super(key: key);
 
+  @override
+  State<PricingPlansScreen> createState() => _PricingPlansScreenState();
+}
+
+class _PricingPlansScreenState extends State<PricingPlansScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Upgrade Your Account'),
-        backgroundColor: Colors.white,
+        title: const Text(
+          'FurrPal',
+          style: TextStyle(
+            fontSize: 25, // Increased font size from default
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
+        backgroundColor: Colors.transparent,
+        foregroundColor: Colors.black,
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Choose Your Plan',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 16),
+                Text(
+                  'Choose Your Subscription Plan',
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey[800],
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-              ),
-              const SizedBox(height: 20),
-              _buildSubscriptionCard(
-                title: 'Monthly Plan',
-                price: '\$9.99',
-                features: [
-                  'Unlimited likes',
-                  'Priority matching',
-                  'Advanced filters',
-                  'Ad-free experience',
-                ],
-                onSubscribe: () {
-                  // Handle monthly subscription
-                },
-              ),
-              const SizedBox(height: 20),
-              _buildSubscriptionCard(
-                title: 'Yearly Plan',
-                price: '\$99.99',
-                features: [
-                  'Unlimited likes',
-                  'Priority matching',
-                  'Advanced filters',
-                  'Ad-free experience',
-                  '2 months free',
-                ],
-                onSubscribe: () {
-                  // Handle yearly subscription
-                },
-                isPopular: true,
-              ),
-            ],
+                const SizedBox(height: 8),
+                Text(
+                  'Select the perfect subscription that fits your needs',
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Colors.grey[600],
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 32),
+
+                // Pricing plans
+                ListView(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    _buildPlanCard(
+                      name: 'Silver',
+                      price: 0.68,
+                      description: 'Essential features for casual users',
+                      color: Colors.blueGrey,
+                      gradient: LinearGradient(
+                        colors: [Colors.blueGrey[300]!, Colors.blueGrey[500]!],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      features: const [
+                        {'name': '50 likes per month', 'included': true},
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    _buildPlanCard(
+                      name: 'Gold',
+                      price: 1.18,
+                      description: 'Premium features for serious users',
+                      color: Colors.amber[500]!,
+                      gradient: LinearGradient(
+                        colors: [Colors.amber[500]!, Colors.orange[800]!],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      isPopular: true,
+                      features: const [
+                        {'name': '100 likes per month', 'included': true},
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    _buildPlanCard(
+                      name: 'Platinum',
+                      price: 1.69,
+                      description: 'VIP features for power users',
+                      color: Colors.deepPurple,
+                      gradient: LinearGradient(
+                        colors: [Colors.black, Colors.blueGrey[900]!],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      features: const [
+                        {'name': 'Unlimited likes', 'included': true},
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildSubscriptionCard({
-    required String title,
-    required String price,
-    required List<String> features,
-    required VoidCallback onSubscribe,
+  Widget _buildPlanCard({
+    required String name,
+    required double price,
+    required String description,
+    required Color color,
+    required LinearGradient gradient,
+    required List<Map<String, dynamic>> features,
     bool isPopular = false,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(20),
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+      margin: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(
-          color: isPopular ? Colors.blue : Colors.grey.shade300,
-          width: isPopular ? 2 : 1,
-        ),
+        gradient: gradient,
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
+            color: Colors.black.withOpacity(0.2),
             blurRadius: 10,
-            offset: const Offset(0, 3),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: Column(
+      child: Stack(
         children: [
           if (isPopular)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(
-                color: Colors.blue,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: const Text(
-                'Most Popular',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+            Positioned(
+              top: 0,
+              right: 0,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.amber[700],
+                  borderRadius: const BorderRadius.only(
+                    topRight: Radius.circular(20),
+                    bottomLeft: Radius.circular(20),
+                  ),
+                ),
+                child: Text(
+                  'Popular',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
-          const SizedBox(height: 15),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            price,
-            style: const TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: Colors.blue,
-            ),
-          ),
-          const SizedBox(height: 20),
-          ...features.map((feature) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 5),
-                child: Row(
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  description,
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.9),
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
                   children: [
-                    const Icon(Icons.check_circle, color: Colors.green),
-                    const SizedBox(width: 10),
-                    Text(feature),
+                    Text(
+                      '\$${price.toStringAsFixed(2)}',
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      '/month',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.8),
+                        fontSize: 14,
+                      ),
+                    ),
                   ],
                 ),
-              )),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: onSubscribe,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
-              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
-              ),
-            ),
-            child: const Text(
-              'Subscribe Now',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+                const SizedBox(height: 16),
+                ...features.map((feature) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Row(
+                    children: [
+                      Icon(
+                        feature['included'] ? Icons.check_circle : Icons.cancel,
+                        color: feature['included'] ? Colors.white : Colors.grey[300],
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        feature['name'],
+                        style: TextStyle(
+                          color: feature['included'] ? Colors.white : Colors.grey[300],
+                        ),
+                      ),
+                    ],
+                  ),
+                )).toList(),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Direct subscription without showing payment modal
+                      _handleDirectSubscription(name, price);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: color,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 5,
+                    ),
+                    child: Text(
+                      isPopular ? 'Get Started' : 'Select Plan',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
       ),
     );
+  }
+
+  // New method to handle subscription without showing the modal
+  void _handleDirectSubscription(String plan, double price) async {
+    try {
+      // Use StripeService to process the payment directly
+      final bool paymentSuccess = await StripeService.instance.makePayment(
+        amount: price,
+        currency: 'USD',
+      );
+
+      if (paymentSuccess) {
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Successfully subscribed to $plan plan!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        // Show an error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Payment failed. Please try again.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (error) {
+      print('Error processing payment: $error');
+
+      // Show an error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Payment failed. Please try again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 }
