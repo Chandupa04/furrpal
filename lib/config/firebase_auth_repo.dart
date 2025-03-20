@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:furrpal/features/auth/domain/entities/user/user_entity.dart';
-import 'package:furrpal/features/auth/domain/repositories/auth_repo.dart';
+import '../features/auth/models/user_entity.dart';
+import '../features/auth/repositories/auth_repo.dart';
 
 class FirebaseAuthRepo implements AuthRepo {
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
@@ -11,7 +11,7 @@ class FirebaseAuthRepo implements AuthRepo {
   Future<UserEntity?> loginwithEmailPassword(
       String email, String password) async {
     try {
-      //attempt sign in
+      // Attempt sign in
       UserCredential userCredential = await firebaseAuth
           .signInWithEmailAndPassword(email: email, password: password);
 
@@ -25,8 +25,6 @@ class FirebaseAuthRepo implements AuthRepo {
       );
 
       return user;
-
-      //catch any error
     } catch (e) {
       throw Exception('Login Failed: $e');
     }
@@ -42,7 +40,7 @@ class FirebaseAuthRepo implements AuthRepo {
       String password,
       String confirmPassword) async {
     try {
-      //attempt sign in
+      // Attempt sign in
       UserCredential userCredential = await firebaseAuth
           .createUserWithEmailAndPassword(email: email, password: password);
 
@@ -53,19 +51,18 @@ class FirebaseAuthRepo implements AuthRepo {
         lName: lName,
         address: address,
         phoneNumber: phone,
+        createdAt: Timestamp.now(),
       );
 
-      //save the data to database
-      await firebaseFirestore
-          .collection('users')
-          .doc(user.uid)
-          .set(user.toJson());
+      // Save the data to Firestore with an empty cart array
+      await firebaseFirestore.collection('users').doc(user.uid).set({
+        ...user.toJson(), // Spread existing user data
+        'cart': [], // Initialize cart as an empty array
+      });
 
       return user;
-
-      //catch any error
     } catch (e) {
-      throw Exception('Login Failed: $e');
+      throw Exception('Registration Failed: $e');
     }
   }
 
@@ -76,15 +73,15 @@ class FirebaseAuthRepo implements AuthRepo {
 
   @override
   Future<UserEntity?> getCurrentUser() async {
-    //get current logged in user from firebase
+    // Get current logged-in user from Firebase
     final firebaseUser = firebaseAuth.currentUser;
 
-    //no user logged in
+    // No user logged in
     if (firebaseUser == null) {
       return null;
     }
 
-    //user exsist
+    // User exists
     return UserEntity(
       uid: firebaseUser.uid,
       email: firebaseUser.email!,

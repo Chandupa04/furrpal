@@ -200,9 +200,45 @@ class _HomePageState extends State<HomePage> {
         .catchError((e) {
       print('Error liking dog: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to like dog: $e')),
-        );
+        if (e.toString().contains('24-hour like limit')) {
+          // Show payment page when limit is reached
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Like Limit Reached'),
+                content: const Text(
+                    'You have reached your 24-hour like limit. Upgrade to continue liking more profiles!'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Close dialog
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const PricingPlansScreen(),
+                        ),
+                      );
+                    },
+                    child: const Text('Upgrade Now'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Close dialog
+                      Navigator.of(context)
+                          .pop(); // Pop the current route to go back
+                    },
+                    child: const Text('Cancel'),
+                  ),
+                ],
+              );
+            },
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to like dog: $e')),
+          );
+        }
       }
     });
   }
@@ -325,7 +361,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildTopBar() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -339,6 +375,23 @@ class _HomePageState extends State<HomePage> {
             },
             child: Icon(Icons.search, color: Colors.grey.shade800, size: 28),
           ),
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
+            child: const Row(
+              children: [
+                Text(
+                  "FurrPal",
+                  style: TextStyle(
+                    fontSize: 25,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                SizedBox(width: 8),
+              ],
+            ),
+          ),
+          const SizedBox(width: 30),
           // Icon(Icons.person, color: Colors.grey.shade800, size: 28),
         ],
       ),
@@ -365,10 +418,10 @@ class DogProfileCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Get image from Firebase or use placeholder
-    final String imageUrl = dog["image"] ?? "";
+    final String imageUrl = dog["imageUrl"] ?? "";
 
     return Container(
-      height: 100,
+      height: 160,
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -393,40 +446,40 @@ class DogProfileCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                   child: imageUrl.isNotEmpty
                       ? Image.network(
-                          imageUrl,
-                          height: 200,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return Container(
-                              height: 200,
-                              width: double.infinity,
-                              color: Colors.grey[200],
-                              child: const Center(
-                                child: CircularProgressIndicator(),
-                              ),
-                            );
-                          },
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              height: 200,
-                              width: double.infinity,
-                              color: Colors.grey[200],
-                              child: const Icon(
-                                Icons.error,
-                                color: Colors.red,
-                                size: 50,
-                              ),
-                            );
-                          },
-                        )
-                      : Image.asset(
-                          "assets/images/dog_placeholder.jpg",
-                          height: 200,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
+                    imageUrl,
+                    height: 200,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Container(
+                        height: 200,
+                        width: double.infinity,
+                        color: Colors.grey[200],
+                        child: const Center(
+                          child: CircularProgressIndicator(),
                         ),
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        height: 200,
+                        width: double.infinity,
+                        color: Colors.grey[200],
+                        child: const Icon(
+                          Icons.error,
+                          color: Colors.red,
+                          size: 50,
+                        ),
+                      );
+                    },
+                  )
+                      : Image.asset(
+                    "assets/images/dog_placeholder.jpg",
+                    height: 200,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
                 ),
                 const SizedBox(height: 20),
                 Text(
@@ -452,10 +505,12 @@ class DogProfileCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: ElevatedButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const UserDetailsScreen()),
+                // Show a message that this feature is coming soon
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('This feature is coming soon!'),
+                    duration: Duration(seconds: 2),
+                  ),
                 );
               },
               style: ElevatedButton.styleFrom(
@@ -464,7 +519,7 @@ class DogProfileCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
               ),
               child: const Text(
                 "Show User Details",

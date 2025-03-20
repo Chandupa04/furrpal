@@ -28,14 +28,25 @@ class _NotificationsPageState extends State<NotificationsPage> {
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
-        title: Text(
-          'Notifications',
-          style: GoogleFonts.poppins(
-            fontSize: 22,
-            fontWeight: FontWeight.w600,
-            color: const Color(0xFF333333),
+        leading: const SizedBox(width: 0), // Remove leading space
+        title: Container(
+          padding: const EdgeInsets.symmetric(vertical: 4.0),
+          child: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "FurrPal",
+                style: TextStyle(
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+              SizedBox(width: 50),
+            ],
           ),
         ),
+        centerTitle: true,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(60),
           child: Container(

@@ -1,23 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:furrpal/constant/constant.dart';
-import 'package:furrpal/custom/button_custom.dart';
-import 'cart_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
+import 'cart_provider.dart';
 import 'product_details_page.dart';
-
-class Product {
-  final String name;
-  final String image;
-  final double price;
-  int quantity;
-
-  Product({
-    required this.name,
-    required this.image,
-    required this.price,
-    this.quantity = 0,
-  });
-}
+import 'checkout_page.dart';
+import 'order_history_page.dart';
 
 class ShopPage extends StatefulWidget {
   const ShopPage({super.key});
@@ -27,165 +14,320 @@ class ShopPage extends StatefulWidget {
 }
 
 class _ShopPageState extends State<ShopPage> {
-  List<Product> products = [
-    Product(
-        name: "Dog Collar",
-        image: "assets/images/dog_collar.jpg",
-        price: 10.99),
-    Product(
-        name: "Pet Food Bowl", image: "assets/images/bowl.jpg", price: 5.99),
-    Product(name: "Chew Toy", image: "assets/images/chew_toy.jpg", price: 8.99),
-    Product(
-        name: "Dog Shampoo", image: "assets/images/shampoo.jpg", price: 12.49),
-    Product(
-        name: "Dog Food", image: "assets/images/dog_food.jpg", price: 12.49),
-    Product(
-        name: "Dog Towel", image: "assets/images/dog_towel.jpg", price: 12.49),
-    Product(
-        name: "Dog Muzzle",
-        image: "assets/images/dog_muzzle.jpg",
-        price: 12.49),
-    Product(
-        name: "Dog Chain", image: "assets/images/dog_chain.jpg", price: 12.49),
-    Product(
-        name: "Dog Food Bowl",
-        image: "assets/images/food_bowl.jpg",
-        price: 17.49),
-    Product(
-        name: "Male Dog Diapers",
-        image: "assets/images/diapers.jpg",
-        price: 23.49),
-    Product(
-        name: "Dog Hair Brush",
-        image: "assets/images/dog_hair.jpg",
-        price: 17.49),
-    Product(
-        name: "Female Dog Diapers",
-        image: "assets/images/diapersg.jpg",
-        price: 16.00),
-    Product(name: "Dog Toys", image: "assets/images/toys.jpg", price: 8.59),
-    Product(
-        name: "Pet Nails Cutter",
-        image: "assets/images/pet_nail.jpg",
-        price: 6.29),
-    Product(
-        name: "Pet Poop Scooper With Poop Wast Bag",
-        image: "assets/images/poop.jpg",
-        price: 15.59),
-    Product(
-        name: "Pet Carrier Basket",
-        image: "assets/images/pet_carrier.jpg",
-        price: 5.59),
-  ];
+  final CollectionReference products =
+      FirebaseFirestore.instance.collection('products');
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
 
-  List<Product> cart = [];
+  @override
+  Widget build(BuildContext context) {
+    final cartProvider = Provider.of<CartProvider>(context);
 
-  void addToCart(Product product) {
-    setState(() {
-      if (!cart.contains(product)) {
-        cart.add(product);
-      }
-      product.quantity++;
-    });
+    return Scaffold(
+      appBar: AppBar(
+        title: Container(
+          width: double.infinity,
+          height: 40,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Center(
+            child: TextField(
+              controller: _searchController,
+              decoration: const InputDecoration(
+                hintText: 'Search products...',
+                border: InputBorder.none,
+                prefixIcon: Icon(Icons.search, color: Colors.grey),
+                contentPadding: EdgeInsets.symmetric(horizontal: 16),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value.toLowerCase();
+                });
+              },
+            ),
+          ),
+        ),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.blue, Colors.purple],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: AnimatedCartIcon(itemCount: cartProvider.cartItems.length),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const CheckoutPage()),
+              );
+            },
+          ),
+        ],
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.blue, Colors.purple],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: Text(
+                'Menu',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.shopping_cart, color: Colors.blue),
+              title: const Text('Cart'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const CheckoutPage()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.history, color: Colors.green),
+              title: const Text('Order History'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => OrderHistoryPage()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings, color: Colors.grey),
+              title: const Text('Settings'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: products.snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return const Center(child: Text('Error loading products'));
+          }
+
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(child: Text('No products available'));
+          }
+
+          var productDocs = snapshot.data!.docs;
+
+          if (_searchQuery.isNotEmpty) {
+            productDocs = productDocs.where((doc) {
+              var productName = doc['name'].toString().toLowerCase();
+              return productName.contains(_searchQuery);
+            }).toList();
+          }
+
+          return GridView.builder(
+            padding: const EdgeInsets.all(10),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+              childAspectRatio: 0.75,
+            ),
+            itemCount: productDocs.length,
+            itemBuilder: (context, index) {
+              var product = productDocs[index];
+              return ProductCard(
+                name: product['name'],
+                price: product['price'],
+                imageUrl: product['imageUrl'],
+                description: product['description'],
+                onAddToCart: () {
+                  cartProvider.addToCart({
+                    'name': product['name'],
+                    'price': product['price'],
+                    'imageUrl': product['imageUrl'],
+                    'description': product['description'],
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('${product['name']} added to cart')),
+                  );
+                },
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProductDetailsPage(product: {
+                        'name': product['name'],
+                        'price': product['price'],
+                        'imageUrl': product['imageUrl'],
+                        'description': product['description'],
+                      }),
+                    ),
+                  );
+                },
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+
+class ProductCard extends StatelessWidget {
+  final String name;
+  final int price;
+  final String imageUrl;
+  final String description;
+  final VoidCallback onAddToCart;
+  final VoidCallback onTap;
+
+  const ProductCard({super.key, 
+    required this.name,
+    required this.price,
+    required this.imageUrl,
+    required this.description,
+    required this.onAddToCart,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Card(
+        elevation: 5,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: ClipRRect(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+                child: Image.network(
+                  imageUrl,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  Text(
+                    name,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'LKR $price',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.green,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    description,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  ElevatedButton(
+                    onPressed: onAddToCart,
+                    child: const Text('Add to Cart'),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class AnimatedCartIcon extends StatefulWidget {
+  final int itemCount;
+
+  const AnimatedCartIcon({super.key, required this.itemCount});
+
+  @override
+  _AnimatedCartIconState createState() => _AnimatedCartIconState();
+}
+
+class _AnimatedCartIconState extends State<AnimatedCartIcon>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    )..repeat(reverse: true);
   }
 
-  void navigateToCart() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => CartPage(cart: cart)),
-    ).then((_) {
-      setState(() {}); // Refresh the state after returning from cart
-    });
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        // backgroundColor: Colors.deepPurple,
-        title: Text(
-          "FurrPal Shop",
-          style: TextStyle(
-            fontSize: 24.sp,
-            fontWeight: FontWeight.bold,
-            // color: Colors.white
-          ),
-        ),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.shopping_cart),
-            onPressed: navigateToCart,
-            color: Colors.amberAccent,
-          ),
-        ],
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(10.w),
-        child: GridView.builder(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 0.75,
-            crossAxisSpacing: 10.w,
-            mainAxisSpacing: 10.h,
-          ),
-          itemCount: products.length,
-          itemBuilder: (context, index) {
-            final product = products[index];
-            return GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ProductDetailsPage(product: product),
-                  ),
-                );
-              },
-              child: Card(
-                color: whiteColor,
-                elevation: 3,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.r)),
-                child: Column(
-                  children: [
-                    Expanded(
-                        child: Image.asset(product.image, fit: BoxFit.cover)),
-                    Padding(
-                      padding: EdgeInsets.all(8.w),
-                      child: Column(
-                        children: [
-                          Text(product.name,
-                              style: TextStyle(
-                                  fontSize: 16.sp,
-                                  fontWeight: FontWeight.bold)),
-                          Text("\$${product.price.toStringAsFixed(2)}",
-                              style: TextStyle(
-                                  fontSize: 14.sp, color: Colors.green)),
-                          ButtonCustom(
-                            text: 'Add to Cart',
-                            btnHeight: 30.h,
-                            btnWidth: 140.w,
-                            borderRadius: BorderRadius.circular(15.r),
-                            // btnColor: ,
-                            textStyle: TextStyle(
-                              fontSize: 15.sp,
-                              color: blackColor,
-                            ),
-                            callback: () => addToCart(product),
-                          ),
-                          // ElevatedButton(
-                          //   onPressed:
-                          //   child: Text("Add to Cart"),
-                          // ),
-                        ],
-                      ),
-                    ),
-                  ],
+    return ScaleTransition(
+      scale: Tween(begin: 1.0, end: 1.2).animate(_controller),
+      child: Stack(
+        children: [
+          const Icon(Icons.shopping_cart, color: Colors.white),
+          if (widget.itemCount > 0)
+            Positioned(
+              right: 0,
+              child: CircleAvatar(
+                radius: 8,
+                backgroundColor: Colors.red,
+                child: Text(
+                  '${widget.itemCount}',
+                  style: const TextStyle(fontSize: 10, color: Colors.white),
                 ),
               ),
-            );
-          },
-        ),
+            ),
+        ],
       ),
     );
   }

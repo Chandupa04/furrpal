@@ -18,6 +18,12 @@ const Gradient primaryGradient = LinearGradient(
 const String logoImage = 'assets/images/logo.png';
 
 TextStyle appBarStyle = TextStyle(
-  fontSize: 22.sp,
+  fontSize: 24.sp,
   fontWeight: FontWeight.w700,
+  color: blackColor,
+);
+
+TextStyle textFieldLableStyle = TextStyle(
+  fontSize: 17.sp,
+  color: blackColor,
 );
