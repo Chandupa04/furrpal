@@ -3,7 +3,6 @@ import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:furrpal/app_data.dart';
 import 'package:furrpal/constant/constant.dart';
 import 'package:furrpal/custom/button_custom.dart';
 import 'package:furrpal/custom/container_custom.dart';
