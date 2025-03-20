@@ -27,6 +27,11 @@ class FirebaseService {
     print('Creating dog profile for user: $userId');
 
     try {
+      // generate a unique ID for the dog
+      DocumentReference reference =
+          _firestore.collection('users').doc(userId).collection('dogs').doc();
+      String dogId = reference.id;
+
       // Upload image if provided
       String? imageUrl;
       if (imageFile != null) {
@@ -62,6 +67,7 @@ class FirebaseService {
 
       // Create dog profile document
       final dogData = {
+        'dog_id': dogId,
         'name': name,
         'breed': breed,
         'gender': gender,
@@ -79,17 +85,20 @@ class FirebaseService {
           .collection('users')
           .doc(userId)
           .collection('dogs')
-          .add(dogData);
-      print('Dog profile created successfully with ID: ${docRef.id}');
+          .doc(dogId)
+          .set(dogData);
+      // .add(dogData);
+      reference.set(dogData);
+      print('Dog profile created successfully with ID: $dogId');
 
       // Verify the document was created
-      final docSnapshot = await docRef.get();
-      if (docSnapshot.exists) {
-        print('Verified document exists with data: ${docSnapshot.data()}');
-      } else {
-        print('Error: Document was not created');
-        throw Exception('Failed to create dog profile document');
-      }
+      // final docSnapshot = await docRef.get();
+      // if (docSnapshot.exists) {
+      //   print('Verified document exists with data: ${docSnapshot.data()}');
+      // } else {
+      //   print('Error: Document was not created');
+      //   throw Exception('Failed to create dog profile document');
+      // }
     } catch (e) {
       print('Error creating dog profile: $e');
       rethrow;

@@ -59,7 +59,7 @@ class _LoginPageState extends State<LoginPage> {
         SnackBar(
           content: TextCustomWidget(
             text: 'Please Enter Both Email and Password',
-            fontSize: 12.sp,
+            fontSize: 17.sp,
           ),
         ),
       );
@@ -77,6 +77,27 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
+        if (state is AuthError) {
+          setState(() {
+            inProgress = false;
+          });
+          if (!mounted) return;
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: blackColor,
+              shape: ContinuousRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(20.r),
+                      topRight: Radius.circular(20.r))),
+              content: TextCustomWidget(
+                text: 'The email or password is incorrect',
+                fontSize: 15.sp,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          );
+        }
         if (state is Authenticated) {
           Navigator.pushReplacement(
             context,
@@ -145,7 +166,6 @@ class _LoginPageState extends State<LoginPage> {
                           fontSize: 17.sp,
                         ),
                         ButtonCustom(
-                          // isLoading: false,
                           text: 'SignUp',
                           callback: () {
                             Navigator.push(
@@ -184,16 +204,6 @@ class _LoginPageState extends State<LoginPage> {
                       inProgress: inProgress,
                       isDisabled: inProgress,
                       disabledColor: primaryColor,
-
-                      // isLoading: false,
-                      // () {
-                      //   Navigator.push(
-                      //     context,
-                      //     MaterialPageRoute(
-                      //       builder: (context) => NavBar(),
-                      //     ),
-                      //   );
-                      // },
                       dontApplyMargin: true,
                     ),
                   ],

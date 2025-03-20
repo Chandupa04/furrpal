@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:furrpal/features/auth/domain/entities/user/user_entity.dart';
-import 'package:furrpal/features/auth/domain/repositories/auth_repo.dart';
+import '../features/auth/models/user_entity.dart';
+import '../features/auth/repositories/auth_repo.dart';
 
 class FirebaseAuthRepo implements AuthRepo {
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
@@ -53,6 +53,7 @@ class FirebaseAuthRepo implements AuthRepo {
         lName: lName,
         address: address,
         phoneNumber: phone,
+        createdAt: Timestamp.now(),
       );
 
       //save the data to database
