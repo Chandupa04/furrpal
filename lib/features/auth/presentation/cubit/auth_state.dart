@@ -1,4 +1,4 @@
-import 'package:furrpal/features/auth/domain/entities/user/user_entity.dart';
+import '../../models/user_entity.dart';
 
 abstract class AuthState {}
 

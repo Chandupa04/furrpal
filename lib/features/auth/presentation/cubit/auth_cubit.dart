@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:furrpal/features/auth/domain/entities/user/user_entity.dart';
-import 'package:furrpal/features/auth/domain/repositories/auth_repo.dart';
+import 'package:furrpal/features/auth/models/user_entity.dart';
 import 'package:furrpal/features/auth/presentation/cubit/auth_state.dart';
+import 'package:furrpal/features/auth/repositories/auth_repo.dart';
 
 class AuthCubit extends Cubit<AuthState> {
   final AuthRepo authRepo;
