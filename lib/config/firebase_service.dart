@@ -572,4 +572,82 @@ class FirebaseService {
       return false;
     }
   }
+
+  // Upload and update user profile image
+  Future<String?> uploadUserProfileImage(String userId, File imageFile) async {
+    try {
+      print('Starting profile image upload for user: $userId');
+
+      // Create a unique filename
+      final String fileName =
+          '${DateTime.now().millisecondsSinceEpoch}_${imageFile.path.split('/').last}';
+      final storageRef =
+          _storage.ref().child('profile_images/$userId/$fileName');
+
+      print('Uploading to storage path: ${storageRef.fullPath}');
+
+      // Upload the file
+      final uploadTask = storageRef.putFile(imageFile);
+      final snapshot = await uploadTask;
+      final downloadUrl = await snapshot.ref.getDownloadURL();
+
+      print('Image uploaded successfully. URL: $downloadUrl');
+
+      // Update the user document with the new image URL
+      await _firestore.collection('users').doc(userId).update({
+        'profileImageUrl': downloadUrl,
+      });
+
+      return downloadUrl;
+    } catch (e) {
+      print('Error uploading profile image: $e');
+      return null;
+    }
+  }
+
+  // Get user details by ID
+  Future<Map<String, dynamic>?> getUserDetails(String userId) async {
+    try {
+      final userDoc = await _firestore.collection('users').doc(userId).get();
+
+      if (!userDoc.exists) {
+        print('User document not found for ID: $userId');
+        return null;
+      }
+
+      final userData = userDoc.data();
+      if (userData == null) {
+        print('User data is null for ID: $userId');
+        return null;
+      }
+
+      // Get first and last name with correct field names
+      final String firstName = userData['first name'] ?? '';
+      final String lastName = userData['last name'] ?? '';
+
+      // Combine names with proper spacing
+      final String fullName = firstName.isNotEmpty && lastName.isNotEmpty
+          ? '$firstName $lastName'
+          : firstName.isNotEmpty
+              ? firstName
+              : lastName.isNotEmpty
+                  ? lastName
+                  : 'Unknown User';
+
+      // Format the data to match what we need
+      return {
+        'name': fullName,
+        'email': userData['email'] ?? 'Not provided',
+        'address': userData['address'] ?? 'Not provided',
+        'contact': userData['phone number'] ?? 'Not provided',
+        'since': userData['created_at'] != null
+            ? 'since ${(userData['created_at'] as Timestamp).toDate().year}'
+            : 'Not provided',
+        'imagePath': userData['profileImageUrl'] ?? 'assets/images/man.jpg',
+      };
+    } catch (e) {
+      print('Error fetching user details: $e');
+      return null;
+    }
+  }
 }

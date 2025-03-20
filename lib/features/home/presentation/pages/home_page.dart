@@ -7,6 +7,7 @@ import 'package:furrpal/features/home/presentation/pages/payment_page.dart';
 import 'package:furrpal/features/home/presentation/pages/filter_search_page.dart';
 import 'package:furrpal/config/firebase_service.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:furrpal/features/home/presentation/pages/userdetails_page.dart';
 
 class HomePage extends StatefulWidget {
   final String? focusBreed;
@@ -450,7 +451,7 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class DogProfileCard extends StatelessWidget {
+class DogProfileCard extends StatefulWidget {
   final Map<String, dynamic> dog;
   final bool isTopCard;
   final CardSwiperController swiperController;
@@ -467,9 +468,16 @@ class DogProfileCard extends StatelessWidget {
   });
 
   @override
+  State<DogProfileCard> createState() => _DogProfileCardState();
+}
+
+class _DogProfileCardState extends State<DogProfileCard> {
+  final FirebaseService _firebaseService = FirebaseService();
+
+  @override
   Widget build(BuildContext context) {
     // Get image from Firebase or use placeholder
-    final String imageUrl = dog["imageUrl"] ?? "";
+    final String imageUrl = widget.dog["imageUrl"] ?? "";
 
     return Container(
       height: 160,
@@ -534,12 +542,12 @@ class DogProfileCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  dog["name"] ?? "Unknown",
+                  widget.dog["name"] ?? "Unknown",
                   style: const TextStyle(
                       fontSize: 26, fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  dog["breed"] ?? "Unknown breed",
+                  widget.dog["breed"] ?? "Unknown breed",
                   style: const TextStyle(
                     fontSize: 16,
                     fontStyle: FontStyle.italic,
@@ -547,7 +555,7 @@ class DogProfileCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 10),
-                _infoRow(dog),
+                _infoRow(widget.dog),
                 const SizedBox(height: 15),
               ],
             ),
@@ -555,14 +563,41 @@ class DogProfileCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: ElevatedButton(
-              onPressed: () {
-                // Show a message that this feature is coming soon
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('This feature is coming soon!'),
-                    duration: Duration(seconds: 2),
-                  ),
-                );
+              onPressed: () async {
+                final String ownerId = widget.dog["ownerId"];
+                if (ownerId == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Owner details not available')),
+                  );
+                  return;
+                }
+
+                final userDetails =
+                    await _firebaseService.getUserDetails(ownerId);
+                if (userDetails == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Failed to load user details')),
+                  );
+                  return;
+                }
+
+                if (mounted) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => UserDetailsPage(
+                        name: userDetails['name'],
+                        email: userDetails['email'],
+                        address: userDetails['address'],
+                        contact: userDetails['contact'],
+                        since: userDetails['since'],
+                        imagePath: userDetails['imagePath'],
+                      ),
+                    ),
+                  );
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(255, 183, 180, 177),
@@ -590,8 +625,8 @@ class DogProfileCard extends StatelessWidget {
                 color: Colors.redAccent,
                 backgroundColor: Colors.red.withOpacity(0.2),
                 onTap: () {
-                  onDislike();
-                  swiperController.swipe(CardSwiperDirection.left);
+                  widget.onDislike();
+                  widget.swiperController.swipe(CardSwiperDirection.left);
                 },
               ),
               const SizedBox(width: 30),
@@ -600,8 +635,8 @@ class DogProfileCard extends StatelessWidget {
                 color: Colors.green,
                 backgroundColor: Colors.green.withOpacity(0.2),
                 onTap: () {
-                  onLike();
-                  swiperController.swipe(CardSwiperDirection.right);
+                  widget.onLike();
+                  widget.swiperController.swipe(CardSwiperDirection.right);
                 },
               ),
             ],
