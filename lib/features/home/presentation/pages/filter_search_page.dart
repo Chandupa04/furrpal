@@ -13,28 +13,49 @@ class _SearchFilterScreenState extends State<SearchFilterScreen> {
   String? selectedBreed;
 
   final List<String> breeds = [
-    'Labrador Retriever',
-    'Golden Retriever',
-    'Bulldog',
+    'Afghan Hound',
+    'American Bully',
+    'American Staffordshire Terrier',
+    'Basset Hound',
     'Beagle',
-    'German Shepherd',
-    'Poodle',
-    'Dachshund',
-    'Rottweiler',
-    'Shih Tzu',
-    'Doberman',
-    'Chihuahua',
-    'Great Dane',
-    'Pug',
-    'husky',
-    'husky',
-    'Cocker Spaniel',
+    'Belgian Malinois',
     'Border Collie',
-    'Siberian Husky',
     'Boxer',
+    'Bulldog',
+    'Chihuahua',
+    'Cocker Spaniel',
+    'Dalmatian',
+    'Dachshund',
+    'Doberman',
+    'French Bulldog',
+    'German Shepherd',
+    'German Spitz',
+    'Golden Retriever',
+    'Great Dane',
+    'Great Pyrenees',
+    'Indian Pariah Dog (Desi Dog)',
+    'Jack Russell Terrier',
+    'Japanese Spitz',
+    'Labrador Retriever',
+    'Lhasa Apso',
     'Maltese',
+    'Mixed Breed (Mongrel)',
+    'Pekingese',
     'Pomeranian',
-    'Saint Bernard'
+    'Poodle',
+    'Pug',
+    'Rottweiler',
+    'Saint Bernard',
+    'Samoyed',
+    'Shih Tzu',
+    'Siberian Husky',
+    'Spitz',
+    'Sri Lankan Hound',
+    'Sri Lankan Mastiff',
+    'Terrier',
+    'Tibetan Mastiff',
+    'Weimaraner',
+    'Whippet'
   ];
 
   @override
@@ -52,26 +73,6 @@ class _SearchFilterScreenState extends State<SearchFilterScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            DropdownButtonFormField<String>(
-              value: selectedBreed,
-              decoration: InputDecoration(
-                labelText: 'Breed',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              items: breeds.map((String breed) {
-                return DropdownMenuItem<String>(
-                  value: breed,
-                  child: Text(breed),
-                );
-              }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  selectedBreed = value;
-                });
-              },
-            ),
             DropdownButtonFormField<String>(
               value: selectedBreed,
               decoration: InputDecoration(

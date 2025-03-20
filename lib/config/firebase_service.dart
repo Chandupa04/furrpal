@@ -656,7 +656,7 @@ class FirebaseService {
         'since': userData['created_at'] != null
             ? 'since ${(userData['created_at'] as Timestamp).toDate().year}'
             : 'Not provided',
-        'imagePath': userData['profileImageUrl'] ?? 'assets/images/man.jpg',
+        'imagePath': userData['profileImageUrl'] ?? '',
       };
     } catch (e) {
       print('Error fetching user details: $e');

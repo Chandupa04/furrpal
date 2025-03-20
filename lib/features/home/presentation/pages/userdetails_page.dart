@@ -1,33 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // Import Clipboard for copy function
 import 'package:flutter/cupertino.dart'; // Import Cupertino for iOS styling
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:furrpal/config/firebase_service.dart';
-
-void main() {
-  runApp(const UserDetailsApp());
-}
-
-class UserDetailsApp extends StatelessWidget {
-  const UserDetailsApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: UserDetailsPage(
-        name: "James Taylor",
-        email: "james@email.com",
-        address: "78/A Park lane.",
-        contact: "0714586235",
-        since: "since 2024",
-        imagePath: "assets/images/man.jpg",
-      ),
-    );
-  }
-}
 
 class UserDetailsPage extends StatefulWidget {
   final String name;
@@ -52,58 +25,6 @@ class UserDetailsPage extends StatefulWidget {
 }
 
 class _UserDetailsPageState extends State<UserDetailsPage> {
-  final FirebaseService _firebaseService = FirebaseService();
-  final ImagePicker _picker = ImagePicker();
-  String? _imageUrl;
-  bool _isLoading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _imageUrl = widget.imagePath;
-  }
-
-  Future<void> _pickAndUploadImage() async {
-    try {
-      setState(() => _isLoading = true);
-
-      // Pick image
-      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-      if (image == null) return;
-
-      // Get current user
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No user logged in')),
-        );
-        return;
-      }
-
-      // Upload image
-      final String? downloadUrl = await _firebaseService.uploadUserProfileImage(
-        user.uid,
-        File(image.path),
-      );
-
-      if (downloadUrl != null) {
-        setState(() {
-          _imageUrl = downloadUrl;
-        });
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to upload image')),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
-    } finally {
-      setState(() => _isLoading = false);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -133,35 +54,23 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                 padding: const EdgeInsets.only(top: 40, bottom: 20),
                 child: Column(
                   children: [
-                    GestureDetector(
-                      onTap: _pickAndUploadImage,
-                      child: Stack(
-                        children: [
-                          CircleAvatar(
-                            radius: 90,
-                            backgroundImage: _imageUrl != null
-                                ? NetworkImage(_imageUrl!)
-                                : AssetImage(widget.imagePath) as ImageProvider,
-                            backgroundColor: CupertinoColors.systemGrey5,
-                          ),
-                          Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: CupertinoColors.activeBlue,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.camera_alt,
-                                color: CupertinoColors.white,
-                                size: 24,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                    CircleAvatar(
+                      radius: 90,
+                      backgroundImage: widget.imagePath.startsWith('http') ||
+                              widget.imagePath.startsWith('assets')
+                          ? (widget.imagePath.startsWith('http')
+                              ? NetworkImage(widget.imagePath)
+                              : AssetImage(widget.imagePath) as ImageProvider)
+                          : null,
+                      backgroundColor: CupertinoColors.systemGrey5,
+                      child: !widget.imagePath.startsWith('http') &&
+                              !widget.imagePath.startsWith('assets')
+                          ? Icon(
+                              Icons.person,
+                              size: 80,
+                              color: CupertinoColors.systemGrey,
+                            )
+                          : null,
                     ),
                     const SizedBox(height: 16),
                     Text(
