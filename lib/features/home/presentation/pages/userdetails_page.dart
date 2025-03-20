@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // Import Clipboard for copy function
 
 class UserDetailsPage extends StatefulWidget {
-  const UserDetailsPage({super.key});
+  const UserDetailsPage({super.key, required name, required email, required address, required contact, required since, required imagePath});
 
   @override
   _UserDetailsPageState createState() => _UserDetailsPageState();
