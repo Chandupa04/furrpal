@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'cart_provider.dart';
 import 'product_details_page.dart';
 import 'checkout_page.dart';
-import 'order_history_page.dart'; // Import the OrderHistoryPage
+import 'order_history_page.dart';
 
 class ShopPage extends StatefulWidget {
   @override
@@ -41,7 +41,7 @@ class _ShopPageState extends State<ShopPage> {
               ),
               onChanged: (value) {
                 setState(() {
-                  _searchQuery = value.toLowerCase(); // Update search query
+                  _searchQuery = value.toLowerCase();
                 });
               },
             ),
@@ -58,21 +58,11 @@ class _ShopPageState extends State<ShopPage> {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.filter_list, color: Colors.white),
-            onPressed: () {
-              // Open filter dialog
-            },
-          ),
-          IconButton(
             icon: AnimatedCartIcon(itemCount: cartProvider.cartItems.length),
             onPressed: () {
-              print('Cart icon pressed'); // Debugging statement
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      CheckoutPage(), // Navigate to CheckoutPage
-                ),
+                MaterialPageRoute(builder: (context) => CheckoutPage()),
               );
             },
           ),
@@ -103,12 +93,10 @@ class _ShopPageState extends State<ShopPage> {
               leading: Icon(Icons.shopping_cart, color: Colors.blue),
               title: Text('Cart'),
               onTap: () {
-                Navigator.pop(context); // Close the drawer
+                Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => CheckoutPage(),
-                  ),
+                  MaterialPageRoute(builder: (context) => CheckoutPage()),
                 );
               },
             ),
@@ -116,12 +104,10 @@ class _ShopPageState extends State<ShopPage> {
               leading: Icon(Icons.history, color: Colors.green),
               title: Text('Order History'),
               onTap: () {
-                Navigator.pop(context); // Close the drawer
+                Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => OrderHistoryPage(),
-                  ),
+                  MaterialPageRoute(builder: (context) => OrderHistoryPage()),
                 );
               },
             ),
@@ -129,8 +115,7 @@ class _ShopPageState extends State<ShopPage> {
               leading: Icon(Icons.settings, color: Colors.grey),
               title: Text('Settings'),
               onTap: () {
-                // Navigate to settings page (if you have one)
-                Navigator.pop(context); // Close the drawer
+                Navigator.pop(context);
               },
             ),
           ],
@@ -153,7 +138,6 @@ class _ShopPageState extends State<ShopPage> {
 
           var productDocs = snapshot.data!.docs;
 
-          // Filter products based on the search query
           if (_searchQuery.isNotEmpty) {
             productDocs = productDocs.where((doc) {
               var productName = doc['name'].toString().toLowerCase();
@@ -236,97 +220,58 @@ class ProductCard extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.white, Colors.grey[100]!],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: ClipRRect(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+                child: Image.network(
+                  imageUrl,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                ),
+              ),
             ),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
-                  child: Image.network(
-                    imageUrl,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  Text(
+                    name,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                ),
+                  SizedBox(height: 4),
+                  Text(
+                    'LKR $price',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.green,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    description,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 8),
+                  ElevatedButton(
+                    onPressed: onAddToCart,
+                    child: Text('Add to Cart'),
+                  ),
+                ],
               ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                    Text(
-                      name,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      'LKR $price',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.green,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      description,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 8),
-                    Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Colors.blue, Colors.purple],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: ElevatedButton(
-                        onPressed: onAddToCart,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          elevation: 0,
-                          padding: EdgeInsets.symmetric(vertical: 8),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        child: Text(
-                          'Add to Cart',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -371,23 +316,12 @@ class _AnimatedCartIconState extends State<AnimatedCartIcon>
           if (widget.itemCount > 0)
             Positioned(
               right: 0,
-              child: Container(
-                padding: EdgeInsets.all(2),
-                decoration: BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                constraints: BoxConstraints(
-                  minWidth: 16,
-                  minHeight: 16,
-                ),
+              child: CircleAvatar(
+                radius: 8,
+                backgroundColor: Colors.red,
                 child: Text(
                   '${widget.itemCount}',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                  ),
-                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 10, color: Colors.white),
                 ),
               ),
             ),

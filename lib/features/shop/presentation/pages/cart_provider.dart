@@ -5,15 +5,22 @@ import 'package:firebase_auth/firebase_auth.dart';
 class CartProvider with ChangeNotifier {
   List<Map<String, dynamic>> _cartItems = [];
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   String? _userId;
 
   List<Map<String, dynamic>> get cartItems => _cartItems;
 
   // Set the user ID and load the cart from Firestore
   void setUserId(String userId) {
+    print('Setting userId: $userId'); // Debugging
     _userId = userId;
     _loadCartFromFirestore();
+  }
+
+  // Reset the cart (call this on logout)
+  void reset() {
+    _cartItems.clear();
+    _userId = null;
+    notifyListeners();
   }
 
   // Load cart items from Firestore

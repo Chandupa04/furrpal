@@ -73,16 +73,16 @@ class MyApp extends StatelessWidget {
           ),
           home: BlocBuilder<AuthCubit, AuthState>(
             builder: (context, authState) {
-              print(authState);
+              final cartProvider =
+                  Provider.of<CartProvider>(context, listen: false);
 
               if (authState is UnAuthenticated) {
+                cartProvider.reset(); // Reset cart on logout
                 return const StartPage();
               }
               if (authState is Authenticated) {
-                // Initialize CartProvider with the user ID
-                final cartProvider =
-                    Provider.of<CartProvider>(context, listen: false);
-                cartProvider.setUserId(authState.user.uid);
+                cartProvider
+                    .setUserId(authState.user.uid); // Set userId on login
                 return NavBar();
               } else {
                 return const Scaffold(

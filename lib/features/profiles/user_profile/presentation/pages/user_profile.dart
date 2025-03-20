@@ -139,7 +139,7 @@ class _UserProfileState extends State<UserProfile> {
                                 buildInfoRow(Icons.email, user.email),
                                 const SizedBox(height: 4),
                                 buildInfoRow(Icons.location_on, user.address),
-                                const SizedBox(height: 4),
+                                SizedBox(height: 4),
                                 buildInfoRow(Icons.phone, user.phoneNumber),
                               ],
                             ),
