@@ -21,10 +21,39 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
   final FirebaseService _firebaseService = FirebaseService();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _breedController = TextEditingController();
-  final TextEditingController _genderController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
   final TextEditingController _healthController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
+
+  String? selectedGender;
+  String? selectedBreed;
+  List<String> filteredBreeds = [];
+  bool showBreedDropdown = false;
+
+  final List<String> breeds = [
+    'Labrador Retriever',
+    'Golden Retriever',
+    'Bulldog',
+    'Beagle',
+    'German Shepherd',
+    'Poodle',
+    'Dachshund',
+    'Rottweiler',
+    'Shih Tzu',
+    'Doberman',
+    'Chihuahua',
+    'Great Dane',
+    'Pug',
+    'Cocker Spaniel',
+    'Border Collie',
+    'Siberian Husky',
+    'Boxer',
+    'Maltese',
+    'Pomeranian',
+    'Saint Bernard'
+  ];
+
+  final List<String> genders = ['Male', 'Female'];
 
   File? _imageFile;
   // bool _isLoading = false;
@@ -67,55 +96,25 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
     }
   }
 
-  Future<void> _createDogProfile() async {
-    if (_nameController.text.isEmpty ||
-        _breedController.text.isEmpty ||
-        _genderController.text.isEmpty ||
-        _ageController.text.isEmpty ||
-        _locationController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all required fields')),
-      );
-      return;
-    }
+  @override
+  void initState() {
+    super.initState();
+    filteredBreeds = breeds;
+  }
 
-    // setState(() {
-    //   _isLoading = true;
-    // });
-
-    try {
-      await _firebaseService.createDogProfile(
-        name: _nameController.text,
-        breed: _breedController.text,
-        gender: _genderController.text,
-        age: _ageController.text,
-        healthConditions: _healthController.text,
-        location: _locationController.text,
-        imageFile: _imageFile,
-      );
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Dog profile created successfully!')),
-      );
-
-      // Navigate back or to home page
-      Navigator.pop(context);
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error creating profile: $e')),
-      );
-    } finally {
-      // setState(() {
-      //   _isLoading = false;
-      // });
-    }
+  void filterBreeds(String query) {
+    setState(() {
+      filteredBreeds = breeds
+          .where((breed) => breed.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+      showBreedDropdown = query.isNotEmpty;
+    });
   }
 
   @override
   void dispose() {
     _nameController.dispose();
     _breedController.dispose();
-    _genderController.dispose();
     _ageController.dispose();
     _healthController.dispose();
     _locationController.dispose();
@@ -128,6 +127,30 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
       appBar: AppBar(
         backgroundColor: whiteColor,
         surfaceTintColor: whiteColor,
+        leading: const SizedBox(width: 0),
+        title: Container(
+          padding: const EdgeInsets.symmetric(vertical: 4.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [
+              Text(
+                "FurrPal",
+                style: TextStyle(
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+              SizedBox(width: 8),
+              Icon(
+                Icons.pets,
+                color: Colors.black,
+                size: 28,
+              ),
+            ],
+          ),
+        ),
+        centerTitle: true,
       ),
       backgroundColor: whiteColor,
       body: SingleChildScrollView(
@@ -199,44 +222,93 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
                     marginLeft: 9.w,
                     marginBottom: 4.h,
                   ),
-                  TextFieldCustom(
-                    marginBottom: 15.h,
-                    controller: _breedController,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  Column(
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          TextCustomWidget(
-                            text: 'Gender',
-                            fontSize: 17.sp,
-                            marginLeft: 9.w,
-                            marginBottom: 4.h,
-                          ),
-                          TextFieldCustom(
-                            width: 151.w,
-                            controller: _genderController,
-                          ),
-                        ],
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            showBreedDropdown = true;
+                          });
+                        },
+                        child: TextFieldCustom(
+                          controller: _breedController,
+                          onChanged: filterBreeds,
+                        ),
                       ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          TextCustomWidget(
-                            text: 'Age',
-                            fontSize: 17.sp,
-                            marginLeft: 9.w,
-                            marginBottom: 4.h,
+                      if (showBreedDropdown && filteredBreeds.isNotEmpty)
+                        Container(
+                          constraints: BoxConstraints(maxHeight: 200.h),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10.r),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black26,
+                                blurRadius: 4,
+                                spreadRadius: 2,
+                              ),
+                            ],
                           ),
-                          TextFieldCustom(
-                            width: 151.w,
-                            controller: _ageController,
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: filteredBreeds.length,
+                            itemBuilder: (context, index) {
+                              return ListTile(
+                                title: Text(filteredBreeds[index]),
+                                onTap: () {
+                                  setState(() {
+                                    _breedController.text =
+                                        filteredBreeds[index];
+                                    showBreedDropdown = false;
+                                  });
+                                },
+                              );
+                            },
                           ),
-                        ],
-                      ),
+                        ),
                     ],
+                  ),
+                  TextCustomWidget(
+                    text: 'Gender',
+                    fontSize: 17.sp,
+                    marginLeft: 9.w,
+                    marginBottom: 4.h,
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(bottom: 15.h),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10.r),
+                    ),
+                    child: DropdownButtonFormField<String>(
+                      value: selectedGender,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.r),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
+                      ),
+                      items: genders.map((String gender) {
+                        return DropdownMenuItem<String>(
+                          value: gender,
+                          child: Text(gender),
+                        );
+                      }).toList(),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          selectedGender = newValue;
+                        });
+                      },
+                    ),
+                  ),
+                  TextCustomWidget(
+                    text: 'Age',
+                    fontSize: 17.sp,
+                    marginLeft: 9.w,
+                    marginBottom: 4.h,
+                  ),
+                  TextFieldCustom(
+                    controller: _ageController,
                   ),
                   TextCustomWidget(
                     text: 'Health Conditions',
@@ -247,7 +319,6 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
                   ),
                   TextFieldCustom(
                     keyboardType: TextInputType.emailAddress,
-                    marginBottom: 15.h,
                     controller: _healthController,
                   ),
                   TextCustomWidget(
@@ -257,13 +328,11 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
                     marginBottom: 4.h,
                   ),
                   TextFieldCustom(
-                    marginBottom: 27.h,
                     controller: _locationController,
                   ),
                   ButtonCustom(
                     text: 'Create Profile',
                     dontApplyMargin: true,
-                    // isLoading: _isLoading,
                     callback: _createDogProfile,
                   ),
                 ],
@@ -273,5 +342,47 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _createDogProfile() async {
+    if (_imageFile == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please add a profile picture')),
+      );
+      return;
+    }
+
+    if (_nameController.text.isEmpty ||
+        _breedController.text.isEmpty ||
+        selectedGender == null ||
+        _ageController.text.isEmpty ||
+        _locationController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all required fields')),
+      );
+      return;
+    }
+
+    try {
+      await _firebaseService.createDogProfile(
+        name: _nameController.text,
+        breed: _breedController.text,
+        gender: selectedGender!,
+        age: _ageController.text,
+        healthConditions: _healthController.text,
+        location: _locationController.text,
+        imageFile: _imageFile,
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Dog profile created successfully!')),
+      );
+
+      Navigator.pop(context);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error creating profile: $e')),
+      );
+    }
   }
 }

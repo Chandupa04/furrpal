@@ -1,177 +1,157 @@
 import 'package:flutter/material.dart';
 
-class UserDetailsScreen extends StatefulWidget {
-  const UserDetailsScreen({super.key});
+class PaymentPage extends StatelessWidget {
+  const PaymentPage({super.key});
 
-  @override
-  State<UserDetailsScreen> createState() => _UserDetailsScreenState();
-}
-
-class _UserDetailsScreenState extends State<UserDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color(0xFFF88158), // Orange
-              Color(0xFFFFDACD), // Peach
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: SafeArea(
+      appBar: AppBar(
+        title: const Text('Upgrade Your Account'),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.black),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 🔒 Lock Icon & Message
-              const Column(
-                children: [
-                  Icon(Icons.lock_outline, size: 80, color: Colors.black),
-                  SizedBox(height: 15),
-                  Text(
-                    "You need to pay to view user details.",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
+              const Text(
+                'Choose Your Plan',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 20),
+              _buildSubscriptionCard(
+                title: 'Monthly Plan',
+                price: '\$9.99',
+                features: [
+                  'Unlimited likes',
+                  'Priority matching',
+                  'Advanced filters',
+                  'Ad-free experience',
                 ],
-              ),
-
-              const SizedBox(height: 30),
-
-              // 💳 Payment Box
-              Container(
-                width: MediaQuery.of(context).size.width * 0.85,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 15,
-                      spreadRadius: 2,
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    const Text(
-                      "PAYMENT METHOD",
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 20),
-
-                    // 🔘 PayHere Option
-                    GestureDetector(
-                      onTap: () {
-                        // Handle PayHere payment
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 12, horizontal: 15),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                              color: const Color(0xFFFE5B00), width: 2),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.payment,
-                                  size: 30,
-                                  color: Color(0xFFF88158),
-                                ),
-                                SizedBox(width: 10),
-                                Text(
-                                  "Stripe",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Icon(Icons.check, color: Colors.green, size: 22),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // ➡️ "Next Step" Button with Gradient
-                    Container(
-                      width: double.infinity,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        color: const Color.fromARGB(255, 246, 130, 91),
-                        // gradient: const LinearGradient(
-                        //   colors: [
-                        //     Color(0xFFF88158), // Orange
-                        //     Color(0xFFFFDACD), // Peach
-                        //   ],
-                        //   begin: Alignment.centerLeft,
-                        //   end: Alignment.centerRight,
-                        // ),
-                      ),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // Handle payment processing here
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: const Text(
-                          "NEXT STEP",
-                          style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 20), // Spacing outside white box
-
-              // ⬅️ Close Button (Outside White Box)
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context); // Navigate back
+                onSubscribe: () {
+                  // Handle monthly subscription
                 },
-                child: const Text(
-                  "Close",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black, // Black text color
-                  ),
-                ),
+              ),
+              const SizedBox(height: 20),
+              _buildSubscriptionCard(
+                title: 'Yearly Plan',
+                price: '\$99.99',
+                features: [
+                  'Unlimited likes',
+                  'Priority matching',
+                  'Advanced filters',
+                  'Ad-free experience',
+                  '2 months free',
+                ],
+                onSubscribe: () {
+                  // Handle yearly subscription
+                },
+                isPopular: true,
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildSubscriptionCard({
+    required String title,
+    required String price,
+    required List<String> features,
+    required VoidCallback onSubscribe,
+    bool isPopular = false,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(
+          color: isPopular ? Colors.blue : Colors.grey.shade300,
+          width: isPopular ? 2 : 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          if (isPopular)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: Colors.blue,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const Text(
+                'Most Popular',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          const SizedBox(height: 15),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            price,
+            style: const TextStyle(
+              fontSize: 32,
+              fontWeight: FontWeight.bold,
+              color: Colors.blue,
+            ),
+          ),
+          const SizedBox(height: 20),
+          ...features.map((feature) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 5),
+                child: Row(
+                  children: [
+                    const Icon(Icons.check_circle, color: Colors.green),
+                    const SizedBox(width: 10),
+                    Text(feature),
+                  ],
+                ),
+              )),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: onSubscribe,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+            ),
+            child: const Text(
+              'Subscribe Now',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

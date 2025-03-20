@@ -15,7 +15,7 @@ class OrderDetailsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text("Order Details", style: TextStyle(fontSize: 20.sp)),
-        backgroundColor: const Color.fromARGB(255, 140, 204, 241),
+        backgroundColor: Color(0xffF88158),
       ),
       body: Padding(
         padding: EdgeInsets.all(10.w),
@@ -49,6 +49,8 @@ class OrderDetailsPage extends StatelessWidget {
             SizedBox(height: 20.h),
             Center(
               child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xffF88158)),
                 onPressed: () {
                   Navigator.pop(context);
                 },

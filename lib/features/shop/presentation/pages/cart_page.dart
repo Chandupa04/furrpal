@@ -88,7 +88,7 @@ class _CartPageState extends State<CartPage> {
             fontSize: 24,
           ),
         ),
-        backgroundColor: const Color.fromARGB(255, 177, 226, 245),
+        backgroundColor: Color(0xffF88158),
       ),
       body: widget.cart.isEmpty
           ? Center(
@@ -104,7 +104,7 @@ class _CartPageState extends State<CartPage> {
                   const SizedBox(height: 10),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 156, 221, 233),
+                      backgroundColor: Color(0xffF88158),
                       padding: const EdgeInsets.symmetric(
                           horizontal: 20, vertical: 12),
                     ),
@@ -191,7 +191,7 @@ class _CartPageState extends State<CartPage> {
                       const SizedBox(height: 10),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.deepPurple,
+                          backgroundColor: Color(0xffF88158),
                           padding: const EdgeInsets.symmetric(
                               vertical: 14, horizontal: 24),
                           shape: RoundedRectangleBorder(
