@@ -1,13 +1,16 @@
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:furrpal/constant/constant.dart';
 import 'package:furrpal/custom/button_custom.dart';
 import 'package:furrpal/custom/container_custom.dart';
 import 'package:furrpal/custom/text_custom.dart';
 import 'package:furrpal/custom/textfield_custom.dart';
+import 'package:furrpal/features/auth/presentation/cubit/auth_cubit.dart';
+import 'package:furrpal/features/auth/presentation/cubit/auth_state.dart';
 import 'package:furrpal/features/auth/presentation/pages/signup_page.dart';
-
-import '../../../home/presentation/pages/home_page.dart';
+import 'package:furrpal/features/nav_bar/presentation/pages/nav_bar.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -17,8 +20,9 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
   bool isobscutured = false;
-
   bool inProgress = false;
   bool isValid = false;
 
@@ -180,49 +184,19 @@ class _LoginPageState extends State<LoginPage> {
                             color: whiteColor,
                           ),
                         ),
-                        color: Colors.black,
-                      ),
+                      ],
                     ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      TextCustomWidget(
-                        text: 'Do not have an account? ',
-                        fontSize: 17.sp,
-                      ),
-                      ButtonCustom(
-                        text: 'SignUp',
-                        callback: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const SignupPage(),
-                            ),
-                          );
-                        },
-                        btnHeight: 22.h,
-                        btnColor: Colors.transparent,
-                        dontApplyMargin: true,
-                        textStyle: TextStyle(
-                          fontSize: 17.sp,
-                          fontWeight: FontWeight.bold,
-                          color: whiteColor,
+                    IconButton(
+                      onPressed: () {},
+                      iconSize: 30.h,
+                      icon: Image.asset('assets/icons/google.png'),
+                      style: IconButton.styleFrom(
+                        shape: ContinuousRectangleBorder(
+                          borderRadius: BorderRadius.circular(18.r),
+                          side: const BorderSide(color: primaryColor),
                         ),
                       ),
-                    ],
-                  ),
-                  IconButton(
-                    onPressed: () {},
-                    iconSize: 30.h,
-                    icon: Image.asset('assets/icons/google.png'),
-                    style: IconButton.styleFrom(
-                      shape: ContinuousRectangleBorder(
-                        borderRadius: BorderRadius.circular(18.r),
-                        side: const BorderSide(color: primaryColor),
-                      ),
                     ),
-
                     Expanded(child: Container()),
                     ButtonCustom(
                       text: 'Login to FurrPal',
@@ -234,10 +208,9 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ],
                 ),
-
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
