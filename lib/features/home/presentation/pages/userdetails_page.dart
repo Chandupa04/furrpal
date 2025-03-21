@@ -56,16 +56,18 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                   children: [
                     CircleAvatar(
                       radius: 90,
-                      backgroundImage: widget.imagePath.startsWith('http') ||
-                              widget.imagePath.startsWith('assets')
+                      backgroundImage: widget.imagePath.isNotEmpty &&
+                              (widget.imagePath.startsWith('http') ||
+                                  widget.imagePath.startsWith('assets'))
                           ? (widget.imagePath.startsWith('http')
                               ? NetworkImage(widget.imagePath)
                               : AssetImage(widget.imagePath) as ImageProvider)
                           : null,
                       backgroundColor: CupertinoColors.systemGrey5,
-                      child: !widget.imagePath.startsWith('http') &&
-                              !widget.imagePath.startsWith('assets')
-                          ? Icon(
+                      child: (!widget.imagePath.isNotEmpty ||
+                              (!widget.imagePath.startsWith('http') &&
+                                  !widget.imagePath.startsWith('assets')))
+                          ? const Icon(
                               Icons.person,
                               size: 80,
                               color: CupertinoColors.systemGrey,

@@ -153,6 +153,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
                         notifications[index].data() as Map<String, dynamic>;
                     print('Notification data: $notification');
 
+                    // Debugging: Print dogId and userId for each notification
+                    print('Dog ID: ${notification['dogId']}');
+                    print('User ID: ${notification['userId']}');
+
                     final timestamp = notification['timestamp'] as Timestamp;
                     final timeAgo = timeago.format(timestamp.toDate());
 
@@ -179,7 +183,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
                         message: message,
                         time: timeAgo,
                         userId: notification['likedByUserId'],
-                        dogId: notification['dogId'],
+                        dogId: notification['likedByDogId'],
+                        likedByUserId: notification['likedByUserId'],
+                        likedByDogId: notification['likedByDogId'],
                       ),
                     );
                   },
@@ -283,27 +289,58 @@ class NotificationTile extends StatelessWidget {
                     height: 1.4,
                   ),
                 ),
-                if (notification.userId != null && notification.dogId != null)
+                if (notification.likedByUserId != null &&
+                    notification.likedByDogId != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 8.0),
                     child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => DogProfilePage(
-                              dogId: notification.dogId!,
-                              userId: notification.userId!,
-                            ),
-                          ),
+                      onTap: () async {
+                        print('Viewing dog profile:');
+                        print('  likedByDogId: ${notification.likedByDogId}');
+                        print('  likedByUserId: ${notification.likedByUserId}');
+
+                        // Fetch the dog profile before navigating
+                        final dogProfile =
+                            await _firebaseService.getDogProfileById(
+                          notification.likedByDogId!,
+                          notification.likedByUserId!,
                         );
+
+                        if (dogProfile != null) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => DogProfilePage(
+                                dogId: notification.likedByDogId!,
+                                userId: notification.likedByUserId!,
+                              ),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Profile not found',
+                                style: GoogleFonts.poppins(),
+                              ),
+                            ),
+                          );
+                        }
                       },
-                      child: Text(
-                        'View Profile',
-                        style: GoogleFonts.poppins(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.blue,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade50,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text(
+                          'View Profile',
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.blue,
+                          ),
                         ),
                       ),
                     ),
@@ -324,6 +361,8 @@ class Notification {
   final String time;
   final String? userId;
   final String? dogId;
+  final String? likedByUserId;
+  final String? likedByDogId;
 
   Notification({
     required this.avatarPath,
@@ -332,6 +371,8 @@ class Notification {
     required this.time,
     this.userId,
     this.dogId,
+    this.likedByUserId,
+    this.likedByDogId,
   });
 }
 

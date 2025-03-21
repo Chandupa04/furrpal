@@ -724,4 +724,35 @@ class FirebaseService {
       return null;
     }
   }
+
+  // Get a specific dog profile by ID regardless of like status
+  Future<Map<String, dynamic>?> getDogProfileById(
+      String dogId, String ownerId) async {
+    try {
+      print('Fetching dog profile with ID: $dogId from owner: $ownerId');
+
+      final doc = await _firestore
+          .collection('users')
+          .doc(ownerId)
+          .collection('dogs')
+          .doc(dogId)
+          .get();
+
+      if (!doc.exists) {
+        print('Dog profile not found for dogId: $dogId and ownerId: $ownerId');
+        return null;
+      }
+
+      Map<String, dynamic> dogData = doc.data() as Map<String, dynamic>;
+      // Add the ID and owner ID to the data
+      dogData['id'] = dogId;
+      dogData['ownerId'] = ownerId;
+
+      print('Successfully fetched dog profile: ${dogData['name']}');
+      return dogData;
+    } catch (e) {
+      print('Error fetching dog profile: $e');
+      return null;
+    }
+  }
 }
