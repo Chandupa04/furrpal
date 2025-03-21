@@ -1,4 +1,4 @@
-import '../../../../auth/models/user_entity.dart';
+import '../../../../auth/domain/models/user_entity.dart';
 
 class ProfileUser extends UserEntity {
   final String profileImageUrl;
@@ -44,7 +44,7 @@ class ProfileUser extends UserEntity {
       'last name': lName,
       'phone number': phoneNumber,
       'address': address,
-      'profile image url': profileImageUrl,
+      'profileImageUrl': profileImageUrl,
       'bio': bio,
     };
   }
