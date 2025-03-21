@@ -52,7 +52,10 @@ class _ShopPageState extends State<ShopPage> {
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.blue, Colors.purple],
+              colors: [
+                Color.fromARGB(255, 240, 111, 6),
+                Color.fromARGB(255, 230, 181, 22)
+              ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -77,7 +80,10 @@ class _ShopPageState extends State<ShopPage> {
             const DrawerHeader(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Colors.blue, Colors.purple],
+                  colors: [
+                    Color.fromARGB(255, 240, 131, 6),
+                    Color.fromARGB(255, 231, 171, 5)
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -204,7 +210,8 @@ class ProductCard extends StatelessWidget {
   final VoidCallback onAddToCart;
   final VoidCallback onTap;
 
-  const ProductCard({super.key, 
+  const ProductCard({
+    super.key,
     required this.name,
     required this.price,
     required this.imageUrl,
@@ -227,7 +234,8 @@ class ProductCard extends StatelessWidget {
           children: [
             Expanded(
               child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(10)),
                 child: Image.network(
                   imageUrl,
                   fit: BoxFit.cover,
