@@ -3,13 +3,15 @@ import 'package:provider/provider.dart';
 import 'cart_provider.dart';
 
 class CheckoutPage extends StatelessWidget {
+  const CheckoutPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     final cartProvider = Provider.of<CartProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Checkout',
           style: TextStyle(
             fontSize: 20,
@@ -19,9 +21,12 @@ class CheckoutPage extends StatelessWidget {
         ),
         centerTitle: true,
         flexibleSpace: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.blue, Colors.purple],
+              colors: [
+                Color.fromARGB(255, 241, 120, 21),
+                Color.fromARGB(255, 233, 166, 20)
+              ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -30,35 +35,42 @@ class CheckoutPage extends StatelessWidget {
       ),
       body: cartProvider.cartItems.isEmpty
           ? Center(
-              child: Text(
-                "Your cart is empty",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey[600],
-                ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.shopping_cart, size: 60, color: Colors.grey[600]),
+                  const SizedBox(height: 16),
+                  Text(
+                    "Your cart is empty",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
               ),
             )
           : Column(
               children: [
                 Expanded(
                   child: ListView.builder(
-                    padding: EdgeInsets.all(10),
+                    padding: const EdgeInsets.all(16),
                     itemCount: cartProvider.cartItems.length,
                     itemBuilder: (context, index) {
                       final item = cartProvider.cartItems[index];
                       return Card(
                         elevation: 4,
-                        margin: EdgeInsets.symmetric(vertical: 8),
+                        margin: const EdgeInsets.symmetric(vertical: 8),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(15),
                         ),
                         child: Padding(
-                          padding: EdgeInsets.all(12),
+                          padding: const EdgeInsets.all(12),
                           child: Row(
                             children: [
                               ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(10),
                                 child: Image.network(
                                   item['imageUrl'],
                                   width: 80,
@@ -66,19 +78,19 @@ class CheckoutPage extends StatelessWidget {
                                   fit: BoxFit.cover,
                                 ),
                               ),
-                              SizedBox(width: 12),
+                              const SizedBox(width: 12),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       item['name'],
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                    SizedBox(height: 4),
+                                    const SizedBox(height: 4),
                                     Text(
                                       'LKR ${item['price']} x ${item['quantity']}',
                                       style: TextStyle(
@@ -93,7 +105,8 @@ class CheckoutPage extends StatelessWidget {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   IconButton(
-                                    icon: Icon(Icons.remove, color: Colors.red),
+                                    icon: const Icon(Icons.remove,
+                                        color: Colors.red),
                                     onPressed: () {
                                       if (item['quantity'] > 1) {
                                         cartProvider.updateQuantity(
@@ -105,21 +118,22 @@ class CheckoutPage extends StatelessWidget {
                                   ),
                                   Text(
                                     '${item['quantity']}',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                   IconButton(
-                                    icon: Icon(Icons.add, color: Colors.green),
+                                    icon: const Icon(Icons.add,
+                                        color: Colors.green),
                                     onPressed: () {
                                       cartProvider.updateQuantity(
                                           index, item['quantity'] + 1);
                                     },
                                   ),
                                   IconButton(
-                                    icon:
-                                        Icon(Icons.delete, color: Colors.grey),
+                                    icon: const Icon(Icons.delete,
+                                        color: Colors.grey),
                                     onPressed: () {
                                       cartProvider.removeFromCart(index);
                                     },
@@ -134,22 +148,25 @@ class CheckoutPage extends StatelessWidget {
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
                   child: Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Colors.blue, Colors.purple],
+                      gradient: const LinearGradient(
+                        colors: [
+                          Color.fromARGB(255, 224, 115, 12),
+                          Color.fromARGB(255, 236, 179, 21)
+                        ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(15),
                     ),
                     child: ElevatedButton(
                       onPressed: () {
                         cartProvider.placeOrder();
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
+                          const SnackBar(
                             content: Text(
                               'Order placed successfully!',
                               style: TextStyle(fontSize: 16),
@@ -161,12 +178,12 @@ class CheckoutPage extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.transparent,
                         elevation: 0,
-                        padding: EdgeInsets.symmetric(vertical: 16),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(15),
                         ),
                       ),
-                      child: Text(
+                      child: const Text(
                         'Place Order',
                         style: TextStyle(
                           fontSize: 18,

@@ -17,9 +17,9 @@ class CommunityPage extends StatelessWidget {
         leading: const SizedBox(width: 0), // Remove leading space
         title: Container(
           padding: const EdgeInsets.symmetric(vertical: 4.0),
-          child: Row(
+          child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
+            children: [
               Text(
                 "FurrPal",
                 style: TextStyle(

@@ -78,7 +78,7 @@ class MyApp extends StatelessWidget {
               if (authState is Authenticated) {
                 cartProvider
                     .setUserId(authState.user.uid); // Set userId on login
-                return NavBar();
+                return const NavBar();
               } else {
                 return const Scaffold(
                   body: Center(

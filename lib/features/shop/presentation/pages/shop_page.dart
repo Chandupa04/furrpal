@@ -7,6 +7,8 @@ import 'checkout_page.dart';
 import 'order_history_page.dart';
 
 class ShopPage extends StatefulWidget {
+  const ShopPage({super.key});
+
   @override
   _ShopPageState createState() => _ShopPageState();
 }
@@ -33,7 +35,7 @@ class _ShopPageState extends State<ShopPage> {
           child: Center(
             child: TextField(
               controller: _searchController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: 'Search products...',
                 border: InputBorder.none,
                 prefixIcon: Icon(Icons.search, color: Colors.grey),
@@ -48,9 +50,12 @@ class _ShopPageState extends State<ShopPage> {
           ),
         ),
         flexibleSpace: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.blue, Colors.purple],
+              colors: [
+                Color.fromARGB(255, 240, 111, 6),
+                Color.fromARGB(255, 230, 181, 22)
+              ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -62,7 +67,7 @@ class _ShopPageState extends State<ShopPage> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => CheckoutPage()),
+                MaterialPageRoute(builder: (context) => const CheckoutPage()),
               );
             },
           ),
@@ -72,10 +77,13 @@ class _ShopPageState extends State<ShopPage> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            DrawerHeader(
+            const DrawerHeader(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Colors.blue, Colors.purple],
+                  colors: [
+                    Color.fromARGB(255, 240, 131, 6),
+                    Color.fromARGB(255, 231, 171, 5)
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -90,19 +98,19 @@ class _ShopPageState extends State<ShopPage> {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.shopping_cart, color: Colors.blue),
-              title: Text('Cart'),
+              leading: const Icon(Icons.shopping_cart, color: Colors.blue),
+              title: const Text('Cart'),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => CheckoutPage()),
+                  MaterialPageRoute(builder: (context) => const CheckoutPage()),
                 );
               },
             ),
             ListTile(
-              leading: Icon(Icons.history, color: Colors.green),
-              title: Text('Order History'),
+              leading: const Icon(Icons.history, color: Colors.green),
+              title: const Text('Order History'),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -112,8 +120,8 @@ class _ShopPageState extends State<ShopPage> {
               },
             ),
             ListTile(
-              leading: Icon(Icons.settings, color: Colors.grey),
-              title: Text('Settings'),
+              leading: const Icon(Icons.settings, color: Colors.grey),
+              title: const Text('Settings'),
               onTap: () {
                 Navigator.pop(context);
               },
@@ -125,15 +133,15 @@ class _ShopPageState extends State<ShopPage> {
         stream: products.snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
 
           if (snapshot.hasError) {
-            return Center(child: Text('Error loading products'));
+            return const Center(child: Text('Error loading products'));
           }
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return Center(child: Text('No products available'));
+            return const Center(child: Text('No products available'));
           }
 
           var productDocs = snapshot.data!.docs;
@@ -146,8 +154,8 @@ class _ShopPageState extends State<ShopPage> {
           }
 
           return GridView.builder(
-            padding: EdgeInsets.all(10),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            padding: const EdgeInsets.all(10),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               crossAxisSpacing: 10,
               mainAxisSpacing: 10,
@@ -203,6 +211,7 @@ class ProductCard extends StatelessWidget {
   final VoidCallback onTap;
 
   const ProductCard({
+    super.key,
     required this.name,
     required this.price,
     required this.imageUrl,
@@ -225,7 +234,8 @@ class ProductCard extends StatelessWidget {
           children: [
             Expanded(
               child: ClipRRect(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(10)),
                 child: Image.network(
                   imageUrl,
                   fit: BoxFit.cover,
@@ -239,23 +249,23 @@ class ProductCard extends StatelessWidget {
                 children: [
                   Text(
                     name,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     'LKR $price',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 14,
                       color: Colors.green,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     description,
                     maxLines: 2,
@@ -263,10 +273,10 @@ class ProductCard extends StatelessWidget {
                     style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                     textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   ElevatedButton(
                     onPressed: onAddToCart,
-                    child: Text('Add to Cart'),
+                    child: const Text('Add to Cart'),
                   ),
                 ],
               ),
@@ -281,7 +291,7 @@ class ProductCard extends StatelessWidget {
 class AnimatedCartIcon extends StatefulWidget {
   final int itemCount;
 
-  const AnimatedCartIcon({required this.itemCount});
+  const AnimatedCartIcon({super.key, required this.itemCount});
 
   @override
   _AnimatedCartIconState createState() => _AnimatedCartIconState();
@@ -295,7 +305,7 @@ class _AnimatedCartIconState extends State<AnimatedCartIcon>
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 300),
       vsync: this,
     )..repeat(reverse: true);
   }
@@ -312,7 +322,7 @@ class _AnimatedCartIconState extends State<AnimatedCartIcon>
       scale: Tween(begin: 1.0, end: 1.2).animate(_controller),
       child: Stack(
         children: [
-          Icon(Icons.shopping_cart, color: Colors.white),
+          const Icon(Icons.shopping_cart, color: Colors.white),
           if (widget.itemCount > 0)
             Positioned(
               right: 0,
@@ -321,7 +331,7 @@ class _AnimatedCartIconState extends State<AnimatedCartIcon>
                 backgroundColor: Colors.red,
                 child: Text(
                   '${widget.itemCount}',
-                  style: TextStyle(fontSize: 10, color: Colors.white),
+                  style: const TextStyle(fontSize: 10, color: Colors.white),
                 ),
               ),
             ),

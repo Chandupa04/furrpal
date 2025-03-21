@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../stripe_payment_page/services/stripe_service.dart'; // Import the StripeService
 
 class PricingPlansScreen extends StatefulWidget {
-  const PricingPlansScreen({Key? key}) : super(key: key);
+  const PricingPlansScreen({super.key});
 
   @override
   State<PricingPlansScreen> createState() => _PricingPlansScreenState();
@@ -150,7 +150,7 @@ class _PricingPlansScreenState extends State<PricingPlansScreen> {
                     bottomLeft: Radius.circular(20),
                   ),
                 ),
-                child: Text(
+                child: const Text(
                   'Popular',
                   style: TextStyle(
                     color: Colors.white,
@@ -220,7 +220,7 @@ class _PricingPlansScreenState extends State<PricingPlansScreen> {
                       ),
                     ],
                   ),
-                )).toList(),
+                )),
                 const SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,
@@ -240,7 +240,7 @@ class _PricingPlansScreenState extends State<PricingPlansScreen> {
                     ),
                     child: Text(
                       isPopular ? 'Get Started' : 'Select Plan',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
