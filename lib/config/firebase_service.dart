@@ -115,6 +115,20 @@ class FirebaseService {
         return [];
       }
 
+      // First, get the dog profiles liked by current user to filter them out later
+      final QuerySnapshot likesSnapshot = await _firestore
+          .collection('users')
+          .doc(currentUser.uid)
+          .collection('likes')
+          .get();
+
+      // Create a set of liked dog IDs for faster lookup
+      final Set<String> likedDogIds = likesSnapshot.docs
+          .map((doc) => (doc.data() as Map<String, dynamic>)['dogId'] as String)
+          .toSet();
+
+      print('User has liked ${likedDogIds.length} dog profiles');
+
       print('Fetching dogs with breed priority for: $breedQuery');
       final queryLower = breedQuery.toLowerCase();
 
@@ -143,7 +157,14 @@ class FirebaseService {
         allDogs.addAll(dogs);
       }
 
-      print('Found ${allDogs.length} total dogs before breed filtering');
+      print('Found ${allDogs.length} total dogs before any filtering');
+
+      // Filter out dogs that have been liked
+      allDogs =
+          allDogs.where((dog) => !likedDogIds.contains(dog['id'])).toList();
+
+      print(
+          'After filtering liked profiles: ${allDogs.length} profiles remain');
 
       // Sort dogs: exact breed match first, then partial matches, then others
       allDogs.sort((a, b) {
@@ -197,6 +218,20 @@ class FirebaseService {
         return [];
       }
 
+      // First, get the dog profiles liked by current user to filter them out later
+      final QuerySnapshot likesSnapshot = await _firestore
+          .collection('users')
+          .doc(currentUser.uid)
+          .collection('likes')
+          .get();
+
+      // Create a set of liked dog IDs for faster lookup
+      final Set<String> likedDogIds = likesSnapshot.docs
+          .map((doc) => (doc.data() as Map<String, dynamic>)['dogId'] as String)
+          .toSet();
+
+      print('User has liked ${likedDogIds.length} dog profiles');
+
       // Get all users except current user
       final QuerySnapshot usersSnapshot = await _firestore
           .collection('users')
@@ -224,9 +259,15 @@ class FirebaseService {
         allDogs.addAll(dogs);
       }
 
+      // Filter out dogs that have been liked
+      final filteredDogs =
+          allDogs.where((dog) => !likedDogIds.contains(dog['id'])).toList();
+
+      print('Retrieved ${allDogs.length} total dog profiles from Firestore');
       print(
-          'Retrieved ${allDogs.length} dog profiles from Firestore (excluding current user)');
-      return allDogs;
+          'After filtering liked profiles: ${filteredDogs.length} profiles remain');
+
+      return filteredDogs;
     } catch (e) {
       print('Error getting dog profiles: $e');
       rethrow;
@@ -280,6 +321,8 @@ class FirebaseService {
     required String dogOwnerId,
     required String dogId,
     required String dogName,
+    required String likedByDogId, // The dog that liked the profile
+    required String likedByUserId,
   }) async {
     try {
       print('Starting to store like for dog: $dogName');
@@ -291,6 +334,22 @@ class FirebaseService {
         throw Exception(
             'You have reached the 24-hour like limit. Please upgrade to continue.');
       }
+
+      // await _firestore
+      //     .collection('users')
+      //     .doc(dogOwnerId)
+      //     .collection('notifications')
+      //     .add({
+      //   'type': 'like',
+      //   'dogId': dogId,
+      //   'dogName': dogName,
+      //   'likedByUserId': likedByUserId,
+      //   'likedByUserName': likedByUserName,
+      //   'likedByUserProfilePic': likedByUserProfilePic,
+      //   'timestamp': FieldValue.serverTimestamp(),
+      //   'likedByDogId':
+      //       likedByDogId, // Storing the dog ID that liked the profile
+      // });
 
       // Get current user details with full name
       final userDoc =
@@ -414,6 +473,8 @@ class FirebaseService {
         'timestamp': FieldValue.serverTimestamp(),
         'read': false,
         'message': 'Your dog $dogName is getting popular!',
+        'likedDogId': dogId,
+        'likedByDogId': likedByDogId,
       });
 
       print('Notification created with ID: ${notificationRef.id}');

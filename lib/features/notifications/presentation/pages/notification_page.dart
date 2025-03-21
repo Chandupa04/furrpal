@@ -16,7 +16,7 @@ class NotificationsPage extends StatefulWidget {
 class _NotificationsPageState extends State<NotificationsPage> {
   int selectedIndex = 0;
   final FirebaseService _firebaseService = FirebaseService();
-  final categories = ['Profile', 'Community', 'Pet Shop'];
+  final categories = ['Profile', 'Community'];
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +42,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   color: Colors.black,
                 ),
               ),
-              SizedBox(width: 50),
+              const SizedBox(width: 50),
             ],
           ),
         ),
@@ -53,7 +53,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
             height: 60,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
                 categories.length,
                 (index) => GestureDetector(
@@ -206,8 +206,6 @@ class _NotificationsPageState extends State<NotificationsPage> {
     switch (selectedIndex) {
       case 1:
         return communityNotifications;
-      case 2:
-        return petShopNotifications;
       default:
         return [];
     }

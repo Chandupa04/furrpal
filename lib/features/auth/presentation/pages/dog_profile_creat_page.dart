@@ -157,9 +157,9 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
     final months = selectedMonths ?? 0;
 
     if (years > 0 && months > 0) {
-      return '$years years, $months months';
+      return '$years.$months yrs';
     } else if (years > 0) {
-      return '$years years';
+      return '$years yrs';
     } else {
       return '$months months';
     }

@@ -224,6 +224,11 @@ class _HomePageState extends State<HomePage> {
     final String dogOwnerId = dog['ownerId'];
     final String dogName = dog['name'] ?? 'Unknown Dog';
 
+    final String likedByDogId = dog['id'];
+    // Fetch current user info
+    final currentUser = FirebaseAuth.instance.currentUser;
+    final likedByUserId = currentUser?.uid ?? '';
+
     // Show toast immediately
     _showToast(dogName, true);
 
@@ -234,8 +239,17 @@ class _HomePageState extends State<HomePage> {
       dogOwnerId: dogOwnerId,
       dogId: dogId,
       dogName: dogName,
+      likedByDogId: likedByDogId,
+      likedByUserId: likedByUserId,
     )
-        .catchError((e) {
+        .then((_) {
+      // After successful like, remove the liked dog from the list
+      if (mounted) {
+        setState(() {
+          dogs.removeWhere((d) => d['id'] == dogId);
+        });
+      }
+    }).catchError((e) {
       print('Error liking dog: $e');
       if (mounted) {
         if (e.toString().contains('24-hour like limit')) {
@@ -505,40 +519,40 @@ class _DogProfileCardState extends State<DogProfileCard> {
                   borderRadius: BorderRadius.circular(20),
                   child: imageUrl.isNotEmpty
                       ? Image.network(
-                    imageUrl,
-                    height: 200,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return Container(
-                        height: 200,
-                        width: double.infinity,
-                        color: Colors.grey[200],
-                        child: const Center(
-                          child: CircularProgressIndicator(),
-                        ),
-                      );
-                    },
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        height: 200,
-                        width: double.infinity,
-                        color: Colors.grey[200],
-                        child: const Icon(
-                          Icons.error,
-                          color: Colors.red,
-                          size: 50,
-                        ),
-                      );
-                    },
-                  )
+                          imageUrl,
+                          height: 200,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Container(
+                              height: 200,
+                              width: double.infinity,
+                              color: Colors.grey[200],
+                              child: const Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              height: 200,
+                              width: double.infinity,
+                              color: Colors.grey[200],
+                              child: const Icon(
+                                Icons.error,
+                                color: Colors.red,
+                                size: 50,
+                              ),
+                            );
+                          },
+                        )
                       : Image.asset(
-                    "assets/images/dog_placeholder.jpg",
-                    height: 200,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
+                          "assets/images/dog_placeholder.jpg",
+                          height: 200,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
                 ),
                 const SizedBox(height: 20),
                 Text(
@@ -605,7 +619,7 @@ class _DogProfileCardState extends State<DogProfileCard> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 padding:
-                const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                    const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
               ),
               child: const Text(
                 "Show User Details",
