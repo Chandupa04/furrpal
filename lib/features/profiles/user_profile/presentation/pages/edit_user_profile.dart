@@ -99,7 +99,7 @@ class _EditUserProfileState extends State<EditUserProfile> {
             body: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Center(child: CircularProgressIndicator()),
+                const Center(child: CircularProgressIndicator()),
                 TextCustomWidget(
                   text: 'Uploading...',
                   fontSize: 18.sp,

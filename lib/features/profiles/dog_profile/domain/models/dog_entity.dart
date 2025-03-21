@@ -1,4 +1,3 @@
-import 'dart:io';
 
 class DogEntity {
   final String dogId;

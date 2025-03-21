@@ -139,7 +139,7 @@ class _UserProfileState extends State<UserProfile> {
                                 buildInfoRow(Icons.email, user.email),
                                 const SizedBox(height: 4),
                                 buildInfoRow(Icons.location_on, user.address),
-                                SizedBox(height: 4),
+                                const SizedBox(height: 4),
                                 buildInfoRow(Icons.phone, user.phoneNumber),
                               ],
                             ),
@@ -184,9 +184,9 @@ class _UserProfileState extends State<UserProfile> {
                             ),
                           );
                         } else if (state is DogProfileLoading) {
-                          return Center(child: CircularProgressIndicator());
+                          return const Center(child: CircularProgressIndicator());
                         }
-                        return SizedBox();
+                        return const SizedBox();
                       }),
                       // SingleChildScrollView(
                       //   scrollDirection: Axis.horizontal,
@@ -242,7 +242,7 @@ class _UserProfileState extends State<UserProfile> {
           return Center(
             child: Row(
               children: [
-                TextCustomWidget(
+                const TextCustomWidget(
                   text: 'No profile found',
                   textColor: blackColor,
                 ),
@@ -251,7 +251,7 @@ class _UserProfileState extends State<UserProfile> {
                       Navigator.pop(context);
                       logout();
                     },
-                    icon: Icon(Icons.logout))
+                    icon: const Icon(Icons.logout))
               ],
             ),
           );
@@ -298,7 +298,7 @@ class _UserProfileState extends State<UserProfile> {
                   Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => StartPage(),
+                        builder: (context) => const StartPage(),
                       ),
                       (route) => false);
                 },
