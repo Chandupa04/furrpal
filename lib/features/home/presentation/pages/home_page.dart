@@ -224,75 +224,97 @@ class _HomePageState extends State<HomePage> {
     final String dogOwnerId = dog['ownerId'];
     final String dogName = dog['name'] ?? 'Unknown Dog';
 
-    final String likedByDogId = dog['id'];
-    // Fetch current user info
-    final currentUser = FirebaseAuth.instance.currentUser;
-    final likedByUserId = currentUser?.uid ?? '';
+    // Get the current user's dog ID that is doing the liking
+    // This needs to be fetched from Firestore
+    _fetchCurrentUserDogId().then((currentUserDogId) {
+      // Show toast immediately
+      _showToast(dogName, true);
 
-    // Show toast immediately
-    _showToast(dogName, true);
-
-    // Then perform the database operation
-    _firebaseService
-        .storeDogLike(
-      currentUserId: currentUserId!,
-      dogOwnerId: dogOwnerId,
-      dogId: dogId,
-      dogName: dogName,
-      likedByDogId: likedByDogId,
-      likedByUserId: likedByUserId,
-    )
-        .then((_) {
-      // After successful like, remove the liked dog from the list
-      if (mounted) {
-        setState(() {
-          dogs.removeWhere((d) => d['id'] == dogId);
-        });
-      }
-    }).catchError((e) {
-      print('Error liking dog: $e');
-      if (mounted) {
-        if (e.toString().contains('24-hour like limit')) {
-          // Show payment page when limit is reached
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('Like Limit Reached'),
-                content: const Text(
-                    'You have reached your 24-hour like limit. Upgrade to continue liking more profiles!'),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop(); // Close dialog
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const PricingPlansScreen(),
-                        ),
-                      );
-                    },
-                    child: const Text('Upgrade Now'),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop(); // Close dialog
-                      Navigator.of(context)
-                          .pop(); // Pop the current route to go back
-                    },
-                    child: const Text('Cancel'),
-                  ),
-                ],
-              );
-            },
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to like dog: $e')),
-          );
+      // Then perform the database operation
+      _firebaseService
+          .storeDogLike(
+        currentUserId: currentUserId!,
+        dogOwnerId: dogOwnerId,
+        dogId: dogId,
+        dogName: dogName,
+        likedByDogId:
+            currentUserDogId ?? '', // Pass the dog ID of the user who is liking
+        likedByUserId: currentUserId!,
+      )
+          .then((_) {
+        // After successful like, remove the liked dog from the list
+        if (mounted) {
+          setState(() {
+            dogs.removeWhere((d) => d['id'] == dogId);
+          });
         }
-      }
+      }).catchError((e) {
+        print('Error liking dog: $e');
+        if (mounted) {
+          if (e.toString().contains('24-hour like limit')) {
+            // Show payment page when limit is reached
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('Like Limit Reached'),
+                  content: const Text(
+                      'You have reached your 24-hour like limit. Upgrade to continue liking more profiles!'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Close dialog
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const PricingPlansScreen(),
+                          ),
+                        );
+                      },
+                      child: const Text('Upgrade Now'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Close dialog
+                        Navigator.of(context)
+                            .pop(); // Pop the current route to go back
+                      },
+                      child: const Text('Cancel'),
+                    ),
+                  ],
+                );
+              },
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Failed to like dog: $e')),
+            );
+          }
+        }
+      });
     });
+  }
+
+  // Fetch the current user's dog ID
+  Future<String?> _fetchCurrentUserDogId() async {
+    if (currentUserId == null) return null;
+
+    try {
+      final dogsSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUserId)
+          .collection('dogs')
+          .get();
+
+      if (dogsSnapshot.docs.isNotEmpty) {
+        // Return the first dog ID (assuming one dog per user for simplicity)
+        return dogsSnapshot.docs.first.id;
+      }
+      return null;
+    } catch (e) {
+      print('Error fetching current user dog ID: $e');
+      return null;
+    }
   }
 
   // Handle dislike action
