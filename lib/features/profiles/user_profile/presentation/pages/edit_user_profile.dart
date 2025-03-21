@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -13,6 +12,7 @@ import 'package:furrpal/custom/textfield_custom.dart';
 import 'package:furrpal/features/profiles/user_profile/domain/models/profile_user.dart';
 import 'package:furrpal/features/profiles/user_profile/presentation/cubit/profile_cubit.dart';
 import 'package:furrpal/features/profiles/user_profile/presentation/cubit/profile_state.dart';
+import 'package:image_picker/image_picker.dart';
 
 class EditUserProfile extends StatefulWidget {
   final ProfileUser user;
@@ -28,20 +28,10 @@ class _EditUserProfileState extends State<EditUserProfile> {
   late TextEditingController bioTextController;
   late TextEditingController addressTextController;
   late TextEditingController phoneNumTextController;
-  PlatformFile? imagePickedFile;
 
-  //add image picker
-
-  Future<void> pickImage() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-    );
-    if (result != null) {
-      setState(() {
-        imagePickedFile = result.files.first;
-      });
-    }
-  }
+  File? selectedFile;
+  bool isProcessing = false;
+  // PlatformFile? imagePickedFile;
 
   @override
   void initState() {
@@ -65,28 +55,35 @@ class _EditUserProfileState extends State<EditUserProfile> {
     super.dispose();
   }
 
+  //add image picker
+  Future<void> pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? pickedFile =
+        await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        selectedFile = File(pickedFile.path);
+      });
+    }
+  }
+
   void updateProfile() {
     final profileCubit = context.read<ProfileCubit>();
     final String uid = widget.user.uid;
 
-    if (fNameTextController.text.isNotEmpty ||
-        lNameTextController.text.isNotEmpty ||
-        phoneNumTextController.text.isNotEmpty ||
-        bioTextController.text.isNotEmpty ||
-        addressTextController.text.isNotEmpty ||
-        imagePickedFile != null) {
-      profileCubit.updateUserProfile(
-        uid: uid,
-        newFName: fNameTextController.text,
-        newLName: lNameTextController.text,
-        newPhoneNumber: phoneNumTextController.text,
-        newBio: bioTextController.text,
-        newAddress: addressTextController.text,
-        profileImagePath: imagePickedFile?.path,
-      );
-    } else {
-      Navigator.pop(context);
-    }
+    // if (fNameTextController.text.isNotEmpty ||
+    //     lNameTextController.text.isNotEmpty ||
+    //     phoneNumTextController.text.isNotEmpty ||
+    //     bioTextController.text.isNotEmpty ||
+    //     addressTextController.text.isNotEmpty) {
+    profileCubit.updateUserProfile(
+      uid: uid,
+      newFName: fNameTextController.text,
+      newLName: lNameTextController.text,
+      newPhoneNumber: phoneNumTextController.text,
+      newBio: bioTextController.text,
+      newAddress: addressTextController.text,
+    );
   }
 
   @override
@@ -144,9 +141,9 @@ class _EditUserProfileState extends State<EditUserProfile> {
                 shape: BoxShape.circle,
                 bgColor: Colors.grey.shade500,
                 clipBehavior: Clip.hardEdge,
-                child: (imagePickedFile != null)
+                child: (selectedFile != null)
                     ? Image.file(
-                        File(imagePickedFile!.path!),
+                        selectedFile!,
                         fit: BoxFit.cover,
                       )
                     : CachedNetworkImage(
@@ -164,6 +161,32 @@ class _EditUserProfileState extends State<EditUserProfile> {
                         ),
                       ),
               ),
+              if (selectedFile != null)
+                ButtonCustom(
+                  text: 'upload',
+                  btnHeight: 40.h,
+                  borderRadius: BorderRadius.circular(8.r),
+                  margin:
+                      EdgeInsets.symmetric(horizontal: 55.h, vertical: 10.h),
+                  inProgress: isProcessing,
+                  isDisabled: isProcessing,
+                  callback: () {
+                    setState(() {
+                      isProcessing = true;
+                    });
+                    context
+                        .read<ProfileCubit>()
+                        .uploadProfilePicture(selectedFile!, widget.user.uid)
+                        .then((res) {
+                      setState(() {
+                        isProcessing = false;
+                      });
+                      if (res == true) {
+                        Navigator.pop(context);
+                      }
+                    });
+                  },
+                ),
               TextCustomWidget(
                 text: 'First Name',
                 textStyle: textFieldLableStyle,
@@ -232,6 +255,7 @@ class _EditUserProfileState extends State<EditUserProfile> {
                 callback: updateProfile,
                 dontApplyMargin: true,
                 elevation: 5,
+                margin: EdgeInsets.only(bottom: 30.h),
               )
             ],
           ),
