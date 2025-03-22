@@ -33,7 +33,7 @@ class _SignupPageState extends State<SignupPage> {
   bool inProgress = false;
   bool isValid = false;
 
-  void signUp() {
+  void signUp() async {
     isValid = EmailValidator.validate(emailController.text.trim());
 
     final String email = emailController.text;
@@ -85,25 +85,11 @@ class _SignupPageState extends State<SignupPage> {
         ),
       );
       return;
-      // } else {
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   SnackBar(
-      //     backgroundColor: blackColor,
-      //     shape: ContinuousRectangleBorder(
-      //         borderRadius: BorderRadius.only(
-      //             topLeft: Radius.circular(20.r),
-      //             topRight: Radius.circular(20.r))),
-      //     content: TextCustomWidget(
-      //       text: 'Please Enter all fields',
-      //       fontSize: 15.sp,
-      //       fontWeight: FontWeight.bold,
-      //     ),
-      //   ),
-      // );
     } else if (password == confirmPassword) {
       setState(() {
         inProgress = true;
       });
+
       authCubit.register(
           fName, lName, email, address, phone, password, confirmPassword);
     } else {
