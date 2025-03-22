@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 import 'dart:math' show min;
+import 'package:furrpal/features/profiles/dog_profile/domain/models/dog_entity.dart';
 
 class FirebaseService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -28,21 +29,20 @@ class FirebaseService {
     print('Creating dog profile for user: $userId');
 
     try {
-      // generate a unique ID for the dog
+      // generate a unique ID for the dog first
       DocumentReference reference =
           _firestore.collection('users').doc(userId).collection('dogs').doc();
       String dogId = reference.id;
+      print('Generated dog ID: $dogId');
 
       // Upload image if provided
-      String? imageUrl;
+      String imageUrl = '';
       if (imageFile != null) {
         print('Image file exists: ${imageFile.existsSync()}');
         print('Image file size: ${imageFile.lengthSync()} bytes');
 
-        // Create a unique filename
-        final String fileName =
-            '${DateTime.now().millisecondsSinceEpoch}_${imageFile.path.split('/').last}';
-        final storageRef = _storage.ref().child('dog_images/$userId/$fileName');
+        // Use dogId in the storage path
+        final storageRef = _storage.ref().child('dog_images/$dogId');
         print('Storage path: ${storageRef.fullPath}');
 
         try {
@@ -66,40 +66,29 @@ class FirebaseService {
         }
       }
 
-      // Create dog profile document
-      final dogData = {
-        'dog_id': dogId,
-        'name': name,
-        'breed': breed,
-        'gender': gender,
-        'age': age,
-        'healthConditions': healthConditions ?? '',
-        'location': location,
-        'imageUrl': imageUrl ?? '', // Changed from 'image' to 'imageUrl'
-        'createdAt': FieldValue.serverTimestamp(),
-        'likes': [],
-        'dislikes': [],
-      };
+      // Create DogEntity instance
+      final DogEntity dog = DogEntity(
+        dogId: dogId,
+        name: name,
+        breed: breed,
+        gender: gender,
+        age: age,
+        healthConditions: healthConditions,
+        location: location,
+        imageURL: imageUrl,
+      );
+
+      // Convert to JSON and add additional fields
+      Map<String, dynamic> dogData = dog.toJson();
+      dogData['createdAt'] = FieldValue.serverTimestamp();
+      dogData['likes'] = [];
+      dogData['dislikes'] = [];
+
       print('Creating dog document with data: $dogData');
 
-      final docRef = await _firestore
-          .collection('users')
-          .doc(userId)
-          .collection('dogs')
-          .doc(dogId)
-          .set(dogData);
-      // .add(dogData);
-      reference.set(dogData);
+      // Set the document with the generated ID
+      await reference.set(dogData);
       print('Dog profile created successfully with ID: $dogId');
-
-      // Verify the document was created
-      // final docSnapshot = await docRef.get();
-      // if (docSnapshot.exists) {
-      //   print('Verified document exists with data: ${docSnapshot.data()}');
-      // } else {
-      //   print('Error: Document was not created');
-      //   throw Exception('Failed to create dog profile document');
-      // }
     } catch (e) {
       print('Error creating dog profile: $e');
       rethrow;
