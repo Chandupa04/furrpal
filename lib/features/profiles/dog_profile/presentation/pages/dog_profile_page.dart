@@ -108,10 +108,10 @@ class _DogProfilePageState extends State<DogProfilePage> {
                   title: 'Location',
                   value: widget.dog.location,
                 ),
-                dogDetailsCard(
-                    icon: LucideIcons.heartPulse,
-                    title: 'Health Condition',
-                    value: widget.dog.healthConditions!),
+                // dogDetailsCard(
+                //     icon: LucideIcons.heartPulse,
+                //     title: 'Health Condition',
+                //     value: widget.dog.healthConditions!),
               ],
             )
           ],
