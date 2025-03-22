@@ -9,6 +9,7 @@ import 'dart:io';
 import '../../../../custom/container_custom.dart';
 import '../../../../custom/text_custom.dart';
 import '../../../../custom/textfield_custom.dart';
+import 'package:file_picker/file_picker.dart';
 
 class DogProfileCreatPage extends StatefulWidget {
   const DogProfileCreatPage({super.key});
@@ -22,13 +23,18 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _breedController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
-  final TextEditingController _healthController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
+  final TextEditingController _weightKgController = TextEditingController();
+  final TextEditingController _weightGController = TextEditingController();
+  final TextEditingController _bloodlineController = TextEditingController();
 
   String? selectedGender;
   String? selectedBreed;
   List<String> filteredBreeds = [];
   bool showBreedDropdown = false;
+
+  File? _healthReportFile;
+  String? _healthReportName;
 
   final List<String> breeds = [
     'Labrador Retriever',
@@ -96,6 +102,27 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
     }
   }
 
+  Future<void> _pickHealthReport() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf'],
+      );
+
+      if (result != null) {
+        setState(() {
+          _healthReportFile = File(result.files.single.path!);
+          _healthReportName = result.files.single.name;
+        });
+      }
+    } catch (e) {
+      print("Error picking file: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error picking file: $e')),
+      );
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -116,8 +143,10 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
     _nameController.dispose();
     _breedController.dispose();
     _ageController.dispose();
-    _healthController.dispose();
     _locationController.dispose();
+    _weightKgController.dispose();
+    _weightGController.dispose();
+    _bloodlineController.dispose();
     super.dispose();
   }
 
@@ -160,39 +189,39 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
               onTap: _pickImage,
               child: _imageFile != null
                   ? ClipRRect(
-                      borderRadius: BorderRadius.circular(75.r),
-                      child: Image.file(
-                        _imageFile!,
-                        width: 150.w,
-                        height: 150.h,
-                        fit: BoxFit.cover,
-                      ),
-                    )
+                borderRadius: BorderRadius.circular(75.r),
+                child: Image.file(
+                  _imageFile!,
+                  width: 150.w,
+                  height: 150.h,
+                  fit: BoxFit.cover,
+                ),
+              )
                   : Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Image.asset(
-                          logoImage,
-                          width: 150.w,
-                          height: 150.h,
-                        ),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: Container(
-                            padding: EdgeInsets.all(8.r),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[300],
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.camera_alt,
-                              size: 24.r,
-                            ),
-                          ),
-                        ),
-                      ],
+                alignment: Alignment.center,
+                children: [
+                  Image.asset(
+                    logoImage,
+                    width: 150.w,
+                    height: 150.h,
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: Container(
+                      padding: EdgeInsets.all(8.r),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.camera_alt,
+                        size: 24.r,
+                      ),
                     ),
+                  ),
+                ],
+              ),
             ),
             ContainerCustom(
               marginLeft: 13.w,
@@ -258,7 +287,7 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
                                 onTap: () {
                                   setState(() {
                                     _breedController.text =
-                                        filteredBreeds[index];
+                                    filteredBreeds[index];
                                     showBreedDropdown = false;
                                   });
                                 },
@@ -310,17 +339,107 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
                   TextFieldCustom(
                     controller: _ageController,
                   ),
+
+                  // Weight fields (kg and g)
                   TextCustomWidget(
-                    text: 'Health Conditions',
+                    text: 'Weight (Required)',
+                    fontSize: 17.sp,
+                    marginLeft: 9.w,
+                    marginBottom: 4.h,
+                    marginTop: 15.h,
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 1,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            TextCustomWidget(
+                              text: 'kg',
+                              fontSize: 14.sp,
+                              marginLeft: 9.w,
+                              marginBottom: 4.h,
+                            ),
+                            TextFieldCustom(
+                              controller: _weightKgController,
+                              keyboardType: TextInputType.number,
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(width: 10.w),
+                      Expanded(
+                        flex: 1,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            TextCustomWidget(
+                              text: 'g',
+                              fontSize: 14.sp,
+                              marginLeft: 9.w,
+                              marginBottom: 4.h,
+                            ),
+                            TextFieldCustom(
+                              controller: _weightGController,
+                              keyboardType: TextInputType.number,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  // Bloodline field (optional)
+                  TextCustomWidget(
+                    text: 'Bloodline (Optional)',
                     fontSize: 17.sp,
                     marginLeft: 9.w,
                     marginBottom: 4.h,
                     marginTop: 15.h,
                   ),
                   TextFieldCustom(
-                    keyboardType: TextInputType.emailAddress,
-                    controller: _healthController,
+                    controller: _bloodlineController,
+                    marginBottom: 15.h,
                   ),
+
+                  // Health Report (PDF) upload
+                  TextCustomWidget(
+                    text: 'Health Report (PDF) (Required)',
+                    fontSize: 17.sp,
+                    marginLeft: 9.w,
+                    marginBottom: 4.h,
+                    marginTop: 15.h,
+                  ),
+                  GestureDetector(
+                    onTap: _pickHealthReport,
+                    child: Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.symmetric(vertical: 15.h, horizontal: 15.w),
+                      margin: EdgeInsets.only(bottom: 15.h),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10.r),
+                        border: Border.all(color: Colors.grey),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              _healthReportName ?? 'Upload health report (PDF)',
+                              style: TextStyle(
+                                color: _healthReportName != null ? Colors.black : Colors.grey,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                          Icon(Icons.upload_file, color: Colors.grey),
+                        ],
+                      ),
+                    ),
+                  ),
+
                   TextCustomWidget(
                     text: 'Location of the pet',
                     fontSize: 17.sp,
@@ -352,11 +471,15 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
       return;
     }
 
+    // Check for required fields including new mandatory fields
     if (_nameController.text.isEmpty ||
         _breedController.text.isEmpty ||
         selectedGender == null ||
         _ageController.text.isEmpty ||
-        _locationController.text.isEmpty) {
+        _locationController.text.isEmpty ||
+        _weightKgController.text.isEmpty ||
+        _weightGController.text.isEmpty ||
+        _healthReportFile == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill all required fields')),
       );
@@ -369,9 +492,12 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
         breed: _breedController.text,
         gender: selectedGender!,
         age: _ageController.text,
-        healthConditions: _healthController.text,
         location: _locationController.text,
         imageFile: _imageFile,
+        weightKg: _weightKgController.text,
+        weightG: _weightGController.text,
+        bloodline: _bloodlineController.text,
+        healthReportFile: _healthReportFile,
       );
 
       ScaffoldMessenger.of(context).showSnackBar(

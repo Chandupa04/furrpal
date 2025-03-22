@@ -23,6 +23,7 @@ class ContainerCustom extends StatelessWidget {
   final List<BoxShadow>? shadow;
   final BoxShape? shape;
   final VoidCallback? callback;
+  final Clip? clipBehavior;
 
   const ContainerCustom({
     super.key,
@@ -48,6 +49,7 @@ class ContainerCustom extends StatelessWidget {
     this.shadow,
     this.shape,
     this.callback,
+    this.clipBehavior,
   });
 
   @override
@@ -64,6 +66,7 @@ class ContainerCustom extends StatelessWidget {
           color: (gradient == null) ? bgColor : null,
           boxShadow: shadow,
         ),
+        clipBehavior: clipBehavior ?? Clip.none,
         alignment: alignment,
         margin: margin ??
             EdgeInsets.fromLTRB(
