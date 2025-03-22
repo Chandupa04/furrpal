@@ -3,9 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>NSCameraUsageDescription</key>
-	<string>This app needs access to camera to take photos for chat.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>We need your location to provide better features</string>
+<string>Scan your card to add it automatically</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
