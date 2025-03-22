@@ -31,13 +31,17 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
   late TextEditingController nameTextController;
   late TextEditingController ageTextController;
   late TextEditingController locationTextController;
+  late TextEditingController weightKgcontroller;
+  late TextEditingController weightGcontroller;
   late TextEditingController healthConditionTextController;
 
   @override
   void initState() {
     super.initState();
     nameTextController = TextEditingController(text: widget.dog.name);
-    ageTextController = TextEditingController(text: widget.dog.age.toString());
+    ageTextController = TextEditingController(text: widget.dog.age);
+    weightKgcontroller = TextEditingController(text: widget.dog.weightKg);
+    weightGcontroller = TextEditingController(text: widget.dog.weightG);
     locationTextController = TextEditingController(text: widget.dog.location);
     healthConditionTextController =
         TextEditingController(text: widget.dog.healthConditions);
@@ -76,6 +80,8 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
       newName: nameTextController.text,
       newBreed: selectedBreed,
       newAge: ageTextController.text,
+      weightKg: weightKgcontroller.text,
+      weightG: weightGcontroller.text,
       newGender: selectedGender,
       newLocation: locationTextController.text,
       newHealthConditions: healthConditionTextController.text,
@@ -282,6 +288,32 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
               TextFieldCustom(
                 controller: ageTextController,
                 hintText: widget.dog.age,
+                borderColor: blackColor,
+                marginBottom: 15.h,
+              ),
+              TextCustomWidget(
+                text: 'weight (Kg)',
+                textStyle: textFieldLableStyle,
+                marginLeft: 10.w,
+                marginTop: 10.h,
+                marginBottom: 4.h,
+              ),
+              TextFieldCustom(
+                controller: weightKgcontroller,
+                hintText: widget.dog.weightKg,
+                borderColor: blackColor,
+                marginBottom: 15.h,
+              ),
+              TextCustomWidget(
+                text: 'weight (G)',
+                textStyle: textFieldLableStyle,
+                marginLeft: 10.w,
+                marginTop: 10.h,
+                marginBottom: 4.h,
+              ),
+              TextFieldCustom(
+                controller: weightGcontroller,
+                hintText: widget.dog.weightG,
                 borderColor: blackColor,
                 marginBottom: 15.h,
               ),
