@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:furrpal/config/firebase_service.dart';
-import 'package:furrpal/features/home/dog_profile_page.dart';
+import 'package:furrpal/features/home/presentation/pages/dog_profile_page.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
