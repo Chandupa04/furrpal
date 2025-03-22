@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:furrpal/constant/constant.dart';
 import 'package:furrpal/custom/container_custom.dart';
 import 'package:furrpal/custom/text_custom.dart';
+import 'package:furrpal/features/profiles/dog_profile/presentation/pages/edit_dog_profile_page.dart';
 import 'package:furrpal/features/profiles/dog_profile/presentation/widgets/dog_details_card.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -21,9 +22,9 @@ class _DogProfilePageState extends State<DogProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: blackColor,
+      // backgroundColor: blackColor,
       appBar: AppBar(
-        backgroundColor: blackColor,
+        // backgroundColor: blackColor,
         title: Text(
           'Dog Profile',
           style: appBarStyle,
@@ -31,7 +32,16 @@ class _DogProfilePageState extends State<DogProfilePage> {
         centerTitle: true,
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EditDogProfilePage(
+                    dog: widget.dog,
+                  ),
+                ),
+              );
+            },
             icon: const Icon(LucideIcons.settings),
             iconSize: 22.h,
           ),
@@ -43,7 +53,7 @@ class _DogProfilePageState extends State<DogProfilePage> {
         child: Column(
           children: [
             CachedNetworkImage(
-              imageUrl: widget.dog.imageURL!,
+              imageUrl: widget.dog.imageURL,
               placeholder: (context, url) => ContainerCustom(
                   width: 160.w,
                   height: 160.h,
@@ -68,10 +78,10 @@ class _DogProfilePageState extends State<DogProfilePage> {
               children: [
                 TextCustomWidget(
                   marginBottom: 15.h,
-                  text: widget.dog.name.toUpperCase(),
+                  text: widget.dog.name,
                   fontSize: 40.sp,
                   fontWeight: FontWeight.w500,
-                  // textColor: blackColor,
+                  textColor: blackColor,
                   containerAlignment: Alignment.center,
                 ),
                 dogDetailsCard(
@@ -81,7 +91,7 @@ class _DogProfilePageState extends State<DogProfilePage> {
                 ),
                 dogDetailsCard(
                   icon: LucideIcons.venusAndMars,
-                  title: 'Health',
+                  title: 'Gender',
                   value: widget.dog.gender,
                 ),
                 dogDetailsCard(
@@ -94,6 +104,10 @@ class _DogProfilePageState extends State<DogProfilePage> {
                   title: 'Location',
                   value: widget.dog.location,
                 ),
+                dogDetailsCard(
+                    icon: LucideIcons.heartPulse,
+                    title: 'Health Condition',
+                    value: widget.dog.healthConditions!),
               ],
             )
           ],

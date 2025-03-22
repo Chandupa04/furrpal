@@ -1,13 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:furrpal/features/profiles/user_profile/domain/repositories/profile_repo.dart';
 import 'package:furrpal/features/profiles/user_profile/presentation/cubit/profile_state.dart';
-import 'package:furrpal/features/profiles/user_profile/user_profile_picture/domain/profile_picture_repo.dart';
 
 class ProfileCubit extends Cubit<ProfileState> {
   final ProfileRepo profileRepo;
-  final ProfilePictureRepo pictureRepo;
-  ProfileCubit({required this.profileRepo, required this.pictureRepo})
-      : super(ProfileInitial());
+  ProfileCubit({required this.profileRepo}) : super(ProfileInitial());
 
   //fetch user profile using repo
   Future<void> fetchUserProfile(String uid) async {
@@ -25,48 +24,71 @@ class ProfileCubit extends Cubit<ProfileState> {
   }
 
   //update user profile
-  Future<void> updateUserProfile({
+  Future<bool> updateUserProfile({
     required String uid,
-    String? newFName,
-    String? newLName,
+    required String newFName,
+    required String newLName,
+    required String newAddress,
+    required String newPhoneNumber,
     String? newBio,
-    String? newAddress,
-    String? newPhoneNumber,
-    String? profileImagePath,
   }) async {
     emit(ProfileLoading());
     try {
-      final currentUser = await profileRepo.fetchUserProfile(uid);
+      // final currentUser = await profileRepo.fetchUserProfile(uid);
 
-      if (currentUser == null) {
-        emit(ProfileError("Failed to fetch user for profile update"));
-        return;
-      }
-      //profile image update
-      String? imageDownloadUrl;
+      // if (currentUser == null) {
+      //   emit(ProfileError("Failed to fetch user for profile update"));
+      //   return;
+      // }
 
-      if (profileImagePath != null) {
-        imageDownloadUrl =
-            await pictureRepo.uploadProfilePicture(profileImagePath, uid);
-      }
-      if (imageDownloadUrl == null) {
-        emit(ProfileError('Failed to upload profile Image'));
-        return;
-      }
-
-      //update new profile
-      final updateProfile = currentUser.copyWith(
-        newFName: newFName ?? currentUser.fName,
-        newLName: newLName ?? currentUser.lName,
-        newBio: newBio ?? currentUser.bio,
-        newAddress: newAddress ?? currentUser.address,
-        newPhoneNumber: newPhoneNumber ?? currentUser.phoneNumber,
-        newProfileImageUrl: imageDownloadUrl ?? currentUser.profileImageUrl,
+      // //update new profile
+      // final updateProfile = currentUser.copyWith(
+      //   newFName: newFName ?? currentUser.fName,
+      //   newLName: newLName ?? currentUser.lName,
+      //   newBio: newBio ?? currentUser.bio,
+      //   newAddress: newAddress ?? currentUser.address,
+      //   newPhoneNumber: newPhoneNumber ?? currentUser.phoneNumber,
+      // );
+      final updateProfile = await profileRepo.updateUserProfile(
+        uid: uid,
+        fName: newFName,
+        lName: newLName,
+        address: newAddress,
+        phoneNumber: newPhoneNumber,
+        bio: newBio,
       );
-      await profileRepo.updateUserProfile(updateProfile);
-      await fetchUserProfile(uid);
+      if (updateProfile == true) {
+        await fetchUserProfile(uid);
+        return true;
+      } else {
+        emit(ProfileError('Failed to update profile details.'));
+        return false;
+      }
     } catch (e) {
       emit(ProfileError('Error updating profile: $e'));
+      return false;
+    }
+  }
+
+  // update user profile image
+  Future<bool> uploadProfilePicture(File file, String userId) async {
+    emit(ProfileLoading());
+    try {
+      final updatedDog = await profileRepo.uploadProfilePicture(
+        profileImage: file,
+        userId: userId,
+      );
+
+      if (updatedDog == true) {
+        fetchUserProfile(userId);
+        return true;
+      } else {
+        emit(ProfileError("Failed to update dog profile image."));
+        return false;
+      }
+    } catch (e) {
+      emit(ProfileError(e.toString()));
+      return false;
     }
   }
 }

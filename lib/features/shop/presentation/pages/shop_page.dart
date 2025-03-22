@@ -4,9 +4,11 @@ import 'package:provider/provider.dart';
 import 'cart_provider.dart';
 import 'product_details_page.dart';
 import 'checkout_page.dart';
-import 'order_history_page.dart'; // Import the OrderHistoryPage
+import 'order_history_page.dart';
 
 class ShopPage extends StatefulWidget {
+  const ShopPage({super.key});
+
   @override
   _ShopPageState createState() => _ShopPageState();
 }
@@ -33,7 +35,7 @@ class _ShopPageState extends State<ShopPage> {
           child: Center(
             child: TextField(
               controller: _searchController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: 'Search products...',
                 border: InputBorder.none,
                 prefixIcon: Icon(Icons.search, color: Colors.grey),
@@ -41,16 +43,19 @@ class _ShopPageState extends State<ShopPage> {
               ),
               onChanged: (value) {
                 setState(() {
-                  _searchQuery = value.toLowerCase(); // Update search query
+                  _searchQuery = value.toLowerCase();
                 });
               },
             ),
           ),
         ),
         flexibleSpace: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.blue, Colors.purple],
+              colors: [
+                Color.fromARGB(255, 240, 111, 6),
+                Color.fromARGB(255, 230, 181, 22)
+              ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -58,21 +63,11 @@ class _ShopPageState extends State<ShopPage> {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.filter_list, color: Colors.white),
-            onPressed: () {
-              // Open filter dialog
-            },
-          ),
-          IconButton(
             icon: AnimatedCartIcon(itemCount: cartProvider.cartItems.length),
             onPressed: () {
-              print('Cart icon pressed'); // Debugging statement
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      CheckoutPage(), // Navigate to CheckoutPage
-                ),
+                MaterialPageRoute(builder: (context) => const CheckoutPage()),
               );
             },
           ),
@@ -82,10 +77,13 @@ class _ShopPageState extends State<ShopPage> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            DrawerHeader(
+            const DrawerHeader(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Colors.blue, Colors.purple],
+                  colors: [
+                    Color.fromARGB(255, 240, 131, 6),
+                    Color.fromARGB(255, 231, 171, 5)
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -100,37 +98,32 @@ class _ShopPageState extends State<ShopPage> {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.shopping_cart, color: Colors.blue),
-              title: Text('Cart'),
+              leading: const Icon(Icons.shopping_cart, color: Colors.blue),
+              title: const Text('Cart'),
               onTap: () {
-                Navigator.pop(context); // Close the drawer
+                Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => CheckoutPage(),
-                  ),
+                  MaterialPageRoute(builder: (context) => const CheckoutPage()),
                 );
               },
             ),
             ListTile(
-              leading: Icon(Icons.history, color: Colors.green),
-              title: Text('Order History'),
+              leading: const Icon(Icons.history, color: Colors.green),
+              title: const Text('Order History'),
               onTap: () {
-                Navigator.pop(context); // Close the drawer
+                Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => OrderHistoryPage(),
-                  ),
+                  MaterialPageRoute(builder: (context) => OrderHistoryPage()),
                 );
               },
             ),
             ListTile(
-              leading: Icon(Icons.settings, color: Colors.grey),
-              title: Text('Settings'),
+              leading: const Icon(Icons.settings, color: Colors.grey),
+              title: const Text('Settings'),
               onTap: () {
-                // Navigate to settings page (if you have one)
-                Navigator.pop(context); // Close the drawer
+                Navigator.pop(context);
               },
             ),
           ],
@@ -140,20 +133,19 @@ class _ShopPageState extends State<ShopPage> {
         stream: products.snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
 
           if (snapshot.hasError) {
-            return Center(child: Text('Error loading products'));
+            return const Center(child: Text('Error loading products'));
           }
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return Center(child: Text('No products available'));
+            return const Center(child: Text('No products available'));
           }
 
           var productDocs = snapshot.data!.docs;
 
-          // Filter products based on the search query
           if (_searchQuery.isNotEmpty) {
             productDocs = productDocs.where((doc) {
               var productName = doc['name'].toString().toLowerCase();
@@ -162,8 +154,8 @@ class _ShopPageState extends State<ShopPage> {
           }
 
           return GridView.builder(
-            padding: EdgeInsets.all(10),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            padding: const EdgeInsets.all(10),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               crossAxisSpacing: 10,
               mainAxisSpacing: 10,
@@ -219,6 +211,7 @@ class ProductCard extends StatelessWidget {
   final VoidCallback onTap;
 
   const ProductCard({
+    super.key,
     required this.name,
     required this.price,
     required this.imageUrl,
@@ -236,97 +229,59 @@ class ProductCard extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.white, Colors.grey[100]!],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: ClipRRect(
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(10)),
+                child: Image.network(
+                  imageUrl,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                ),
+              ),
             ),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
-                  child: Image.network(
-                    imageUrl,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  Text(
+                    name,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'LKR $price',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.green,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    description,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  ElevatedButton(
+                    onPressed: onAddToCart,
+                    child: const Text('Add to Cart'),
+                  ),
+                ],
               ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                    Text(
-                      name,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      'LKR $price',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.green,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      description,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 8),
-                    Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Colors.blue, Colors.purple],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: ElevatedButton(
-                        onPressed: onAddToCart,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          elevation: 0,
-                          padding: EdgeInsets.symmetric(vertical: 8),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        child: Text(
-                          'Add to Cart',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -336,7 +291,7 @@ class ProductCard extends StatelessWidget {
 class AnimatedCartIcon extends StatefulWidget {
   final int itemCount;
 
-  const AnimatedCartIcon({required this.itemCount});
+  const AnimatedCartIcon({super.key, required this.itemCount});
 
   @override
   _AnimatedCartIconState createState() => _AnimatedCartIconState();
@@ -350,7 +305,7 @@ class _AnimatedCartIconState extends State<AnimatedCartIcon>
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 300),
       vsync: this,
     )..repeat(reverse: true);
   }
@@ -367,27 +322,16 @@ class _AnimatedCartIconState extends State<AnimatedCartIcon>
       scale: Tween(begin: 1.0, end: 1.2).animate(_controller),
       child: Stack(
         children: [
-          Icon(Icons.shopping_cart, color: Colors.white),
+          const Icon(Icons.shopping_cart, color: Colors.white),
           if (widget.itemCount > 0)
             Positioned(
               right: 0,
-              child: Container(
-                padding: EdgeInsets.all(2),
-                decoration: BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                constraints: BoxConstraints(
-                  minWidth: 16,
-                  minHeight: 16,
-                ),
+              child: CircleAvatar(
+                radius: 8,
+                backgroundColor: Colors.red,
                 child: Text(
                   '${widget.itemCount}',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                  ),
-                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 10, color: Colors.white),
                 ),
               ),
             ),

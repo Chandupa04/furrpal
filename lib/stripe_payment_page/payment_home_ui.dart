@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'services/stripe_service.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -31,10 +31,6 @@ class _HomePageState extends State<HomePage> {
             MaterialButton(
               color: Colors.blue,
               textColor: Colors.white,
-              child: const Text(
-                'Purchase',
-                style: TextStyle(fontSize: 18),
-              ),
               padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -46,6 +42,10 @@ class _HomePageState extends State<HomePage> {
                   currency: 'USD',
                 );
               },
+              child: const Text(
+                'Purchase',
+                style: TextStyle(fontSize: 18),
+              ),
             ),
           ],
         ),

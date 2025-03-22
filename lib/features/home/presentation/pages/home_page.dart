@@ -465,8 +465,8 @@ class _HomePageState extends State<HomePage> {
           ),
           Container(
             padding: const EdgeInsets.symmetric(vertical: 4.0),
-            child: Row(
-              children: const [
+            child: const Row(
+              children: [
                 Text(
                   "FurrPal",
                   style: TextStyle(
