@@ -40,7 +40,9 @@ class DogProfileRepoImpl implements DogProfileRepo {
     required String breed,
     required String gender,
     required String location,
-    String? healthConditions,
+    required String bloodline,
+    required String? healthReportUrl,
+    // String? healthConditions,
   }) async {
     try {
       await firebaseFirestore
@@ -54,7 +56,11 @@ class DogProfileRepoImpl implements DogProfileRepo {
         'breed': breed,
         'gender': gender,
         'location': location,
-        'healthConditions': healthConditions,
+        // 'healthConditions': healthConditions,
+        'bloodline': bloodline,
+        'weightKg': weightKg,
+        'weightG': weightG,
+        'healthReportUrl': healthReportUrl,
       });
       return true;
     } catch (e) {
@@ -94,7 +100,9 @@ class DogProfileRepoImpl implements DogProfileRepo {
     required String breed,
     required String gender,
     required String location,
-    String? healthConditions,
+    required String bloodline,
+    required String healthReportUrl,
+    // String? healthConditions,
   }) async {
     try {
       // generate a unique ID for the dog
@@ -118,8 +126,10 @@ class DogProfileRepoImpl implements DogProfileRepo {
         weightKg: weightKg,
         weightG: weightG,
         location: location,
-        healthConditions: healthConditions,
+        // healthConditions: healthConditions,
         imageURL: downloadUrl,
+        bloodline: bloodline,
+        healthReportUrl: healthReportUrl,
       );
       await firebaseFirestore
           .collection('users')
