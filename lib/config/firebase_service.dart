@@ -363,20 +363,6 @@ class FirebaseService {
             'You have reached the 24-hour like limit. Please upgrade to continue.');
       }
 
-      // await _firestore
-      //     .collection('users')
-      //     .doc(dogOwnerId)
-      //     .collection('notifications')
-      //     .add({
-      //   'type': 'like',
-      //   'dogId': dogId,
-      //   'dogName': dogName,
-      //   'likedByUserId': likedByUserId,
-      //   'likedByUserName': likedByUserName,
-      //   'likedByUserProfilePic': likedByUserProfilePic,
-      //   'timestamp': FieldValue.serverTimestamp(),
-      //   'likedByDogId':
-      //       likedByDogId, // Storing the dog ID that liked the profile
       // });
 
       // Get current user details with full name
