@@ -783,4 +783,36 @@ class FirebaseService {
       return null;
     }
   }
+
+  // Update user subscription details
+  Future<void> updateUserSubscription({
+    required String userId,
+    required String planName,
+    required double price,
+    required DateTime subscriptionDate,
+  }) async {
+    try {
+      print('Updating subscription for user: $userId');
+
+      // Calculate end date (one month from start date)
+      final DateTime endDate = subscriptionDate.add(const Duration(days: 30));
+
+      await _firestore.collection('users').doc(userId).update({
+        'subscription': {
+          'plan': planName,
+          'price': price,
+          'startDate': subscriptionDate,
+          'endDate': endDate,
+          'status': 'active',
+        },
+        'lastUpdated': FieldValue.serverTimestamp(),
+      });
+
+      print('Successfully updated subscription for user: $userId');
+      print('Subscription end date: $endDate');
+    } catch (e) {
+      print('Error updating subscription: $e');
+      rethrow;
+    }
+  }
 }

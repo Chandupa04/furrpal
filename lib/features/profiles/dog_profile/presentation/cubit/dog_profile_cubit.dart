@@ -28,9 +28,13 @@ class DogProfileCubit extends Cubit<DogProfileState> {
     required String newName,
     required String newBreed,
     required String newAge,
+    required String weightKg,
+    required String weightG,
     required String newGender,
     required String newLocation,
-    String? newHealthConditions,
+    required String bloodline,
+    required String healthReportUrl,
+    // String? newHealthConditions,
   }) async {
     emit(DogProfileLoading());
     try {
@@ -43,10 +47,14 @@ class DogProfileCubit extends Cubit<DogProfileState> {
         dogId: dogId,
         name: newName,
         age: newAge,
+        weightKg: weightKg,
+        weightG: weightG,
         breed: newBreed,
         gender: newGender,
         location: newLocation,
-        healthConditions: newHealthConditions,
+        // healthConditions: newHealthConditions,
+        bloodline: bloodline,
+        healthReportUrl: healthReportUrl,
       );
       if (updatedDog == true) {
         await fetchDogProfiles();
@@ -85,14 +93,17 @@ class DogProfileCubit extends Cubit<DogProfileState> {
 
   // add new dog profile
   Future<bool> addNewDogProfile({
-    // required String dogId,
     required File profileImage,
     required String name,
     required String age,
+    required String weightKg,
+    required String weightG,
     required String breed,
     required String gender,
     required String location,
-    String? healthConditions,
+    required String bloodline,
+    required String healthReportUrl,
+    // String? healthConditions,
   }) async {
     emit(DogProfileLoading());
     try {
@@ -100,10 +111,14 @@ class DogProfileCubit extends Cubit<DogProfileState> {
         profileImage: profileImage,
         name: name,
         age: age,
+        weightKg: weightKg,
+        weightG: weightG,
         breed: breed,
         gender: gender,
         location: location,
-        healthConditions: healthConditions,
+        // healthConditions: healthConditions,
+        bloodline: bloodline,
+        healthReportUrl: healthReportUrl,
       );
       if (newDog == true) {
         await fetchDogProfiles();
