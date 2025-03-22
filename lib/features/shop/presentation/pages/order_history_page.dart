@@ -1,50 +1,52 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:intl/intl.dart'; // For date formatting
+import 'package:intl/intl.dart';
 
 class OrderHistoryPage extends StatelessWidget {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  OrderHistoryPage({super.key});
+
   @override
   Widget build(BuildContext context) {
-    String? userId = _auth.currentUser?.uid; // Get the user ID
+    String? userId = _auth.currentUser?.uid;
 
     if (userId == null) {
       return Scaffold(
-        appBar: AppBar(title: Text('Order History')),
-        body:
-            Center(child: Text('You must be logged in to view order history')),
+        appBar: AppBar(title: const Text('Order History')),
+        body: const Center(
+            child: Text('You must be logged in to view order history')),
       );
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Order History'),
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
+        title: const Text('Order History'),
+        backgroundColor: const Color.fromARGB(255, 253, 162, 131),
+        foregroundColor: const Color.fromARGB(255, 10, 8, 1),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: _firestore
             .collection('users')
             .doc(userId)
             .collection('orders')
-            .orderBy('timestamp', descending: true) // Sort by latest orders
+            .orderBy('timestamp', descending: true)
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return Center(child: Text('No orders found'));
+            return const Center(child: Text('No orders found'));
           }
 
           final orders = snapshot.data!.docs;
 
           return ListView.builder(
-            padding: EdgeInsets.all(10),
+            padding: const EdgeInsets.all(16),
             itemCount: orders.length,
             itemBuilder: (context, index) {
               final order = orders[index];
@@ -52,24 +54,21 @@ class OrderHistoryPage extends StatelessWidget {
               final items = orderData['items'] as List<dynamic>;
               final timestamp = orderData['timestamp'] as Timestamp;
 
-              // Calculate total price
               double totalPrice = 0;
               for (final item in items) {
-                final price = item['price'] as int? ?? 0; // Handle null price
-                final quantity =
-                    item['quantity'] as int? ?? 1; // Handle null quantity
+                final price = item['price'] as int? ?? 0;
+                final quantity = item['quantity'] as int? ?? 1;
                 totalPrice += price * quantity;
               }
 
-              // Format the timestamp
               final formattedDate =
                   DateFormat('dd MMM yyyy, hh:mm a').format(timestamp.toDate());
 
               return Card(
                 elevation: 4,
-                margin: EdgeInsets.symmetric(vertical: 8),
+                margin: const EdgeInsets.symmetric(vertical: 8),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(15),
                 ),
                 child: ExpansionTile(
                   title: Text('Order #${order.id}'),
@@ -77,37 +76,34 @@ class OrderHistoryPage extends StatelessWidget {
                   trailing: Text(formattedDate),
                   children: [
                     Padding(
-                      padding: EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          const Text(
                             'Items:',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(height: 8),
+                          const SizedBox(height: 8),
                           ...items.map((item) {
-                            final price =
-                                item['price'] as int? ?? 0; // Handle null price
-                            final quantity = item['quantity'] as int? ??
-                                1; // Handle null quantity
+                            final price = item['price'] as int? ?? 0;
+                            final quantity = item['quantity'] as int? ?? 1;
                             return ListTile(
                               leading: Image.network(
-                                item['imageUrl'] ?? '', // Handle null imageUrl
+                                item['imageUrl'] ?? '',
                                 width: 50,
                                 height: 50,
                                 fit: BoxFit.cover,
                               ),
-                              title: Text(item['name'] ??
-                                  'No Name'), // Handle null name
+                              title: Text(item['name'] ?? 'No Name'),
                               subtitle: Text('LKR $price x $quantity'),
                               trailing: Text(
                                   'LKR ${(price * quantity).toStringAsFixed(2)}'),
                             );
-                          }).toList(),
+                          }),
                         ],
                       ),
                     ),

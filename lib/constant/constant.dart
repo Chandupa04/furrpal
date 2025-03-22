@@ -27,3 +27,28 @@ TextStyle textFieldLableStyle = TextStyle(
   fontSize: 17.sp,
   color: blackColor,
 );
+
+final List<String> breeds = [
+  'Labrador Retriever',
+  'Golden Retriever',
+  'Bulldog',
+  'Beagle',
+  'German Shepherd',
+  'Poodle',
+  'Dachshund',
+  'Rottweiler',
+  'Shih Tzu',
+  'Doberman',
+  'Chihuahua',
+  'Great Dane',
+  'Pug',
+  'Cocker Spaniel',
+  'Border Collie',
+  'Siberian Husky',
+  'Boxer',
+  'Maltese',
+  'Pomeranian',
+  'Saint Bernard'
+];
+
+final List<String> genders = ['Male', 'Female'];

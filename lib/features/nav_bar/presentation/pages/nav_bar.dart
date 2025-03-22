@@ -39,7 +39,7 @@ class _NavBarState extends State<NavBar> {
           const HomePage(),
           const NotificationsPage(),
           const CommunityPage(),
-          ShopPage(),
+          const ShopPage(),
           UserProfile(uid: uid),
         ],
       ),

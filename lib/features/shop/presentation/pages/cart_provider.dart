@@ -1,19 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class CartProvider with ChangeNotifier {
   List<Map<String, dynamic>> _cartItems = [];
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   String? _userId;
 
   List<Map<String, dynamic>> get cartItems => _cartItems;
 
   // Set the user ID and load the cart from Firestore
   void setUserId(String userId) {
+    print('Setting userId: $userId'); // Debugging
     _userId = userId;
     _loadCartFromFirestore();
+  }
+
+  // Reset the cart (call this on logout)
+  void reset() {
+    _cartItems.clear();
+    _userId = null;
+    _notifyListenersWithDelay();
   }
 
   // Load cart items from Firestore
@@ -23,7 +29,7 @@ class CartProvider with ChangeNotifier {
     final userDoc = await _firestore.collection('users').doc(_userId).get();
     if (userDoc.exists) {
       _cartItems = List<Map<String, dynamic>>.from(userDoc['cart'] ?? []);
-      notifyListeners();
+      _notifyListenersWithDelay();
     }
   }
 
@@ -37,14 +43,14 @@ class CartProvider with ChangeNotifier {
       product['quantity'] = 1; // Add new product with quantity 1
       _cartItems.add(product);
     }
-    notifyListeners();
+    _notifyListenersWithDelay();
     await _updateCartInFirestore();
   }
 
   // Remove item from cart and update Firestore
   void removeFromCart(int index) async {
     _cartItems.removeAt(index);
-    notifyListeners();
+    _notifyListenersWithDelay();
     await _updateCartInFirestore();
   }
 
@@ -55,14 +61,14 @@ class CartProvider with ChangeNotifier {
     } else {
       _cartItems.removeAt(index);
     }
-    notifyListeners();
+    _notifyListenersWithDelay();
     await _updateCartInFirestore();
   }
 
   // Clear cart and update Firestore
   void clearCart() async {
     _cartItems.clear();
-    notifyListeners();
+    _notifyListenersWithDelay();
     await _updateCartInFirestore();
   }
 
@@ -93,6 +99,13 @@ class CartProvider with ChangeNotifier {
 
     await _firestore.collection('users').doc(_userId).update({
       'cart': _cartItems,
+    });
+  }
+
+  // Helper method to notify listeners after the build phase
+  void _notifyListenersWithDelay() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      notifyListeners();
     });
   }
 }
