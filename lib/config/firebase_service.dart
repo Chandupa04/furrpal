@@ -34,7 +34,7 @@ class FirebaseService {
     try {
       // generate a unique ID for the dog first
       DocumentReference reference =
-          _firestore.collection('users').doc(userId).collection('dogs').doc();
+      _firestore.collection('users').doc(userId).collection('dogs').doc();
       String dogId = reference.id;
       print('Generated dog ID: $dogId');
 
@@ -80,7 +80,7 @@ class FirebaseService {
         final String fileName =
             '${DateTime.now().millisecondsSinceEpoch}_${healthReportFile.path.split('/').last}';
         final storageRef =
-            _storage.ref().child('dog_health_reports/$userId/$fileName');
+        _storage.ref().child('dog_health_reports/$userId/$fileName');
         print('Health report storage path: ${storageRef.fullPath}');
 
         try {
@@ -92,7 +92,7 @@ class FirebaseService {
           // Verify the URL is accessible
           try {
             final response =
-                await HttpClient().getUrl(Uri.parse(healthReportUrl));
+            await HttpClient().getUrl(Uri.parse(healthReportUrl));
             final httpResponse = await response.close();
             print(
                 'Health report URL is accessible. Status code: ${httpResponse.statusCode}');
@@ -211,15 +211,15 @@ class FirebaseService {
       // Count matches for debugging
       int exactMatches = allDogs
           .where((dog) =>
-              (dog['breed'] ?? '').toString().toLowerCase() == queryLower)
+      (dog['breed'] ?? '').toString().toLowerCase() == queryLower)
           .length;
       int partialMatches = allDogs
           .where((dog) =>
-              (dog['breed'] ?? '')
-                  .toString()
-                  .toLowerCase()
-                  .contains(queryLower) &&
-              (dog['breed'] ?? '').toString().toLowerCase() != queryLower)
+      (dog['breed'] ?? '')
+          .toString()
+          .toLowerCase()
+          .contains(queryLower) &&
+          (dog['breed'] ?? '').toString().toLowerCase() != queryLower)
           .length;
 
       print(
@@ -289,7 +289,7 @@ class FirebaseService {
 
       // Filter out dogs that have been liked
       final filteredDogs =
-          allDogs.where((dog) => !likedDogIds.contains(dog['id'])).toList();
+      allDogs.where((dog) => !likedDogIds.contains(dog['id'])).toList();
 
       print('Retrieved ${allDogs.length} total dog profiles from Firestore');
       print(
@@ -306,7 +306,7 @@ class FirebaseService {
   Future<Map<String, dynamic>?> getUserProfile(String userId) async {
     try {
       DocumentSnapshot userDoc =
-          await _firestore.collection('users').doc(userId).get();
+      await _firestore.collection('users').doc(userId).get();
 
       if (!userDoc.exists) {
         print('User document not found for ID: $userId');
@@ -326,7 +326,7 @@ class FirebaseService {
       // Get likes from the last 24 hours
       final DateTime now = DateTime.now();
       final DateTime twentyFourHoursAgo =
-          now.subtract(const Duration(hours: 24));
+      now.subtract(const Duration(hours: 24));
 
       final QuerySnapshot likesSnapshot = await _firestore
           .collection('users')
@@ -381,7 +381,7 @@ class FirebaseService {
 
       // Get current user details with full name
       final userDoc =
-          await _firestore.collection('users').doc(currentUserId).get();
+      await _firestore.collection('users').doc(currentUserId).get();
       if (!userDoc.exists) {
         print('Error: User document not found for ID: $currentUserId');
         return;
@@ -399,10 +399,10 @@ class FirebaseService {
       final String fullName = firstName.isNotEmpty && lastName.isNotEmpty
           ? '$firstName $lastName'
           : firstName.isNotEmpty
-              ? firstName
-              : lastName.isNotEmpty
-                  ? lastName
-                  : 'A user';
+          ? firstName
+          : lastName.isNotEmpty
+          ? lastName
+          : 'A user';
 
       print('Storing like for user: $fullName');
 
@@ -532,7 +532,7 @@ class FirebaseService {
     try {
       // Get current user details
       final userDoc =
-          await _firestore.collection('users').doc(currentUserId).get();
+      await _firestore.collection('users').doc(currentUserId).get();
       if (!userDoc.exists) {
         print('Error: User document not found');
         return;
@@ -549,10 +549,10 @@ class FirebaseService {
       final String fullName = firstName.isNotEmpty && lastName.isNotEmpty
           ? '$firstName $lastName'
           : firstName.isNotEmpty
-              ? firstName
-              : lastName.isNotEmpty
-                  ? lastName
-                  : 'A user';
+          ? firstName
+          : lastName.isNotEmpty
+          ? lastName
+          : 'A user';
 
       print('Storing dislike for user: $fullName');
 
@@ -672,7 +672,7 @@ class FirebaseService {
       final String fileName =
           '${DateTime.now().millisecondsSinceEpoch}_${imageFile.path.split('/').last}';
       final storageRef =
-          _storage.ref().child('profile_images/$userId/$fileName');
+      _storage.ref().child('profile_images/$userId/$fileName');
 
       print('Uploading to storage path: ${storageRef.fullPath}');
 
@@ -731,10 +731,10 @@ class FirebaseService {
       final String fullName = firstName.isNotEmpty && lastName.isNotEmpty
           ? '$firstName $lastName'
           : firstName.isNotEmpty
-              ? firstName
-              : lastName.isNotEmpty
-                  ? lastName
-                  : 'Unknown User';
+          ? firstName
+          : lastName.isNotEmpty
+          ? lastName
+          : 'Unknown User';
 
       // Format the data to match what we need
       return {
