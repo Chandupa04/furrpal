@@ -16,9 +16,12 @@ class FirebaseService {
     required String breed,
     required String gender,
     required String age,
-    String? healthConditions,
     required String location,
     File? imageFile,
+    required String weightKg,
+    required String weightG,
+    String? bloodline,
+    File? healthReportFile,
   }) async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user == null) {
@@ -66,24 +69,60 @@ class FirebaseService {
         }
       }
 
-      // Create DogEntity instance
-      final DogEntity dog = DogEntity(
-        dogId: dogId,
-        name: name,
-        breed: breed,
-        gender: gender,
-        age: age,
-        healthConditions: healthConditions,
-        location: location,
-        imageURL: imageUrl,
-      );
+      // Upload health report PDF if provided
+      String? healthReportUrl;
+      if (healthReportFile != null) {
+        print('Health report file exists: ${healthReportFile.existsSync()}');
+        print(
+            'Health report file size: ${healthReportFile.lengthSync()} bytes');
 
-      // Convert to JSON and add additional fields
-      Map<String, dynamic> dogData = dog.toJson();
-      dogData['createdAt'] = FieldValue.serverTimestamp();
-      dogData['likes'] = [];
-      dogData['dislikes'] = [];
+        // Create a unique filename for the health report
+        final String fileName =
+            '${DateTime.now().millisecondsSinceEpoch}_${healthReportFile.path.split('/').last}';
+        final storageRef =
+            _storage.ref().child('dog_health_reports/$userId/$fileName');
+        print('Health report storage path: ${storageRef.fullPath}');
 
+        try {
+          final uploadTask = storageRef.putFile(healthReportFile);
+          final snapshot = await uploadTask;
+          healthReportUrl = await snapshot.ref.getDownloadURL();
+          print('Health report uploaded successfully. URL: $healthReportUrl');
+
+          // Verify the URL is accessible
+          try {
+            final response =
+                await HttpClient().getUrl(Uri.parse(healthReportUrl));
+            final httpResponse = await response.close();
+            print(
+                'Health report URL is accessible. Status code: ${httpResponse.statusCode}');
+          } catch (e) {
+            print(
+                'Warning: Could not verify health report URL accessibility: $e');
+          }
+        } catch (e) {
+          print('Error uploading health report: $e');
+          throw Exception('Failed to upload health report: $e');
+        }
+      }
+
+      // Create dog profile document with new fields
+      final dogData = {
+        'dog_id': dogId,
+        'name': name,
+        'breed': breed,
+        'gender': gender,
+        'age': age,
+        'location': location,
+        'imageUrl': imageUrl ?? '', // Changed from 'image' to 'imageUrl'
+        'weightKg': weightKg,
+        'weightG': weightG,
+        'bloodline': bloodline ?? '',
+        'healthReportUrl': healthReportUrl ?? '',
+        'createdAt': FieldValue.serverTimestamp(),
+        'likes': [],
+        'dislikes': [],
+      };
       print('Creating dog document with data: $dogData');
 
       // Set the document with the generated ID

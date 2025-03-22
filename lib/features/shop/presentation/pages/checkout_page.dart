@@ -22,14 +22,7 @@ class CheckoutPage extends StatelessWidget {
         centerTitle: true,
         flexibleSpace: Container(
           decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Color.fromARGB(255, 241, 120, 21),
-                Color.fromARGB(255, 233, 166, 20)
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            color: Color.fromARGB(255, 253, 162, 131),
           ),
         ),
       ),
