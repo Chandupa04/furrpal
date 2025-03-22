@@ -148,7 +148,7 @@ class _UserProfileState extends State<UserProfile> {
                         textColor: blackColor,
                       ),
                       const Text(
-                        'Your Paws',
+                        'My Paws',
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
