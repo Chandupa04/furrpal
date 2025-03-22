@@ -29,9 +29,13 @@ class _AddNewDogProfilePageState extends State<AddNewDogProfilePage> {
 
   final TextEditingController nameTextController = TextEditingController();
   final TextEditingController ageTextController = TextEditingController();
+  final TextEditingController weightKgcontroller = TextEditingController();
+  final TextEditingController weightGcontroller = TextEditingController();
   final TextEditingController locationTextController = TextEditingController();
-  final TextEditingController healthConditionTextController =
-      TextEditingController();
+  // final TextEditingController healthConditionTextController =
+  //     TextEditingController();
+  final TextEditingController bloodlineTextController = TextEditingController();
+  final TextEditingController healthReportController = TextEditingController();
 
   void pickImage() async {
     final ImagePicker picker = ImagePicker();
@@ -49,12 +53,20 @@ class _AddNewDogProfilePageState extends State<AddNewDogProfilePage> {
 
     final String name = nameTextController.text;
     final String age = ageTextController.text;
+    final String weightKg = weightKgcontroller.text;
+    final String weightG = weightGcontroller.text;
     final String location = locationTextController.text;
-    final String healthCondition = healthConditionTextController.text;
+    // final String healthCondition = healthConditionTextController.text;
+    final String bloodline = bloodlineTextController.text;
+    final String healthReport = healthReportController.text;
 
     if (name.isEmpty ||
         age.isEmpty ||
         location.isEmpty ||
+        weightKg.isEmpty ||
+        weightG.isEmpty ||
+        bloodline.isEmpty ||
+        healthReport.isEmpty ||
         selectedFile == null ||
         selectedGender == null ||
         selectedBreed == null) {
@@ -77,10 +89,14 @@ class _AddNewDogProfilePageState extends State<AddNewDogProfilePage> {
         profileImage: selectedFile!,
         name: name,
         age: age,
+        weightKg: weightKg,
+        weightG: weightG,
         breed: selectedBreed!,
         gender: selectedGender!,
         location: location,
-        healthConditions: healthCondition,
+        // healthConditions: healthCondition,
+        bloodline: bloodline,
+        healthReportUrl: healthReport,
       );
     }
   }
@@ -90,7 +106,10 @@ class _AddNewDogProfilePageState extends State<AddNewDogProfilePage> {
     nameTextController.dispose();
     ageTextController.dispose();
     locationTextController.dispose();
-    healthConditionTextController.dispose();
+    // healthConditionTextController.dispose();
+    weightKgcontroller.dispose();
+    weightGcontroller.dispose();
+    bloodlineTextController.dispose();
     super.dispose();
   }
 
@@ -188,6 +207,35 @@ class _AddNewDogProfilePageState extends State<AddNewDogProfilePage> {
               TextFieldCustom(
                 controller: ageTextController,
                 hintText: 'age',
+                keyboardType: TextInputType.number,
+                borderColor: blackColor,
+                marginBottom: 15.h,
+              ),
+              TextCustomWidget(
+                text: 'weight (Kg)',
+                textStyle: textFieldLableStyle,
+                marginLeft: 10.w,
+                marginTop: 10.h,
+                marginBottom: 4.h,
+              ),
+              TextFieldCustom(
+                controller: weightKgcontroller,
+                hintText: 'weightKg',
+                keyboardType: TextInputType.number,
+                borderColor: blackColor,
+                marginBottom: 15.h,
+              ),
+              TextCustomWidget(
+                text: 'weight (G)',
+                textStyle: textFieldLableStyle,
+                marginLeft: 10.w,
+                marginTop: 10.h,
+                marginBottom: 4.h,
+              ),
+              TextFieldCustom(
+                controller: weightGcontroller,
+                hintText: 'weightG',
+                keyboardType: TextInputType.number,
                 borderColor: blackColor,
                 marginBottom: 15.h,
               ),
@@ -271,18 +319,18 @@ class _AddNewDogProfilePageState extends State<AddNewDogProfilePage> {
                 borderColor: blackColor,
                 marginBottom: 15.h,
               ),
-              TextCustomWidget(
-                text: 'Health Condition',
-                textStyle: textFieldLableStyle,
-                marginLeft: 10.w,
-                marginBottom: 4.h,
-              ),
-              TextFieldCustom(
-                controller: healthConditionTextController,
-                hintText: 'healthConditions',
-                borderColor: blackColor,
-                marginBottom: 30.h,
-              ),
+              // TextCustomWidget(
+              //   text: 'Health Condition',
+              //   textStyle: textFieldLableStyle,
+              //   marginLeft: 10.w,
+              //   marginBottom: 4.h,
+              // ),
+              // TextFieldCustom(
+              //   controller: healthConditionTextController,
+              //   hintText: 'healthConditions',
+              //   borderColor: blackColor,
+              //   marginBottom: 30.h,
+              // ),
               ButtonCustom(
                 text: 'Add Profile',
                 margin: EdgeInsets.only(bottom: 30.h),

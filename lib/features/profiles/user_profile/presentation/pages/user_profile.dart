@@ -66,6 +66,7 @@ class _UserProfileState extends State<UserProfile> {
           return SafeArea(
             child: Scaffold(
               appBar: AppBar(
+                automaticallyImplyLeading: false,
                 title: Text(
                   'My profile',
                   style: appBarStyle,
@@ -191,7 +192,8 @@ class _UserProfileState extends State<UserProfile> {
                             ),
                           );
                         } else if (state is DogProfileLoading) {
-                          return const Center(child: CircularProgressIndicator());
+                          return const Center(
+                              child: CircularProgressIndicator());
                         }
                         return const SizedBox();
                       }),
@@ -203,23 +205,23 @@ class _UserProfileState extends State<UserProfile> {
                         fontWeight: FontWeight.bold,
                       ),
                       const SizedBox(height: 16),
-                      GridView.count(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        crossAxisCount: 3,
-                        mainAxisSpacing: 8,
-                        crossAxisSpacing: 8,
-                        children: List.generate(
-                          3,
-                          (index) => ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.asset(
-                              'assets/images/puppy.jpeg',
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                      ),
+                      // GridView.count(
+                      //   shrinkWrap: true,
+                      //   physics: const NeverScrollableScrollPhysics(),
+                      //   crossAxisCount: 3,
+                      //   mainAxisSpacing: 8,
+                      //   crossAxisSpacing: 8,
+                      //   children: List.generate(
+                      //     3,
+                      //     (index) => ClipRRect(
+                      //       borderRadius: BorderRadius.circular(8),
+                      //       child: Image.asset(
+                      //         'assets/images/puppy.jpeg',
+                      //         fit: BoxFit.cover,
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
