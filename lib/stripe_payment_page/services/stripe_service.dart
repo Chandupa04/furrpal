@@ -110,4 +110,3 @@ class StripeService {
     return calculatedAmount.toString();
   }
 }
-

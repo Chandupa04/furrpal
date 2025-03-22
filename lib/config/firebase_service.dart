@@ -14,9 +14,12 @@ class FirebaseService {
     required String breed,
     required String gender,
     required String age,
-    String? healthConditions,
     required String location,
     File? imageFile,
+    required String weightKg,
+    required String weightG,
+    String? bloodline,
+    File? healthReportFile,
   }) async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user == null) {
@@ -29,7 +32,7 @@ class FirebaseService {
     try {
       // generate a unique ID for the dog
       DocumentReference reference =
-          _firestore.collection('users').doc(userId).collection('dogs').doc();
+      _firestore.collection('users').doc(userId).collection('dogs').doc();
       String dogId = reference.id;
 
       // Upload image if provided
@@ -65,16 +68,52 @@ class FirebaseService {
         }
       }
 
-      // Create dog profile document
+      // Upload health report PDF if provided
+      String? healthReportUrl;
+      if (healthReportFile != null) {
+        print('Health report file exists: ${healthReportFile.existsSync()}');
+        print('Health report file size: ${healthReportFile.lengthSync()} bytes');
+
+        // Create a unique filename for the health report
+        final String fileName =
+            '${DateTime.now().millisecondsSinceEpoch}_${healthReportFile.path.split('/').last}';
+        final storageRef = _storage.ref().child('dog_health_reports/$userId/$fileName');
+        print('Health report storage path: ${storageRef.fullPath}');
+
+        try {
+          final uploadTask = storageRef.putFile(healthReportFile);
+          final snapshot = await uploadTask;
+          healthReportUrl = await snapshot.ref.getDownloadURL();
+          print('Health report uploaded successfully. URL: $healthReportUrl');
+
+          // Verify the URL is accessible
+          try {
+            final response = await HttpClient().getUrl(Uri.parse(healthReportUrl));
+            final httpResponse = await response.close();
+            print(
+                'Health report URL is accessible. Status code: ${httpResponse.statusCode}');
+          } catch (e) {
+            print('Warning: Could not verify health report URL accessibility: $e');
+          }
+        } catch (e) {
+          print('Error uploading health report: $e');
+          throw Exception('Failed to upload health report: $e');
+        }
+      }
+
+      // Create dog profile document with new fields
       final dogData = {
         'dog_id': dogId,
         'name': name,
         'breed': breed,
         'gender': gender,
         'age': age,
-        'healthConditions': healthConditions ?? '',
         'location': location,
         'imageUrl': imageUrl ?? '', // Changed from 'image' to 'imageUrl'
+        'weightKg': weightKg,
+        'weightG': weightG,
+        'bloodline': bloodline ?? '',
+        'healthReportUrl': healthReportUrl ?? '',
         'createdAt': FieldValue.serverTimestamp(),
         'likes': [],
         'dislikes': [],
@@ -155,7 +194,7 @@ class FirebaseService {
   Future<Map<String, dynamic>?> getUserProfile(String userId) async {
     try {
       DocumentSnapshot userDoc =
-          await _firestore.collection('users').doc(userId).get();
+      await _firestore.collection('users').doc(userId).get();
 
       if (!userDoc.exists) {
         print('User document not found for ID: $userId');
@@ -175,7 +214,7 @@ class FirebaseService {
       // Get likes from the last 24 hours
       final DateTime now = DateTime.now();
       final DateTime twentyFourHoursAgo =
-          now.subtract(const Duration(hours: 24));
+      now.subtract(const Duration(hours: 24));
 
       final QuerySnapshot likesSnapshot = await _firestore
           .collection('users')
@@ -212,7 +251,7 @@ class FirebaseService {
 
       // Get current user details with full name
       final userDoc =
-          await _firestore.collection('users').doc(currentUserId).get();
+      await _firestore.collection('users').doc(currentUserId).get();
       if (!userDoc.exists) {
         print('Error: User document not found for ID: $currentUserId');
         return;
@@ -230,10 +269,10 @@ class FirebaseService {
       final String fullName = firstName.isNotEmpty && lastName.isNotEmpty
           ? '$firstName $lastName'
           : firstName.isNotEmpty
-              ? firstName
-              : lastName.isNotEmpty
-                  ? lastName
-                  : 'A user';
+          ? firstName
+          : lastName.isNotEmpty
+          ? lastName
+          : 'A user';
 
       print('Storing like for user: $fullName');
 
@@ -361,7 +400,7 @@ class FirebaseService {
     try {
       // Get current user details
       final userDoc =
-          await _firestore.collection('users').doc(currentUserId).get();
+      await _firestore.collection('users').doc(currentUserId).get();
       if (!userDoc.exists) {
         print('Error: User document not found');
         return;
@@ -378,10 +417,10 @@ class FirebaseService {
       final String fullName = firstName.isNotEmpty && lastName.isNotEmpty
           ? '$firstName $lastName'
           : firstName.isNotEmpty
-              ? firstName
-              : lastName.isNotEmpty
-                  ? lastName
-                  : 'A user';
+          ? firstName
+          : lastName.isNotEmpty
+          ? lastName
+          : 'A user';
 
       print('Storing dislike for user: $fullName');
 

@@ -29,6 +29,8 @@ class _AddNewDogProfilePageState extends State<AddNewDogProfilePage> {
 
   final TextEditingController nameTextController = TextEditingController();
   final TextEditingController ageTextController = TextEditingController();
+  final TextEditingController weightKgcontroller = TextEditingController();
+  final TextEditingController weightGcontroller = TextEditingController();
   final TextEditingController locationTextController = TextEditingController();
   final TextEditingController healthConditionTextController =
       TextEditingController();
@@ -49,12 +51,16 @@ class _AddNewDogProfilePageState extends State<AddNewDogProfilePage> {
 
     final String name = nameTextController.text;
     final String age = ageTextController.text;
+    final String weightKg = weightKgcontroller.text;
+    final String weightG = weightGcontroller.text;
     final String location = locationTextController.text;
     final String healthCondition = healthConditionTextController.text;
 
     if (name.isEmpty ||
         age.isEmpty ||
         location.isEmpty ||
+        weightKg.isEmpty ||
+        weightG.isEmpty ||
         selectedFile == null ||
         selectedGender == null ||
         selectedBreed == null) {
@@ -77,6 +83,8 @@ class _AddNewDogProfilePageState extends State<AddNewDogProfilePage> {
         profileImage: selectedFile!,
         name: name,
         age: age,
+        weightKg: weightKg,
+        weightG: weightG,
         breed: selectedBreed!,
         gender: selectedGender!,
         location: location,
@@ -188,6 +196,35 @@ class _AddNewDogProfilePageState extends State<AddNewDogProfilePage> {
               TextFieldCustom(
                 controller: ageTextController,
                 hintText: 'age',
+                keyboardType: TextInputType.number,
+                borderColor: blackColor,
+                marginBottom: 15.h,
+              ),
+              TextCustomWidget(
+                text: 'weight (Kg)',
+                textStyle: textFieldLableStyle,
+                marginLeft: 10.w,
+                marginTop: 10.h,
+                marginBottom: 4.h,
+              ),
+              TextFieldCustom(
+                controller: weightKgcontroller,
+                hintText: 'weightKg',
+                keyboardType: TextInputType.number,
+                borderColor: blackColor,
+                marginBottom: 15.h,
+              ),
+              TextCustomWidget(
+                text: 'weight (G)',
+                textStyle: textFieldLableStyle,
+                marginLeft: 10.w,
+                marginTop: 10.h,
+                marginBottom: 4.h,
+              ),
+              TextFieldCustom(
+                controller: weightGcontroller,
+                hintText: 'weightG',
+                keyboardType: TextInputType.number,
                 borderColor: blackColor,
                 marginBottom: 15.h,
               ),

@@ -95,6 +95,10 @@ class _DogProfilePageState extends State<DogProfilePage> {
                   value: widget.dog.gender,
                 ),
                 dogDetailsCard(
+                    icon: LucideIcons.weight,
+                    title: 'Weight',
+                    value: '${widget.dog.weightKg} ${widget.dog.weightG}'),
+                dogDetailsCard(
                   icon: LucideIcons.dog,
                   title: 'Breed',
                   value: widget.dog.breed,
