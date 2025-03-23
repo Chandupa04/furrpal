@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:furrpal/config/firebase_service.dart';
-import 'package:furrpal/features/home/presentation/pages/dog_profile_page.dart';
+import 'package:furrpal/features/home/presentation/pages/userdetails_page.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
@@ -288,25 +288,25 @@ class NotificationTile extends StatelessWidget {
                       padding: const EdgeInsets.only(top: 8.0),
                       child: GestureDetector(
                         onTap: () async {
-                          print('Viewing dog profile:');
-                          print('  likedByDogId: ${notification.likedByDogId}');
+                          print('Viewing user profile:');
                           print(
                               '  likedByUserId: ${notification.likedByUserId}');
 
-                          // Fetch the dog profile before navigating
-                          final dogProfile =
-                              await _firebaseService.getDogProfileById(
-                            notification.likedByDogId!,
-                            notification.likedByUserId!,
-                          );
+                          // Fetch the user details before navigating
+                          final userDetails = await _firebaseService
+                              .getUserDetails(notification.likedByUserId!);
 
-                          if (dogProfile != null) {
+                          if (userDetails != null && context.mounted) {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => DogProfilePage(
-                                  dogId: notification.likedByDogId!,
-                                  userId: notification.likedByUserId!,
+                                builder: (context) => UserDetailsPage(
+                                  name: userDetails['name'],
+                                  email: userDetails['email'],
+                                  address: userDetails['address'],
+                                  contact: userDetails['contact'],
+                                  since: userDetails['since'],
+                                  imagePath: userDetails['imagePath'],
                                 ),
                               ),
                             );
@@ -324,10 +324,6 @@ class NotificationTile extends StatelessWidget {
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 12, vertical: 6),
-                          // decoration: BoxDecoration(
-                          //   color: const Color(0xffF88158),
-                          //   borderRadius: BorderRadius.circular(16),
-                          // ),
                           child: Text(
                             'View Profile',
                             style: GoogleFonts.poppins(
@@ -399,20 +395,5 @@ final List<Notification> communityNotifications = [
     title: 'Jane Smith commented',
     message: 'Awesome picture of your dog!',
     time: '15m ago',
-  ),
-];
-
-final List<Notification> petShopNotifications = [
-  Notification(
-    avatarPath: 'assets/shop1.png',
-    title: 'PetMart Sale',
-    message: '20% off on all dog toys this weekend!',
-    time: '1h ago',
-  ),
-  Notification(
-    avatarPath: 'assets/shop2.png',
-    title: 'New Arrival',
-    message: 'Check out our new premium dog food collection',
-    time: '3h ago',
   ),
 ];
