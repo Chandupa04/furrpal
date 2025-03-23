@@ -239,6 +239,7 @@ class _UserProfileState extends State<UserProfile> {
         } else {
           return Center(
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const TextCustomWidget(
                   text: 'No profile found',
@@ -248,6 +249,12 @@ class _UserProfileState extends State<UserProfile> {
                     onPressed: () {
                       Navigator.pop(context);
                       logout();
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const StartPage(),
+                          ),
+                          (route) => false);
                     },
                     icon: const Icon(Icons.logout))
               ],

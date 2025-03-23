@@ -14,9 +14,9 @@ void main() async {
 
   // Initialize Stripe
   Stripe.publishableKey = stripePublishableKey;
-  Stripe.merchantIdentifier =
-      'merchant.com.furrpal'; // Replace with your merchant identifier if using Apple Pay
-  await Stripe.instance.applySettings();
+  // Stripe.merchantIdentifier =
+  //     'merchant.com.furrpal'; // Replace with your merchant identifier if using Apple Pay
+  // await Stripe.instance.applySettings();
 
   // Run app
   runApp(MyApp());

@@ -24,6 +24,8 @@ class _HomePageState extends State<HomePage> {
   bool _disposed = false;
   String? currentUserId;
   String? _focusBreed;
+  bool _showNoMoreDogsMessage = false;
+  bool _hasShownLikeLimitMessage = false;
 
   final CardSwiperController swiperController = CardSwiperController();
   OverlayEntry? _overlayEntry;
@@ -64,23 +66,34 @@ class _HomePageState extends State<HomePage> {
 
     _safeSetState(() {
       isLoading = true;
+      _showNoMoreDogsMessage = false;
     });
 
     try {
       final dogProfiles = _focusBreed != null
           ? await _firebaseService
-              .getAllDogProfilesByBreedPriority(_focusBreed!)
+          .getAllDogProfilesByBreedPriority(_focusBreed!)
           : await _firebaseService.getAllDogProfiles();
 
       print('Loaded ${dogProfiles.length} dog profiles');
+
+      if (dogProfiles.isEmpty) {
+        _safeSetState(() {
+          _showNoMoreDogsMessage = true;
+          isLoading = false;
+          dogs = [];
+        });
+        return;
+      }
+
       if (_focusBreed != null) {
         print('Prioritized by breed: $_focusBreed');
 
         // Count exact matches
         int exactMatches = dogProfiles
             .where((dog) =>
-                (dog['breed'] ?? '').toString().toLowerCase() ==
-                _focusBreed!.toLowerCase())
+        (dog['breed'] ?? '').toString().toLowerCase() ==
+            _focusBreed!.toLowerCase())
             .length;
 
         // Show popup if no exact matches found
@@ -214,7 +227,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   // Handle like action
-  void _handleLike(Map<String, dynamic> dog) {
+  void _handleLike(Map<String, dynamic> dog) async {
     if (currentUserId == null) {
       print('No user is logged in, cannot like dog');
       return;
@@ -224,75 +237,139 @@ class _HomePageState extends State<HomePage> {
     final String dogOwnerId = dog['ownerId'];
     final String dogName = dog['name'] ?? 'Unknown Dog';
 
-    // Get the current user's dog ID that is doing the liking
-    // This needs to be fetched from Firestore
-    _fetchCurrentUserDogId().then((currentUserDogId) {
+    try {
+      // Check if the dog is already liked
+      final String likeId = dogId;
+      final existingLike = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUserId)
+          .collection('likes')
+          .doc(likeId)
+          .get();
+
+      if (existingLike.exists) {
+        print('User already liked this dog');
+        if (!mounted) return;
+
+        // Show a message that the profile was already liked
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('You have already liked ${dogName}'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+        return;
+      }
+
+      // Check if user has reached like limit before showing toast
+      bool hasReachedLimit =
+          await _firebaseService.hasReachedLikeLimit(currentUserId!);
+
+      if (hasReachedLimit && !_hasShownLikeLimitMessage) {
+        if (!mounted) return;
+        setState(() {
+          _hasShownLikeLimitMessage = true;
+        });
+
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Like Limit Reached'),
+              content: const Text(
+                  'You have reached your daily like limit. Upgrade to continue liking more profiles!'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const PricingPlansScreen(),
+                      ),
+                    );
+                  },
+                  child: const Text('Upgrade Now'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Cancel'),
+                ),
+              ],
+            );
+          },
+        );
+        return;
+      }
+
+      // Get the current user's dog ID that is doing the liking
+      String? currentUserDogId = await _fetchCurrentUserDogId();
+
       // Show toast immediately
+      if (!mounted) return;
       _showToast(dogName, true);
 
-      // Then perform the database operation
-      _firebaseService
-          .storeDogLike(
+      await _firebaseService.storeDogLike(
         currentUserId: currentUserId!,
         dogOwnerId: dogOwnerId,
         dogId: dogId,
         dogName: dogName,
-        likedByDogId:
-            currentUserDogId ?? '', // Pass the dog ID of the user who is liking
+
+        likedByDogId: currentUserDogId ?? '',
+
+        // Pass the dog ID of the user who is liking
+
         likedByUserId: currentUserId!,
-      )
-          .then((_) {
-        // After successful like, remove the liked dog from the list
-        if (mounted) {
-          setState(() {
-            dogs.removeWhere((d) => d['id'] == dogId);
-          });
-        }
-      }).catchError((e) {
-        print('Error liking dog: $e');
-        if (mounted) {
-          if (e.toString().contains('24-hour like limit')) {
-            // Show payment page when limit is reached
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: const Text('Like Limit Reached'),
-                  content: const Text(
-                      'You have reached your 24-hour like limit. Upgrade to continue liking more profiles!'),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop(); // Close dialog
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const PricingPlansScreen(),
-                          ),
-                        );
-                      },
-                      child: const Text('Upgrade Now'),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop(); // Close dialog
-                        Navigator.of(context)
-                            .pop(); // Pop the current route to go back
-                      },
-                      child: const Text('Cancel'),
-                    ),
-                  ],
-                );
-              },
+      );
+    } catch (e) {
+      print('Error liking dog: $e');
+      if (!mounted) return;
+
+      if (e.toString().contains('like limit')) {
+        setState(() {
+          _hasShownLikeLimitMessage = true;
+        });
+
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Like Limit Reached'),
+              content: const Text(
+                  'You have reached your daily like limit. Upgrade to continue liking more profiles!'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const PricingPlansScreen(),
+                      ),
+                    );
+                  },
+                  child: const Text('Upgrade Now'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Cancel'),
+                ),
+              ],
             );
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Failed to like dog: $e')),
-            );
-          }
-        }
-      });
-    });
+          },
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to like dog: $e')),
+        );
+      }
+    }
   }
 
   // Fetch the current user's dog ID
@@ -318,7 +395,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   // Handle dislike action
-  void _handleDislike(Map<String, dynamic> dog) {
+  void _handleDislike(Map<String, dynamic> dog) async {
     if (currentUserId == null) {
       print('No user is logged in, cannot dislike dog');
       return;
@@ -328,25 +405,35 @@ class _HomePageState extends State<HomePage> {
     final String dogOwnerId = dog['ownerId'];
     final String dogName = dog['name'] ?? 'Unknown Dog';
 
-    // Show toast immediately
-    _showToast(dogName, false);
+    try {
+      // Show toast immediately
+      if (!mounted) return;
+      _showToast(dogName, false);
 
-    // Then perform the database operation
-    _firebaseService
-        .storeDogDislike(
-      currentUserId: currentUserId!,
-      dogOwnerId: dogOwnerId,
-      dogId: dogId,
-      dogName: dogName,
-    )
-        .catchError((e) {
+      await _firebaseService.storeDogDislike(
+        currentUserId: currentUserId!,
+        dogOwnerId: dogOwnerId,
+        dogId: dogId,
+        dogName: dogName,
+      );
+
+      // Wait a bit before updating the UI to ensure smooth animation
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      if (!mounted) return;
+      setState(() {
+        dogs.removeWhere((d) => d['id'] == dogId);
+        if (dogs.isEmpty) {
+          _showNoMoreDogsMessage = true;
+        }
+      });
+    } catch (e) {
       print('Error disliking dog: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to dislike dog: $e')),
-        );
-      }
-    });
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to dislike dog: $e')),
+      );
+    }
   }
 
   void _showToast(String dogName, bool isLiked) {
@@ -370,13 +457,13 @@ class _HomePageState extends State<HomePage> {
             const Center(
               child: CircularProgressIndicator(),
             )
-          else if (dogs.isEmpty)
+          else if (_showNoMoreDogsMessage || dogs.isEmpty)
             Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
-                    "No dog profiles found",
+                    "No more dog profiles to show",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 20),
@@ -386,16 +473,6 @@ class _HomePageState extends State<HomePage> {
                     borderRadius: BorderRadius.circular(10),
                     child: const Text(
                       "Refresh",
-                      style: TextStyle(color: Colors.black),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  CupertinoButton(
-                    onPressed: _testFirestore,
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    child: const Text(
-                      "Test Firestore Connection",
                       style: TextStyle(color: Colors.black),
                     ),
                   ),
@@ -419,6 +496,19 @@ class _HomePageState extends State<HomePage> {
                     _showSkipToast(
                         dogs[previousIndex]['name'] ?? 'Unknown Dog');
                   }
+
+                  // Check if we've run out of cards after this swipe
+                  if (currentIndex == null || currentIndex >= dogs.length) {
+                    // This was the last card
+                    Future.microtask(() {
+                      if (mounted) {
+                        setState(() {
+                          _showNoMoreDogsMessage = true;
+                        });
+                      }
+                    });
+                  }
+
                   return true;
                 },
                 cardBuilder:
@@ -541,40 +631,40 @@ class _DogProfileCardState extends State<DogProfileCard> {
                   borderRadius: BorderRadius.circular(20),
                   child: imageUrl.isNotEmpty
                       ? Image.network(
-                          imageUrl,
-                          height: 200,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return Container(
-                              height: 200,
-                              width: double.infinity,
-                              color: Colors.grey[200],
-                              child: const Center(
-                                child: CircularProgressIndicator(),
-                              ),
-                            );
-                          },
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              height: 200,
-                              width: double.infinity,
-                              color: Colors.grey[200],
-                              child: const Icon(
-                                Icons.error,
-                                color: Colors.red,
-                                size: 50,
-                              ),
-                            );
-                          },
-                        )
-                      : Image.asset(
-                          "assets/images/dog_placeholder.jpg",
-                          height: 200,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
+                    imageUrl,
+                    height: 200,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Container(
+                        height: 200,
+                        width: double.infinity,
+                        color: Colors.grey[200],
+                        child: const Center(
+                          child: CircularProgressIndicator(),
                         ),
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        height: 200,
+                        width: double.infinity,
+                        color: Colors.grey[200],
+                        child: const Icon(
+                          Icons.error,
+                          color: Colors.red,
+                          size: 50,
+                        ),
+                      );
+                    },
+                  )
+                      : Image.asset(
+                    "assets/images/dog_placeholder.jpg",
+                    height: 200,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
                 ),
                 const SizedBox(height: 20),
                 Text(
@@ -610,7 +700,7 @@ class _DogProfileCardState extends State<DogProfileCard> {
                 }
 
                 final userDetails =
-                    await _firebaseService.getUserDetails(ownerId);
+                await _firebaseService.getUserDetails(ownerId);
                 if (userDetails == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -641,7 +731,7 @@ class _DogProfileCardState extends State<DogProfileCard> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
               ),
               child: const Text(
                 "Show User Details",
