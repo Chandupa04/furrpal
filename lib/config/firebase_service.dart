@@ -143,11 +143,17 @@ class FirebaseService {
         return [];
       }
 
-      // First, get the dog profiles liked by current user to filter them out later
+      // First, get the dog profiles liked and disliked by current user to filter them out later
       final QuerySnapshot likesSnapshot = await _firestore
           .collection('users')
           .doc(currentUser.uid)
           .collection('likes')
+          .get();
+
+      final QuerySnapshot dislikesSnapshot = await _firestore
+          .collection('users')
+          .doc(currentUser.uid)
+          .collection('dislikes')
           .get();
 
       // Create a set of liked dog IDs for faster lookup
@@ -155,7 +161,13 @@ class FirebaseService {
           .map((doc) => (doc.data() as Map<String, dynamic>)['dogId'] as String)
           .toSet();
 
+      // Create a set of disliked dog IDs for faster lookup
+      final Set<String> dislikedDogIds = dislikesSnapshot.docs
+          .map((doc) => (doc.data() as Map<String, dynamic>)['dogId'] as String)
+          .toSet();
+
       print('User has liked ${likedDogIds.length} dog profiles');
+      print('User has disliked ${dislikedDogIds.length} dog profiles');
 
       print('Fetching dogs with breed priority for: $breedQuery');
       final queryLower = breedQuery.toLowerCase();
@@ -187,12 +199,15 @@ class FirebaseService {
 
       print('Found ${allDogs.length} total dogs before any filtering');
 
-      // Filter out dogs that have been liked
-      allDogs =
-          allDogs.where((dog) => !likedDogIds.contains(dog['id'])).toList();
+      // Filter out dogs that have been liked or disliked
+      allDogs = allDogs
+          .where((dog) =>
+              !likedDogIds.contains(dog['id']) &&
+              !dislikedDogIds.contains(dog['id']))
+          .toList();
 
       print(
-          'After filtering liked profiles: ${allDogs.length} profiles remain');
+          'After filtering liked and disliked profiles: ${allDogs.length} profiles remain');
 
       // Sort dogs: exact breed match first, then partial matches, then others
       allDogs.sort((a, b) {
@@ -253,12 +268,25 @@ class FirebaseService {
           .collection('likes')
           .get();
 
+      // Get disliked profiles to filter them out as well
+      final QuerySnapshot dislikesSnapshot = await _firestore
+          .collection('users')
+          .doc(currentUser.uid)
+          .collection('dislikes')
+          .get();
+
       // Create a set of liked dog IDs for faster lookup
       final Set<String> likedDogIds = likesSnapshot.docs
           .map((doc) => (doc.data() as Map<String, dynamic>)['dogId'] as String)
           .toSet();
 
+      // Create a set of disliked dog IDs for faster lookup
+      final Set<String> dislikedDogIds = dislikesSnapshot.docs
+          .map((doc) => (doc.data() as Map<String, dynamic>)['dogId'] as String)
+          .toSet();
+
       print('User has liked ${likedDogIds.length} dog profiles');
+      print('User has disliked ${dislikedDogIds.length} dog profiles');
 
       // Get all users except current user
       final QuerySnapshot usersSnapshot = await _firestore
@@ -287,13 +315,16 @@ class FirebaseService {
         allDogs.addAll(dogs);
       }
 
-      // Filter out dogs that have been liked
-      final filteredDogs =
-          allDogs.where((dog) => !likedDogIds.contains(dog['id'])).toList();
+      // Filter out dogs that have been liked or disliked
+      final filteredDogs = allDogs
+          .where((dog) =>
+              !likedDogIds.contains(dog['id']) &&
+              !dislikedDogIds.contains(dog['id']))
+          .toList();
 
       print('Retrieved ${allDogs.length} total dog profiles from Firestore');
       print(
-          'After filtering liked profiles: ${filteredDogs.length} profiles remain');
+          'After filtering liked and disliked profiles: ${filteredDogs.length} profiles remain');
 
       return filteredDogs;
     } catch (e) {
@@ -320,9 +351,34 @@ class FirebaseService {
     }
   }
 
-  // Check if user has reached the 24-hour like limit
+  // Check if user has reached the like limit based on subscription
+  // In the FirebaseService class, modify the hasReachedLikeLimit method
   Future<bool> hasReachedLikeLimit(String userId) async {
     try {
+      // Get user subscription details
+      final userDoc = await _firestore.collection('users').doc(userId).get();
+      final userData = userDoc.data();
+
+      // Default like limit for non-subscribers is 6
+      int likeLimit = 6;
+
+      // Check if user has an active subscription
+      if (userData != null &&
+          userData['subscription'] != null &&
+          userData['subscription']['status'] == 'active') {
+        // Get the subscription plan
+        final String plan = userData['subscription']['plan'] ?? '';
+
+        // Set like limit based on subscription plan
+        if (plan == 'Premium') {
+          // Premium plan gets unlimited likes (using a very high number)
+          return false; // Always return false for Premium users to indicate no limit reached
+        }
+      }
+
+      // If user has Premium plan, we already returned false above
+      // For other plans, check against the limit
+
       // Get likes from the last 24 hours
       final DateTime now = DateTime.now();
       final DateTime twentyFourHoursAgo =
@@ -336,7 +392,9 @@ class FirebaseService {
           .get();
 
       print('Number of likes in last 24 hours: ${likesSnapshot.docs.length}');
-      return likesSnapshot.docs.length >= 6;
+      print('User like limit: $likeLimit');
+
+      return likesSnapshot.docs.length >= likeLimit;
     } catch (e) {
       print('Error checking like limit: $e');
       return false;
@@ -355,15 +413,13 @@ class FirebaseService {
     try {
       print('Starting to store like for dog: $dogName');
 
-      // Check if user has reached the 24-hour limit
+      // Check if user has reached the like limit based on subscription
       final bool hasReachedLimit = await hasReachedLikeLimit(currentUserId);
       if (hasReachedLimit) {
-        print('User has reached the 24-hour like limit');
+        print('User has reached the like limit based on subscription');
         throw Exception(
-            'You have reached the 24-hour like limit. Please upgrade to continue.');
+            'You have reached your daily like limit. Please upgrade to continue.');
       }
-
-      // });
 
       // Get current user details with full name
       final userDoc =
@@ -579,6 +635,18 @@ class FirebaseService {
         'dislikes': currentDislikes,
       });
 
+      // Store the dislike in user's dislikes collection
+      await _firestore
+          .collection('users')
+          .doc(currentUserId)
+          .collection('dislikes')
+          .add({
+        'dogId': dogId,
+        'dogOwnerId': dogOwnerId,
+        'dogName': dogName,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
       // Verify the update
       final updatedDogDoc = await dogRef.get();
       final updatedDogData = updatedDogDoc.data();
@@ -645,6 +713,69 @@ class FirebaseService {
     } catch (e) {
       print('Error checking if user disliked dog: $e');
       return false;
+    }
+  }
+
+  // Get user subscription details
+  Future<Map<String, dynamic>?> getUserSubscription(String userId) async {
+    try {
+      final userDoc = await _firestore.collection('users').doc(userId).get();
+      if (!userDoc.exists) return null;
+
+      final userData = userDoc.data();
+      if (userData == null) return null;
+
+      return userData['subscription'] as Map<String, dynamic>?;
+    } catch (e) {
+      print('Error getting user subscription: $e');
+      return null;
+    }
+  }
+
+  // Get remaining likes for the day
+  // Update the getRemainingLikes method
+  Future<int> getRemainingLikes(String userId) async {
+    try {
+      // Get user subscription details
+      final userDoc = await _firestore.collection('users').doc(userId).get();
+      final userData = userDoc.data();
+
+      // Default like limit for non-subscribers is 6
+      int likeLimit = 6;
+
+      // Check if user has an active subscription
+      if (userData != null &&
+          userData['subscription'] != null &&
+          userData['subscription']['status'] == 'active') {
+        // Get the subscription plan
+        final String plan = userData['subscription']['plan'] ?? '';
+
+        // Set like limit based on subscription plan
+        if (plan == 'Premium') {
+          // Premium plan gets unlimited likes
+          return 999999; // Return a very high number to indicate unlimited
+        }
+      }
+
+      // Get likes from the last 24 hours
+      final DateTime now = DateTime.now();
+      final DateTime twentyFourHoursAgo =
+          now.subtract(const Duration(hours: 24));
+
+      final QuerySnapshot likesSnapshot = await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('likes')
+          .where('timestamp', isGreaterThanOrEqualTo: twentyFourHoursAgo)
+          .get();
+
+      int usedLikes = likesSnapshot.docs.length;
+      int remainingLikes = likeLimit - usedLikes;
+
+      return remainingLikes > 0 ? remainingLikes : 0;
+    } catch (e) {
+      print('Error calculating remaining likes: $e');
+      return 0;
     }
   }
 
