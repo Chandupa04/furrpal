@@ -27,41 +27,38 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
   bool isProcessing = false;
   String selectedGender = '';
   String selectedBreed = '';
+  int? selectedYears;
+  int? selectedMonths;
+  String? formattedAge;
+  String? recentformattedAge;
+
+  final List<int> years = List.generate(16, (index) => index);
+  final List<int> months = List.generate(12, (index) => index);
 
   late TextEditingController nameTextController;
-  late TextEditingController ageTextController;
   late TextEditingController locationTextController;
   late TextEditingController weightKgcontroller;
   late TextEditingController weightGcontroller;
-  // late TextEditingController healthConditionTextController;
   late TextEditingController bloodlineTextController;
-  // late TextEditingController healthReportController;
 
   @override
   void initState() {
     super.initState();
     nameTextController = TextEditingController(text: widget.dog.name);
-    ageTextController = TextEditingController(text: widget.dog.age);
     weightKgcontroller = TextEditingController(text: widget.dog.weightKg);
-    weightGcontroller = TextEditingController(text: widget.dog.weightG);
     locationTextController = TextEditingController(text: widget.dog.location);
-    // healthConditionTextController =
-    //     TextEditingController(text: widget.dog.healthConditions);
     bloodlineTextController = TextEditingController(text: widget.dog.bloodline);
-    // healthReportController =
-    //     TextEditingController(text: widget.dog.healthReportUrl);
+
     selectedGender = widget.dog.gender;
     selectedBreed = widget.dog.breed;
+    recentformattedAge = widget.dog.age;
   }
 
   @override
   void dispose() {
     nameTextController.dispose();
-    ageTextController.dispose();
     locationTextController.dispose();
-    // healthConditionTextController.dispose();
     bloodlineTextController.dispose();
-    // healthReportController.dispose();
     super.dispose();
   }
 
@@ -81,19 +78,17 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
   void updateProfile() {
     final dogProfileCubit = context.read<DogProfileCubit>();
     final dogId = widget.dog.dogId;
+    formattedAge = getFormattedAge();
 
     dogProfileCubit.updateDogProfile(
       dogId: dogId,
       newName: nameTextController.text,
       newBreed: selectedBreed,
-      newAge: ageTextController.text,
+      newAge: formattedAge ?? recentformattedAge!,
       weightKg: weightKgcontroller.text,
-      weightG: weightGcontroller.text,
       newGender: selectedGender,
       newLocation: locationTextController.text,
-      // newHealthConditions: healthConditionTextController.text,
       bloodline: bloodlineTextController.text,
-      // healthReportUrl: healthReportController.text,
     );
   }
 
@@ -103,6 +98,111 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
     final dogId = widget.dog.dogId;
     dogProfileCubit.deleteDogProfile(dogId);
     Navigator.pop(context);
+  }
+
+  String getFormattedAge() {
+    if (selectedYears == null && selectedMonths == null) {
+      return recentformattedAge!;
+    }
+
+    final years = selectedYears ?? 0;
+    final months = selectedMonths ?? 0;
+
+    if (years > 0 && months > 0) {
+      return '$years.$months yrs';
+    } else if (years > 0) {
+      return '$years yrs';
+    } else {
+      return '$months months';
+    }
+  }
+
+  Widget buildAgeDropdowns() {
+    return Container(
+      margin: EdgeInsets.only(bottom: 15.h),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              // Years dropdown
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10.r),
+                      ),
+                      child: DropdownButtonFormField<int>(
+                        value: selectedYears,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.r),
+                          ),
+                          contentPadding:
+                              EdgeInsets.symmetric(horizontal: 16.w),
+                        ),
+                        hint: Text(selectedYears.toString()),
+                        items: years.map((int year) {
+                          return DropdownMenuItem<int>(
+                            value: year,
+                            child: Text('$year'),
+                          );
+                        }).toList(),
+                        onChanged: (int? value) {
+                          setState(() {
+                            selectedYears = value;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(width: 16.w),
+              // Months dropdown
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10.r),
+                      ),
+                      child: DropdownButtonFormField<int>(
+                        value: selectedMonths,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.r),
+                          ),
+                          contentPadding:
+                              EdgeInsets.symmetric(horizontal: 16.w),
+                        ),
+                        hint: Text(selectedMonths.toString()),
+                        items: months.map((int month) {
+                          return DropdownMenuItem<int>(
+                            value: month,
+                            child: Text('$month'),
+                          );
+                        }).toList(),
+                        onChanged: (int? value) {
+                          setState(() {
+                            selectedMonths = value;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -291,38 +391,18 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                 text: 'Age',
                 textStyle: textFieldLableStyle,
                 marginLeft: 10.w,
-                marginTop: 10.h,
                 marginBottom: 4.h,
               ),
-              TextFieldCustom(
-                controller: ageTextController,
-                hintText: widget.dog.age,
-                borderColor: blackColor,
-                marginBottom: 15.h,
-              ),
+              buildAgeDropdowns(),
               TextCustomWidget(
                 text: 'weight (Kg)',
                 textStyle: textFieldLableStyle,
                 marginLeft: 10.w,
-                marginTop: 10.h,
                 marginBottom: 4.h,
               ),
               TextFieldCustom(
                 controller: weightKgcontroller,
                 hintText: widget.dog.weightKg,
-                borderColor: blackColor,
-                marginBottom: 15.h,
-              ),
-              TextCustomWidget(
-                text: 'weight (G)',
-                textStyle: textFieldLableStyle,
-                marginLeft: 10.w,
-                marginTop: 10.h,
-                marginBottom: 4.h,
-              ),
-              TextFieldCustom(
-                controller: weightGcontroller,
-                hintText: widget.dog.weightG,
                 borderColor: blackColor,
                 marginBottom: 15.h,
               ),
