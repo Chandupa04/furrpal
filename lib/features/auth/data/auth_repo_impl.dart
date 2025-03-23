@@ -47,6 +47,9 @@ class AuthRepoImpl implements AuthRepo {
         password: password,
       );
 
+      final firebaseuser = userCredential.user!;
+      await firebaseuser.sendEmailVerification();
+
       UserEntity user = UserEntity(
         uid: userCredential.user!.uid,
         email: email,
