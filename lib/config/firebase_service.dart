@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 import 'dart:math' show min;
-import 'package:furrpal/features/profiles/dog_profile/domain/models/dog_entity.dart';
 
 class FirebaseService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -141,32 +140,6 @@ class FirebaseService {
         return [];
       }
 
-      // First, get the dog profiles liked and disliked by current user to filter them out later
-      final QuerySnapshot likesSnapshot = await _firestore
-          .collection('users')
-          .doc(currentUser.uid)
-          .collection('likes')
-          .get();
-
-      final QuerySnapshot dislikesSnapshot = await _firestore
-          .collection('users')
-          .doc(currentUser.uid)
-          .collection('dislikes')
-          .get();
-
-      // Create a set of liked dog IDs for faster lookup
-      final Set<String> likedDogIds = likesSnapshot.docs
-          .map((doc) => (doc.data() as Map<String, dynamic>)['dogId'] as String)
-          .toSet();
-
-      // Create a set of disliked dog IDs for faster lookup
-      final Set<String> dislikedDogIds = dislikesSnapshot.docs
-          .map((doc) => (doc.data() as Map<String, dynamic>)['dogId'] as String)
-          .toSet();
-
-      print('User has liked ${likedDogIds.length} dog profiles');
-      print('User has disliked ${dislikedDogIds.length} dog profiles');
-
       print('Fetching dogs with breed priority for: $breedQuery');
       final queryLower = breedQuery.toLowerCase();
 
@@ -195,17 +168,7 @@ class FirebaseService {
         allDogs.addAll(dogs);
       }
 
-      print('Found ${allDogs.length} total dogs before any filtering');
-
-      // Filter out dogs that have been liked or disliked
-      allDogs = allDogs
-          .where((dog) =>
-              !likedDogIds.contains(dog['id']) &&
-              !dislikedDogIds.contains(dog['id']))
-          .toList();
-
-      print(
-          'After filtering liked and disliked profiles: ${allDogs.length} profiles remain');
+      print('Found ${allDogs.length} total dogs');
 
       // Sort dogs: exact breed match first, then partial matches, then others
       allDogs.sort((a, b) {
@@ -917,4 +880,3 @@ class FirebaseService {
     }
   }
 }
-

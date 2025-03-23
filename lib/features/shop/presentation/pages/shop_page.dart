@@ -16,7 +16,7 @@ class ShopPage extends StatefulWidget {
 
 class _ShopPageState extends State<ShopPage> {
   final CollectionReference products =
-  FirebaseFirestore.instance.collection('products');
+      FirebaseFirestore.instance.collection('products');
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
@@ -83,7 +83,7 @@ class _ShopPageState extends State<ShopPage> {
             ),
             ListTile(
               leading:
-              const Icon(Icons.shopping_cart, color: Color(0xFF333333)),
+                  const Icon(Icons.shopping_cart, color: Color(0xFF333333)),
               title: Text('Cart', style: GoogleFonts.poppins()),
               onTap: () {
                 Navigator.pop(context);
@@ -128,7 +128,7 @@ class _ShopPageState extends State<ShopPage> {
                 ),
                 border: InputBorder.none,
                 prefixIcon:
-                Icon(Icons.search, color: Colors.grey[500], size: 20),
+                    Icon(Icons.search, color: Colors.grey[500], size: 20),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16),
               ),
               style: GoogleFonts.poppins(fontSize: 14),
@@ -195,7 +195,8 @@ class _ShopPageState extends State<ShopPage> {
                     crossAxisCount: 2,
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 16,
-                    childAspectRatio: 0.7,
+                    childAspectRatio:
+                        0.65, // Changed from 0.7 to 0.65 to fix the overflow
                   ),
                   itemCount: productDocs.length,
                   itemBuilder: (context, index) {
@@ -264,7 +265,7 @@ class _ShopPageState extends State<ShopPage> {
 
 class ProductCard extends StatelessWidget {
   final String name;
-  final int price;
+  final double price;
   final String imageUrl;
   final String description;
   final VoidCallback onAddToCart;
@@ -302,7 +303,8 @@ class ProductCard extends StatelessWidget {
           children: [
             // Image container (discount badge removed)
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(16)),
               child: Image.network(
                 imageUrl,
                 height: 140,
@@ -313,7 +315,8 @@ class ProductCard extends StatelessWidget {
                     height: 140,
                     color: Colors.grey[200],
                     child: const Center(
-                      child: Icon(Icons.image_not_supported, color: Colors.grey),
+                      child:
+                          Icon(Icons.image_not_supported, color: Colors.grey),
                     ),
                   );
                 },
@@ -351,7 +354,7 @@ class ProductCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'LKR $price',
+                        '$price USD',
                         style: GoogleFonts.poppins(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,

@@ -72,7 +72,7 @@ class _HomePageState extends State<HomePage> {
     try {
       final dogProfiles = _focusBreed != null
           ? await _firebaseService
-          .getAllDogProfilesByBreedPriority(_focusBreed!)
+              .getAllDogProfilesByBreedPriority(_focusBreed!)
           : await _firebaseService.getAllDogProfiles();
 
       print('Loaded ${dogProfiles.length} dog profiles');
@@ -92,8 +92,8 @@ class _HomePageState extends State<HomePage> {
         // Count exact matches
         int exactMatches = dogProfiles
             .where((dog) =>
-        (dog['breed'] ?? '').toString().toLowerCase() ==
-            _focusBreed!.toLowerCase())
+                (dog['breed'] ?? '').toString().toLowerCase() ==
+                _focusBreed!.toLowerCase())
             .length;
 
         // Show popup if no exact matches found
@@ -254,7 +254,7 @@ class _HomePageState extends State<HomePage> {
         // Show a message that the profile was already liked
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('You have already liked ${dogName}'),
+            content: Text('You have already liked $dogName'),
             duration: const Duration(seconds: 2),
           ),
         );
@@ -422,7 +422,7 @@ class _HomePageState extends State<HomePage> {
 
       if (!mounted) return;
       setState(() {
-        dogs.removeWhere((d) => d['id'] == dogId);
+        // dogs.removeWhere((d) => d['id'] == dogId);
         if (dogs.isEmpty) {
           _showNoMoreDogsMessage = true;
         }
@@ -631,40 +631,40 @@ class _DogProfileCardState extends State<DogProfileCard> {
                   borderRadius: BorderRadius.circular(20),
                   child: imageUrl.isNotEmpty
                       ? Image.network(
-                    imageUrl,
-                    height: 200,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return Container(
-                        height: 200,
-                        width: double.infinity,
-                        color: Colors.grey[200],
-                        child: const Center(
-                          child: CircularProgressIndicator(),
-                        ),
-                      );
-                    },
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        height: 200,
-                        width: double.infinity,
-                        color: Colors.grey[200],
-                        child: const Icon(
-                          Icons.error,
-                          color: Colors.red,
-                          size: 50,
-                        ),
-                      );
-                    },
-                  )
+                          imageUrl,
+                          height: 200,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Container(
+                              height: 200,
+                              width: double.infinity,
+                              color: Colors.grey[200],
+                              child: const Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              height: 200,
+                              width: double.infinity,
+                              color: Colors.grey[200],
+                              child: const Icon(
+                                Icons.error,
+                                color: Colors.red,
+                                size: 50,
+                              ),
+                            );
+                          },
+                        )
                       : Image.asset(
-                    "assets/images/dog_placeholder.jpg",
-                    height: 200,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
+                          "assets/images/dog_placeholder.jpg",
+                          height: 200,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
                 ),
                 const SizedBox(height: 20),
                 Text(
@@ -691,16 +691,9 @@ class _DogProfileCardState extends State<DogProfileCard> {
             child: ElevatedButton(
               onPressed: () async {
                 final String ownerId = widget.dog["ownerId"];
-                if (ownerId == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('Owner details not available')),
-                  );
-                  return;
-                }
 
                 final userDetails =
-                await _firebaseService.getUserDetails(ownerId);
+                    await _firebaseService.getUserDetails(ownerId);
                 if (userDetails == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -731,7 +724,7 @@ class _DogProfileCardState extends State<DogProfileCard> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 padding:
-                const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                    const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
               ),
               child: const Text(
                 "Show User Details",

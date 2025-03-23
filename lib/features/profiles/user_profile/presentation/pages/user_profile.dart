@@ -190,7 +190,7 @@ class _UserProfileState extends State<UserProfile> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) =>
-                                            AddNewDogProfilePage(),
+                                            const AddNewDogProfilePage(),
                                       ),
                                     );
                                   },

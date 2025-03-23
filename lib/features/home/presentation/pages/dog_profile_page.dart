@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:furrpal/config/firebase_service.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -10,10 +9,10 @@ class DogProfilePage extends StatefulWidget {
   final String userId;
 
   const DogProfilePage({
-    Key? key,
+    super.key,
     required this.dogId,
     required this.userId,
-  }) : super(key: key);
+  });
 
   @override
   _DogProfilePageState createState() => _DogProfilePageState();

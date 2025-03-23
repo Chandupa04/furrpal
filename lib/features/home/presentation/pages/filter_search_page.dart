@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:furrpal/features/home/presentation/pages/home_page.dart';
-import 'package:furrpal/features/home/presentation/pages/home_page.dart';
 
 class SearchFilterScreen extends StatefulWidget {
   const SearchFilterScreen({super.key});

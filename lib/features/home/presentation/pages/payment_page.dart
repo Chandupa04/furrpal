@@ -73,8 +73,8 @@ class _PricingPlansScreenState extends State<PricingPlansScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            const Color.fromARGB(255, 249, 154, 53)!,
-            const Color.fromARGB(255, 235, 156, 37)!
+            const Color.fromARGB(255, 249, 154, 53),
+            const Color.fromARGB(255, 235, 156, 37)
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
