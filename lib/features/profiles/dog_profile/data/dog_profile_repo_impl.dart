@@ -36,11 +36,10 @@ class DogProfileRepoImpl implements DogProfileRepo {
     required String name,
     required String age,
     required String weightKg,
-    required String weightG,
     required String breed,
     required String gender,
     required String location,
-    required String bloodline,
+    String? bloodline,
     String? healthReportUrl,
   }) async {
     try {
@@ -57,7 +56,6 @@ class DogProfileRepoImpl implements DogProfileRepo {
         'location': location,
         'bloodline': bloodline,
         'weightKg': weightKg,
-        'weightG': weightG,
         'healthReportUrl': healthReportUrl,
       });
       return true;
@@ -94,11 +92,10 @@ class DogProfileRepoImpl implements DogProfileRepo {
     required String name,
     required String age,
     required String weightKg,
-    required String weightG,
     required String breed,
     required String gender,
     required String location,
-    required String bloodline,
+    String? bloodline,
     String? healthReportUrl,
   }) async {
     try {
@@ -121,7 +118,6 @@ class DogProfileRepoImpl implements DogProfileRepo {
         gender: gender,
         age: age,
         weightKg: weightKg,
-        weightG: weightG,
         location: location,
         imageURL: downloadUrl,
         bloodline: bloodline,

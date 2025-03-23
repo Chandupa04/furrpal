@@ -56,7 +56,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
                 categories.length,
-                    (index) => GestureDetector(
+                (index) => GestureDetector(
                   onTap: () {
                     setState(() {
                       selectedIndex = index;
@@ -94,120 +94,120 @@ class _NotificationsPageState extends State<NotificationsPage> {
       ),
       body: selectedIndex == 0
           ? StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('users')
-            .doc(currentUser?.uid)
-            .collection('notifications')
-            .where('type', isEqualTo: 'like')
-            .snapshots(),
-        builder: (context, snapshot) {
-          print('StreamBuilder state: ${snapshot.connectionState}');
-          if (snapshot.hasError) {
-            print('StreamBuilder error: ${snapshot.error}');
-            return Center(
-              child: Text('Error: ${snapshot.error}'),
-            );
-          }
+              stream: FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(currentUser?.uid)
+                  .collection('notifications')
+                  .where('type', isEqualTo: 'like')
+                  .snapshots(),
+              builder: (context, snapshot) {
+                print('StreamBuilder state: ${snapshot.connectionState}');
+                if (snapshot.hasError) {
+                  print('StreamBuilder error: ${snapshot.error}');
+                  return Center(
+                    child: Text('Error: ${snapshot.error}'),
+                  );
+                }
 
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            print('StreamBuilder waiting for data...');
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  print('StreamBuilder waiting for data...');
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
 
-          final notifications = snapshot.data?.docs ?? [];
-          print('Number of notifications: ${notifications.length}');
+                final notifications = snapshot.data?.docs ?? [];
+                print('Number of notifications: ${notifications.length}');
 
-          if (notifications.isEmpty) {
-            print('No notifications found');
-            return Center(
-              child: Text(
-                'No likes yet',
-                style: GoogleFonts.poppins(
-                  color: Colors.grey.shade600,
-                ),
-              ),
-            );
-          }
+                if (notifications.isEmpty) {
+                  print('No notifications found');
+                  return Center(
+                    child: Text(
+                      'No likes yet',
+                      style: GoogleFonts.poppins(
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  );
+                }
 
-          // Sort notifications by timestamp in memory
-          notifications.sort((a, b) {
-            final aTimestamp = (a.data()
-            as Map<String, dynamic>)['timestamp'] as Timestamp;
-            final bTimestamp = (b.data()
-            as Map<String, dynamic>)['timestamp'] as Timestamp;
-            return bTimestamp
-                .compareTo(aTimestamp); // Sort in descending order
-          });
+                // Sort notifications by timestamp in memory
+                notifications.sort((a, b) {
+                  final aTimestamp = (a.data()
+                      as Map<String, dynamic>)['timestamp'] as Timestamp;
+                  final bTimestamp = (b.data()
+                      as Map<String, dynamic>)['timestamp'] as Timestamp;
+                  return bTimestamp
+                      .compareTo(aTimestamp); // Sort in descending order
+                });
 
-          return ListView.separated(
-            itemCount: notifications.length,
-            separatorBuilder: (context, index) => const Divider(
-              height: 1,
-              indent: 72,
-              endIndent: 16,
-            ),
-            itemBuilder: (context, index) {
-              final notification =
-              notifications[index].data() as Map<String, dynamic>;
-              print('Notification data: $notification');
+                return ListView.separated(
+                  itemCount: notifications.length,
+                  separatorBuilder: (context, index) => const Divider(
+                    height: 1,
+                    indent: 72,
+                    endIndent: 16,
+                  ),
+                  itemBuilder: (context, index) {
+                    final notification =
+                        notifications[index].data() as Map<String, dynamic>;
+                    print('Notification data: $notification');
 
-              // Debugging: Print dogId and userId for each notification
-              print('Dog ID: ${notification['dogId']}');
-              print('User ID: ${notification['userId']}');
+                    // Debugging: Print dogId and userId for each notification
+                    print('Dog ID: ${notification['dogId']}');
+                    print('User ID: ${notification['userId']}');
 
-              final timestamp = notification['timestamp'] as Timestamp;
-              final timeAgo = timeago.format(timestamp.toDate());
+                    final timestamp = notification['timestamp'] as Timestamp;
+                    final timeAgo = timeago.format(timestamp.toDate());
 
-              // Get the user who liked the profile
-              final likedByUserName =
-                  notification['likedByUserName'] ?? 'Someone';
-              final dogName = notification['dogName'] ?? 'your dog';
-              final message = notification['message'] ??
-                  'Your dog is getting popular!';
+                    // Get the user who liked the profile
+                    final likedByUserName =
+                        notification['likedByUserName'] ?? 'Someone';
+                    final dogName = notification['dogName'] ?? 'your dog';
+                    final message = notification['message'] ??
+                        'Your dog is getting popular!';
 
-              // Get profile picture if available, otherwise use default
-              final avatarPath =
-              notification['likedByUserProfilePic'] != null &&
-                  notification['likedByUserProfilePic']
-                      .toString()
-                      .isNotEmpty
-                  ? notification['likedByUserProfilePic']
-                  : 'assets/user3.png';
+                    // Get profile picture if available, otherwise use default
+                    final avatarPath =
+                        notification['likedByUserProfilePic'] != null &&
+                                notification['likedByUserProfilePic']
+                                    .toString()
+                                    .isNotEmpty
+                            ? notification['likedByUserProfilePic']
+                            : 'assets/user3.png';
 
-              return NotificationTile(
-                notification: Notification(
-                  avatarPath: avatarPath,
-                  title: '$likedByUserName liked your profile',
-                  message: message,
-                  time: timeAgo,
-                  userId: notification['likedByUserId'],
-                  dogId: notification['likedByDogId'],
-                  likedByUserId: notification['likedByUserId'],
-                  likedByDogId: notification['likedByDogId'],
-                ),
-              );
-            },
-          );
-        },
-      )
+                    return NotificationTile(
+                      notification: Notification(
+                        avatarPath: avatarPath,
+                        title: '$likedByUserName liked your profile',
+                        message: message,
+                        time: timeAgo,
+                        userId: notification['likedByUserId'],
+                        dogId: notification['likedByDogId'],
+                        likedByUserId: notification['likedByUserId'],
+                        likedByDogId: notification['likedByDogId'],
+                      ),
+                    );
+                  },
+                );
+              },
+            )
           : ListView.separated(
-        itemCount: getCurrentNotifications().length,
-        separatorBuilder: (context, index) => const Divider(
-          height: 0.5,
-          indent: 100,
-          endIndent: 16, // Matches the right padding
-          thickness: 0.8,
-          color: Color(
-              0xFFDDDDDD), // Light grey line (optional for a premium feel)
-        ),
-        itemBuilder: (context, index) {
-          return NotificationTile(
-            notification: getCurrentNotifications()[index],
-          );
-        },
-      ),
+              itemCount: getCurrentNotifications().length,
+              separatorBuilder: (context, index) => const Divider(
+                height: 0.5,
+                indent: 100,
+                endIndent: 16, // Matches the right padding
+                thickness: 0.8,
+                color: Color(
+                    0xFFDDDDDD), // Light grey line (optional for a premium feel)
+              ),
+              itemBuilder: (context, index) {
+                return NotificationTile(
+                  notification: getCurrentNotifications()[index],
+                );
+              },
+            ),
     );
   }
 
@@ -289,7 +289,8 @@ class NotificationTile extends StatelessWidget {
                       child: GestureDetector(
                         onTap: () async {
                           print('Viewing user profile:');
-                          print('  likedByUserId: ${notification.likedByUserId}');
+                          print(
+                              '  likedByUserId: ${notification.likedByUserId}');
 
                           // Fetch the user details before navigating
                           final userDetails = await _firebaseService
@@ -396,19 +397,3 @@ final List<Notification> communityNotifications = [
     time: '15m ago',
   ),
 ];
-
-final List<Notification> petShopNotifications = [
-  Notification(
-    avatarPath: 'assets/shop1.png',
-    title: 'PetMart Sale',
-    message: '20% off on all dog toys this weekend!',
-    time: '1h ago',
-  ),
-  Notification(
-    avatarPath: 'assets/shop2.png',
-    title: 'New Arrival',
-    message: 'Check out our new premium dog food collection',
-    time: '3h ago',
-  ),
-];
-

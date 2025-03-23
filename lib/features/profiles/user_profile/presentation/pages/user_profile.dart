@@ -100,7 +100,7 @@ class _UserProfileState extends State<UserProfile> {
                             errorWidget: (context, url, error) => Icon(
                               Icons.person,
                               size: 72.h,
-                              color: Colors.blue,
+                              color: Colors.grey,
                             ),
                             imageBuilder: (context, imageProvider) =>
                                 ContainerCustom(
