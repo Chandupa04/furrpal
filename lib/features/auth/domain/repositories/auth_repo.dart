@@ -17,4 +17,6 @@ abstract class AuthRepo {
   Future<void> logout();
 
   Future<UserEntity?> getCurrentUser();
+
+  Future<void> verifyEmail();
 }

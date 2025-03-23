@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class CartProvider with ChangeNotifier {
   List<Map<String, dynamic>> _cartItems = [];
@@ -20,7 +19,7 @@ class CartProvider with ChangeNotifier {
   void reset() {
     _cartItems.clear();
     _userId = null;
-    notifyListeners();
+    _notifyListenersWithDelay();
   }
 
   // Load cart items from Firestore
@@ -30,7 +29,7 @@ class CartProvider with ChangeNotifier {
     final userDoc = await _firestore.collection('users').doc(_userId).get();
     if (userDoc.exists) {
       _cartItems = List<Map<String, dynamic>>.from(userDoc['cart'] ?? []);
-      notifyListeners();
+      _notifyListenersWithDelay();
     }
   }
 
@@ -44,14 +43,14 @@ class CartProvider with ChangeNotifier {
       product['quantity'] = 1; // Add new product with quantity 1
       _cartItems.add(product);
     }
-    notifyListeners();
+    _notifyListenersWithDelay();
     await _updateCartInFirestore();
   }
 
   // Remove item from cart and update Firestore
   void removeFromCart(int index) async {
     _cartItems.removeAt(index);
-    notifyListeners();
+    _notifyListenersWithDelay();
     await _updateCartInFirestore();
   }
 
@@ -62,14 +61,14 @@ class CartProvider with ChangeNotifier {
     } else {
       _cartItems.removeAt(index);
     }
-    notifyListeners();
+    _notifyListenersWithDelay();
     await _updateCartInFirestore();
   }
 
   // Clear cart and update Firestore
   void clearCart() async {
     _cartItems.clear();
-    notifyListeners();
+    _notifyListenersWithDelay();
     await _updateCartInFirestore();
   }
 
@@ -100,6 +99,13 @@ class CartProvider with ChangeNotifier {
 
     await _firestore.collection('users').doc(_userId).update({
       'cart': _cartItems,
+    });
+  }
+
+  // Helper method to notify listeners after the build phase
+  void _notifyListenersWithDelay() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      notifyListeners();
     });
   }
 }

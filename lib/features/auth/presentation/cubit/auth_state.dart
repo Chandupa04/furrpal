@@ -1,4 +1,4 @@
-import '../../models/user_entity.dart';
+import '../../domain/models/user_entity.dart';
 
 abstract class AuthState {}
 
@@ -22,3 +22,5 @@ class AuthError extends AuthState {
   final String message;
   AuthError(this.message);
 }
+
+class EmailVerificationRequired extends AuthState {}

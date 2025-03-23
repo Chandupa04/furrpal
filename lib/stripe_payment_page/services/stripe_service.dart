@@ -52,15 +52,9 @@ class StripeService {
     try {
       // Present the payment sheet to the user
       await Stripe.instance.presentPaymentSheet();
-      print('Payment sheet presented successfully');
-
-      // Confirm the payment
-      await Stripe.instance.confirmPaymentSheetPayment();
-      print('Payment confirmed successfully');
-
       print('Payment successful! Returning true');
       return true; // Payment was successful
-    } catch (error) {
+    } on Exception catch (error) {
       print('Error processing payment: $error');
       return false; // Payment failed
     }
@@ -110,4 +104,3 @@ class StripeService {
     return calculatedAmount.toString();
   }
 }
-

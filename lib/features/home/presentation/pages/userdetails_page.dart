@@ -1,158 +1,199 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // Import Clipboard for copy function
+import 'package:flutter/cupertino.dart'; // Import Cupertino for iOS styling
 
 class UserDetailsPage extends StatefulWidget {
-  const UserDetailsPage({super.key, required name, required email, required address, required contact, required since, required imagePath});
+  final String name;
+  final String email;
+  final String address;
+  final String contact;
+  final String since;
+  final String imagePath;
+
+  const UserDetailsPage({
+    super.key,
+    required this.name,
+    required this.email,
+    required this.address,
+    required this.contact,
+    required this.since,
+    required this.imagePath,
+  });
 
   @override
   _UserDetailsPageState createState() => _UserDetailsPageState();
 }
 
 class _UserDetailsPageState extends State<UserDetailsPage> {
-  String name = "Bill Taylor";
-  String email = "james@email.com";
-  String address = "78/A Park lane.";
-  String contact = "0714586235";
-  String since = "since 2024";
-  String imagePath = "assets/images/man.jpg";
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Column(
-              children: [
-                // Gradient Background
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.only(top: 70, bottom: 20),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.deepOrange.shade400,
-                        Colors.deepOrange.shade200
-                      ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
+      backgroundColor: CupertinoColors.systemBackground,
+      appBar: AppBar(
+        backgroundColor: CupertinoColors.systemBackground,
+        elevation: 0,
+        title: const Text(
+          'FurrPal',
+          style: TextStyle(
+            color: CupertinoColors.label,
+            fontSize: 25,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: CupertinoColors.label),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.only(top: 40, bottom: 20),
+                child: Column(
+                  children: [
+                    CircleAvatar(
+                      radius: 90,
+                      backgroundImage: widget.imagePath.isNotEmpty &&
+                              (widget.imagePath.startsWith('http') ||
+                                  widget.imagePath.startsWith('assets'))
+                          ? (widget.imagePath.startsWith('http')
+                              ? NetworkImage(widget.imagePath)
+                              : AssetImage(widget.imagePath) as ImageProvider)
+                          : null,
+                      backgroundColor: CupertinoColors.systemGrey5,
+                      child: (!widget.imagePath.isNotEmpty ||
+                              (!widget.imagePath.startsWith('http') &&
+                                  !widget.imagePath.startsWith('assets')))
+                          ? const Icon(
+                              Icons.person,
+                              size: 80,
+                              color: CupertinoColors.systemGrey,
+                            )
+                          : null,
                     ),
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(30),
-                      bottomRight: Radius.circular(30),
-                    ),
-                  ),
-                  child: Column(
-                    children: [
-                      Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          CircleAvatar(
-                            radius: 100,
-                            backgroundImage: AssetImage(imagePath),
-                            backgroundColor: Colors.white,
-                          ),
-                        ],
+                    const SizedBox(height: 16),
+                    Text(
+                      widget.name,
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w600,
+                        color: CupertinoColors.label,
+                        letterSpacing: -0.5,
                       ),
-                      const SizedBox(height: 10),
-                      Text(
-                        since,
-                        style: const TextStyle(
-                            color: Colors.black87,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500),
+                    ),
+                    const SizedBox(height: 4),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // User Details Card with iOS styling
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(0),
+                  decoration: BoxDecoration(
+                    color: CupertinoColors.systemBackground,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: CupertinoColors.systemGrey5,
+                        blurRadius: 5,
+                        spreadRadius: 1,
                       ),
                     ],
                   ),
-                ),
-
-                const SizedBox(height: 30),
-
-                // User Details Card
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(30),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 10,
-                          spreadRadius: 2,
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildDetailRow("Name", name),
-                        const SizedBox(height: 50),
-                        _buildDetailRow("Email", email, isCopyable: true),
-                        const SizedBox(height: 50),
-                        _buildDetailRow("Address", address),
-                        const SizedBox(height: 50),
-                        _buildDetailRow("Contact number", contact, isCopyable: true),
-                      ],
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildDetailRow("Email", widget.email, isCopyable: true),
+                      const Divider(height: 1, indent: 16, endIndent: 16),
+                      _buildDetailRow("Address", widget.address),
+                      const Divider(height: 1, indent: 16, endIndent: 16),
+                      _buildDetailRow("Contact number", widget.contact,
+                          isCopyable: true),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          // Back Button
-          Positioned(
-            top: 40,
-            left: 20,
-            child: SafeArea(
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () {
-                  Navigator.of(context).pop(); // This will navigate back to the previous page (HomePage)
-                },
+        ),
+      ),
+    );
+  }
+
+  // Updated _buildDetailRow with iOS styling
+  Widget _buildDetailRow(String label, String value,
+      {bool isCopyable = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            flex: 2,
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w400,
+                color: CupertinoColors.secondaryLabel,
               ),
             ),
+          ),
+          Expanded(
+            flex: 3,
+            child: isCopyable
+                ? GestureDetector(
+                    onTap: () {
+                      Clipboard.setData(ClipboardData(text: value));
+                      _showIosStyleToast("$label copied!");
+                    },
+                    child: Text(
+                      value,
+                      style: const TextStyle(
+                        fontSize: 17,
+                        color: CupertinoColors.activeBlue,
+                        fontWeight: FontWeight.w400,
+                      ),
+                      textAlign: TextAlign.right,
+                    ),
+                  )
+                : Text(
+                    value,
+                    style: const TextStyle(
+                      fontSize: 17,
+                      color: CupertinoColors.label,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    textAlign: TextAlign.right,
+                  ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildDetailRow(String label, String value, {bool isCopyable = false}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "$label:",
-          style: const TextStyle(
-              fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87),
+  // iOS-style toast message
+  void _showIosStyleToast(String message) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) => CupertinoActionSheet(
+        message: Text(
+          message,
+          style: const TextStyle(fontSize: 16),
         ),
-        const SizedBox(height: 5),
-        isCopyable
-            ? GestureDetector(
-          onTap: () {
-            Clipboard.setData(ClipboardData(text: value));
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text("$label copied!")),
-            );
-          },
-          child: Text(
-            value,
-            style: const TextStyle(
-              fontSize: 22,
-              color: Colors.blue,
-            ),
-          ),
-        )
-            : Text(
-          value,
-          style: const TextStyle(fontSize: 22, color: Colors.black87),
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('OK'),
         ),
-      ],
+      ),
     );
   }
 }
-

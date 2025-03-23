@@ -5,17 +5,19 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:furrpal/constant/constant.dart';
 import 'package:furrpal/custom/container_custom.dart';
 import 'package:furrpal/custom/text_custom.dart';
-import 'package:furrpal/features/auth/models/user_entity.dart';
+import 'package:furrpal/features/auth/domain/models/user_entity.dart';
 import 'package:furrpal/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:furrpal/features/auth/presentation/pages/start_page.dart';
 import 'package:furrpal/features/profiles/dog_profile/domain/models/dog_entity.dart';
 import 'package:furrpal/features/profiles/dog_profile/presentation/cubit/dog_profile_cubit.dart';
 import 'package:furrpal/features/profiles/dog_profile/presentation/cubit/dog_profile_state.dart';
+import 'package:furrpal/features/profiles/dog_profile/presentation/pages/add_new_dog_profile_page.dart';
 import 'package:furrpal/features/profiles/dog_profile/presentation/pages/dog_profile_page.dart';
 import 'package:furrpal/features/profiles/user_profile/domain/models/profile_user.dart';
 import 'package:furrpal/features/profiles/user_profile/presentation/cubit/profile_cubit.dart';
 import 'package:furrpal/features/profiles/user_profile/presentation/cubit/profile_state.dart';
 import 'package:furrpal/features/profiles/user_profile/presentation/pages/edit_user_profile.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../widgets/build_info_row.dart';
 
@@ -47,24 +49,10 @@ class _UserProfileState extends State<UserProfile> {
     dogProfileCubit.fetchDogProfiles();
   }
 
-  // File? _profileImage;
-  final List<String> dogs = ['Dog 1', 'Dog 2'];
-
   void logout() {
     final authCubit = context.read<AuthCubit>();
     authCubit.logout();
   }
-
-  // Future<void> _pickImage() async {
-  //   final picker = ImagePicker();
-  //   final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
-  //   setState(() {
-  //     if (pickedFile != null) {
-  //       _profileImage = File(pickedFile.path);
-  //     }
-  //   });
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -78,6 +66,7 @@ class _UserProfileState extends State<UserProfile> {
           return SafeArea(
             child: Scaffold(
               appBar: AppBar(
+                automaticallyImplyLeading: false,
                 title: Text(
                   'My profile',
                   style: appBarStyle,
@@ -139,7 +128,7 @@ class _UserProfileState extends State<UserProfile> {
                                 buildInfoRow(Icons.email, user.email),
                                 const SizedBox(height: 4),
                                 buildInfoRow(Icons.location_on, user.address),
-                                SizedBox(height: 4),
+                                const SizedBox(height: 4),
                                 buildInfoRow(Icons.phone, user.phoneNumber),
                               ],
                             ),
@@ -159,9 +148,8 @@ class _UserProfileState extends State<UserProfile> {
                         fontWeight: FontWeight.w400,
                         textColor: blackColor,
                       ),
-                      const SizedBox(height: 32),
                       const Text(
-                        'Your Paws',
+                        'My Paws',
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -175,55 +163,65 @@ class _UserProfileState extends State<UserProfile> {
                           return ContainerCustom(
                             alignment: Alignment.centerLeft,
                             height: 130.h,
-                            child: ListView.builder(
-                              shrinkWrap: true,
-                              itemCount: dogs.length,
+                            child: ListView(
+                              clipBehavior: Clip.none,
                               scrollDirection: Axis.horizontal,
-                              itemBuilder: (context, index) =>
-                                  _buildDogCard(dogs[index]),
+                              children: [
+                                ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: dogs.length,
+                                  scrollDirection: Axis.horizontal,
+                                  itemBuilder: (context, index) =>
+                                      _buildDogCard(dogs[index]),
+                                ),
+                                IconButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            AddNewDogProfilePage(),
+                                      ),
+                                    );
+                                  },
+                                  color: primaryColor,
+                                  iconSize: 25.h,
+                                  icon: const Icon(LucideIcons.cross),
+                                ),
+                              ],
                             ),
                           );
                         } else if (state is DogProfileLoading) {
-                          return Center(child: CircularProgressIndicator());
+                          return const Center(
+                              child: CircularProgressIndicator());
                         }
-                        return SizedBox();
+                        return const SizedBox();
                       }),
-                      // SingleChildScrollView(
-                      //   scrollDirection: Axis.horizontal,
-                      //   child: Row(
-                      //     children: [
-                      //       _buildDogCard('dog'),
-                      //       // ...dogs.map((dog) => _buildDogCard(dog)),
-                      //       // _buildAddDogCard(),
-                      //     ],
-                      //   ),
-                      // ),
                       const SizedBox(height: 32),
-                      const Text(
-                        'Gallery',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      const TextCustomWidget(
+                        text: 'Gallery',
+                        fontSize: 24,
+                        textColor: blackColor,
+                        fontWeight: FontWeight.bold,
                       ),
                       const SizedBox(height: 16),
-                      GridView.count(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        crossAxisCount: 3,
-                        mainAxisSpacing: 8,
-                        crossAxisSpacing: 8,
-                        children: List.generate(
-                          3,
-                          (index) => ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.asset(
-                              'assets/images/puppy.jpeg',
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                      ),
+                      // GridView.count(
+                      //   shrinkWrap: true,
+                      //   physics: const NeverScrollableScrollPhysics(),
+                      //   crossAxisCount: 3,
+                      //   mainAxisSpacing: 8,
+                      //   crossAxisSpacing: 8,
+                      //   children: List.generate(
+                      //     3,
+                      //     (index) => ClipRRect(
+                      //       borderRadius: BorderRadius.circular(8),
+                      //       child: Image.asset(
+                      //         'assets/images/puppy.jpeg',
+                      //         fit: BoxFit.cover,
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
@@ -242,7 +240,7 @@ class _UserProfileState extends State<UserProfile> {
           return Center(
             child: Row(
               children: [
-                TextCustomWidget(
+                const TextCustomWidget(
                   text: 'No profile found',
                   textColor: blackColor,
                 ),
@@ -251,7 +249,7 @@ class _UserProfileState extends State<UserProfile> {
                       Navigator.pop(context);
                       logout();
                     },
-                    icon: Icon(Icons.logout))
+                    icon: const Icon(Icons.logout))
               ],
             ),
           );
@@ -298,7 +296,7 @@ class _UserProfileState extends State<UserProfile> {
                   Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => StartPage(),
+                        builder: (context) => const StartPage(),
                       ),
                       (route) => false);
                 },
@@ -337,13 +335,26 @@ class _UserProfileState extends State<UserProfile> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          ContainerCustom(
-            borderRadius: BorderRadius.circular(5.r),
-            child: Image.network(
-              dog.imageURL!,
-              fit: BoxFit.cover,
-              width: 80.w,
+          CachedNetworkImage(
+            imageUrl: dog.imageURL,
+            placeholder: (context, url) => ContainerCustom(
+                width: 80.w,
+                height: 80.h,
+                child: const CircularProgressIndicator()),
+            errorWidget: (context, url, error) => Icon(
+              Icons.person,
+              size: 72.h,
+              color: Colors.blue,
+            ),
+            imageBuilder: (context, imageProvider) => ContainerCustom(
+              width: 95.w,
               height: 80.h,
+              borderRadius: BorderRadius.circular(10.r),
+              clipBehavior: Clip.hardEdge,
+              decorationImage: DecorationImage(
+                image: imageProvider,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
           TextCustomWidget(
@@ -357,9 +368,5 @@ class _UserProfileState extends State<UserProfile> {
         ],
       ),
     );
-  }
-
-  Widget _buildAddDogCard() {
-    return const Icon(Icons.add, color: Colors.pink, size: 40);
   }
 }

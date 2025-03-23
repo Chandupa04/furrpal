@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../../../stripe_payment_page/services/stripe_service.dart'; // Import the StripeService
+import 'package:firebase_auth/firebase_auth.dart';
+import '../../../../config/firebase_service.dart';
 
 class PricingPlansScreen extends StatefulWidget {
-  const PricingPlansScreen({Key? key}) : super(key: key);
+  const PricingPlansScreen({super.key});
 
   @override
   State<PricingPlansScreen> createState() => _PricingPlansScreenState();
@@ -36,17 +38,17 @@ class _PricingPlansScreenState extends State<PricingPlansScreen> {
                 Text(
                   'Choose Your Subscription Plan',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey[800],
-                  ),
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey[800],
+                      ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Select the perfect subscription that fits your needs',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+                        color: Colors.grey[600],
+                      ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 32),
@@ -142,7 +144,8 @@ class _PricingPlansScreenState extends State<PricingPlansScreen> {
               top: 0,
               right: 0,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: Colors.amber[700],
                   borderRadius: const BorderRadius.only(
@@ -150,7 +153,7 @@ class _PricingPlansScreenState extends State<PricingPlansScreen> {
                     bottomLeft: Radius.circular(20),
                   ),
                 ),
-                child: Text(
+                child: const Text(
                   'Popular',
                   style: TextStyle(
                     color: Colors.white,
@@ -168,9 +171,9 @@ class _PricingPlansScreenState extends State<PricingPlansScreen> {
                 Text(
                   name,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -187,10 +190,11 @@ class _PricingPlansScreenState extends State<PricingPlansScreen> {
                   children: [
                     Text(
                       '\$${price.toStringAsFixed(2)}',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style:
+                          Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
                     ),
                     Text(
                       '/month',
@@ -203,24 +207,30 @@ class _PricingPlansScreenState extends State<PricingPlansScreen> {
                 ),
                 const SizedBox(height: 16),
                 ...features.map((feature) => Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Row(
-                    children: [
-                      Icon(
-                        feature['included'] ? Icons.check_circle : Icons.cancel,
-                        color: feature['included'] ? Colors.white : Colors.grey[300],
-                        size: 20,
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: Row(
+                        children: [
+                          Icon(
+                            feature['included']
+                                ? Icons.check_circle
+                                : Icons.cancel,
+                            color: feature['included']
+                                ? Colors.white
+                                : Colors.grey[300],
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            feature['name'],
+                            style: TextStyle(
+                              color: feature['included']
+                                  ? Colors.white
+                                  : Colors.grey[300],
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 8),
-                      Text(
-                        feature['name'],
-                        style: TextStyle(
-                          color: feature['included'] ? Colors.white : Colors.grey[300],
-                        ),
-                      ),
-                    ],
-                  ),
-                )).toList(),
+                    )),
                 const SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,
@@ -240,7 +250,7 @@ class _PricingPlansScreenState extends State<PricingPlansScreen> {
                     ),
                     child: Text(
                       isPopular ? 'Get Started' : 'Select Plan',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -257,13 +267,39 @@ class _PricingPlansScreenState extends State<PricingPlansScreen> {
   // New method to handle subscription without showing the modal
   void _handleDirectSubscription(String plan, double price) async {
     try {
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+      );
+
       // Use StripeService to process the payment directly
       final bool paymentSuccess = await StripeService.instance.makePayment(
         amount: price,
         currency: 'USD',
       );
 
+      // Hide loading indicator
+      Navigator.pop(context);
+
       if (paymentSuccess) {
+        // Get current user
+        final user = FirebaseAuth.instance.currentUser;
+        if (user != null) {
+          // Update subscription in Firebase
+          await FirebaseService().updateUserSubscription(
+            userId: user.uid,
+            planName: plan,
+            price: price,
+            subscriptionDate: DateTime.now(),
+          );
+        }
+
         // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -281,6 +317,11 @@ class _PricingPlansScreenState extends State<PricingPlansScreen> {
         );
       }
     } catch (error) {
+      // Hide loading indicator if it's still showing
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
+
       print('Error processing payment: $error');
 
       // Show an error message

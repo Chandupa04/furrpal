@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
+import 'dart:math' show min;
+import 'package:furrpal/features/profiles/dog_profile/domain/models/dog_entity.dart';
 
 class FirebaseService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -14,9 +16,12 @@ class FirebaseService {
     required String breed,
     required String gender,
     required String age,
-    String? healthConditions,
     required String location,
     File? imageFile,
+    required String weightKg,
+    required String weightG,
+    String? bloodline,
+    File? healthReportFile,
   }) async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user == null) {
@@ -27,21 +32,20 @@ class FirebaseService {
     print('Creating dog profile for user: $userId');
 
     try {
-      // generate a unique ID for the dog
+      // generate a unique ID for the dog first
       DocumentReference reference =
-          _firestore.collection('users').doc(userId).collection('dogs').doc();
+      _firestore.collection('users').doc(userId).collection('dogs').doc();
       String dogId = reference.id;
+      print('Generated dog ID: $dogId');
 
       // Upload image if provided
-      String? imageUrl;
+      String imageUrl = '';
       if (imageFile != null) {
         print('Image file exists: ${imageFile.existsSync()}');
         print('Image file size: ${imageFile.lengthSync()} bytes');
 
-        // Create a unique filename
-        final String fileName =
-            '${DateTime.now().millisecondsSinceEpoch}_${imageFile.path.split('/').last}';
-        final storageRef = _storage.ref().child('dog_images/$userId/$fileName');
+        // Use dogId in the storage path
+        final storageRef = _storage.ref().child('dog_images/$dogId');
         print('Storage path: ${storageRef.fullPath}');
 
         try {
@@ -65,42 +69,169 @@ class FirebaseService {
         }
       }
 
-      // Create dog profile document
+      // Upload health report PDF if provided
+      String? healthReportUrl;
+      if (healthReportFile != null) {
+        print('Health report file exists: ${healthReportFile.existsSync()}');
+        print(
+            'Health report file size: ${healthReportFile.lengthSync()} bytes');
+
+        // Create a unique filename for the health report
+        final String fileName =
+            '${DateTime.now().millisecondsSinceEpoch}_${healthReportFile.path.split('/').last}';
+        final storageRef =
+        _storage.ref().child('dog_health_reports/$userId/$fileName');
+        print('Health report storage path: ${storageRef.fullPath}');
+
+        try {
+          final uploadTask = storageRef.putFile(healthReportFile);
+          final snapshot = await uploadTask;
+          healthReportUrl = await snapshot.ref.getDownloadURL();
+          print('Health report uploaded successfully. URL: $healthReportUrl');
+
+          // Verify the URL is accessible
+          try {
+            final response =
+            await HttpClient().getUrl(Uri.parse(healthReportUrl));
+            final httpResponse = await response.close();
+            print(
+                'Health report URL is accessible. Status code: ${httpResponse.statusCode}');
+          } catch (e) {
+            print(
+                'Warning: Could not verify health report URL accessibility: $e');
+          }
+        } catch (e) {
+          print('Error uploading health report: $e');
+          throw Exception('Failed to upload health report: $e');
+        }
+      }
+
+      // Create dog profile document with new fields
       final dogData = {
         'dog_id': dogId,
         'name': name,
         'breed': breed,
         'gender': gender,
         'age': age,
-        'healthConditions': healthConditions ?? '',
         'location': location,
         'imageUrl': imageUrl ?? '', // Changed from 'image' to 'imageUrl'
+        'weightKg': weightKg,
+        'weightG': weightG,
+        'bloodline': bloodline ?? '',
+        'healthReportUrl': healthReportUrl ?? '',
         'createdAt': FieldValue.serverTimestamp(),
         'likes': [],
         'dislikes': [],
       };
       print('Creating dog document with data: $dogData');
 
-      final docRef = await _firestore
-          .collection('users')
-          .doc(userId)
-          .collection('dogs')
-          .doc(dogId)
-          .set(dogData);
-      // .add(dogData);
-      reference.set(dogData);
+      // Set the document with the generated ID
+      await reference.set(dogData);
       print('Dog profile created successfully with ID: $dogId');
-
-      // Verify the document was created
-      // final docSnapshot = await docRef.get();
-      // if (docSnapshot.exists) {
-      //   print('Verified document exists with data: ${docSnapshot.data()}');
-      // } else {
-      //   print('Error: Document was not created');
-      //   throw Exception('Failed to create dog profile document');
-      // }
     } catch (e) {
       print('Error creating dog profile: $e');
+      rethrow;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getAllDogProfilesByBreedPriority(
+      String breedQuery) async {
+    try {
+      final currentUser = _auth.currentUser;
+      if (currentUser == null) {
+        print('Error: No user logged in');
+        return [];
+      }
+
+      // First, get the dog profiles liked by current user to filter them out later
+      final QuerySnapshot likesSnapshot = await _firestore
+          .collection('users')
+          .doc(currentUser.uid)
+          .collection('likes')
+          .get();
+
+      // Create a set of liked dog IDs for faster lookup
+      final Set<String> likedDogIds = likesSnapshot.docs
+          .map((doc) => (doc.data() as Map<String, dynamic>)['dogId'] as String)
+          .toSet();
+
+      print('User has liked ${likedDogIds.length} dog profiles');
+
+      print('Fetching dogs with breed priority for: $breedQuery');
+      final queryLower = breedQuery.toLowerCase();
+
+      final QuerySnapshot usersSnapshot = await _firestore
+          .collection('users')
+          .where(FieldPath.documentId, isNotEqualTo: currentUser.uid)
+          .get();
+
+      List<Map<String, dynamic>> allDogs = [];
+
+      for (var userDoc in usersSnapshot.docs) {
+        final QuerySnapshot dogsSnapshot = await _firestore
+            .collection('users')
+            .doc(userDoc.id)
+            .collection('dogs')
+            .orderBy('createdAt', descending: true)
+            .get();
+
+        final dogs = dogsSnapshot.docs.map((doc) {
+          Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+          data['id'] = doc.id;
+          data['ownerId'] = userDoc.id;
+          return data;
+        }).toList();
+
+        allDogs.addAll(dogs);
+      }
+
+      print('Found ${allDogs.length} total dogs before any filtering');
+
+      // Filter out dogs that have been liked
+      allDogs =
+          allDogs.where((dog) => !likedDogIds.contains(dog['id'])).toList();
+
+      print(
+          'After filtering liked profiles: ${allDogs.length} profiles remain');
+
+      // Sort dogs: exact breed match first, then partial matches, then others
+      allDogs.sort((a, b) {
+        final breedA = (a['breed'] ?? '').toString().toLowerCase();
+        final breedB = (b['breed'] ?? '').toString().toLowerCase();
+
+        int score(String breed) {
+          if (breed == queryLower) return 2;
+          if (breed.contains(queryLower)) return 1;
+          return 0;
+        }
+
+        return score(breedB).compareTo(score(breedA));
+      });
+
+      // Count matches for debugging
+      int exactMatches = allDogs
+          .where((dog) =>
+      (dog['breed'] ?? '').toString().toLowerCase() == queryLower)
+          .length;
+      int partialMatches = allDogs
+          .where((dog) =>
+      (dog['breed'] ?? '')
+          .toString()
+          .toLowerCase()
+          .contains(queryLower) &&
+          (dog['breed'] ?? '').toString().toLowerCase() != queryLower)
+          .length;
+
+      print(
+          'Found $exactMatches exact matches and $partialMatches partial matches for breed: $breedQuery');
+      print('First few dogs after sorting:');
+      for (var i = 0; i < min(3, allDogs.length); i++) {
+        print('${i + 1}. ${allDogs[i]['name']} (${allDogs[i]['breed']})');
+      }
+
+      return allDogs;
+    } catch (e) {
+      print('Error fetching breed prioritized dog profiles: $e');
       rethrow;
     }
   }
@@ -114,6 +245,20 @@ class FirebaseService {
         print('Error: No user logged in');
         return [];
       }
+
+      // First, get the dog profiles liked by current user to filter them out later
+      final QuerySnapshot likesSnapshot = await _firestore
+          .collection('users')
+          .doc(currentUser.uid)
+          .collection('likes')
+          .get();
+
+      // Create a set of liked dog IDs for faster lookup
+      final Set<String> likedDogIds = likesSnapshot.docs
+          .map((doc) => (doc.data() as Map<String, dynamic>)['dogId'] as String)
+          .toSet();
+
+      print('User has liked ${likedDogIds.length} dog profiles');
 
       // Get all users except current user
       final QuerySnapshot usersSnapshot = await _firestore
@@ -142,9 +287,15 @@ class FirebaseService {
         allDogs.addAll(dogs);
       }
 
+      // Filter out dogs that have been liked
+      final filteredDogs =
+      allDogs.where((dog) => !likedDogIds.contains(dog['id'])).toList();
+
+      print('Retrieved ${allDogs.length} total dog profiles from Firestore');
       print(
-          'Retrieved ${allDogs.length} dog profiles from Firestore (excluding current user)');
-      return allDogs;
+          'After filtering liked profiles: ${filteredDogs.length} profiles remain');
+
+      return filteredDogs;
     } catch (e) {
       print('Error getting dog profiles: $e');
       rethrow;
@@ -155,7 +306,7 @@ class FirebaseService {
   Future<Map<String, dynamic>?> getUserProfile(String userId) async {
     try {
       DocumentSnapshot userDoc =
-          await _firestore.collection('users').doc(userId).get();
+      await _firestore.collection('users').doc(userId).get();
 
       if (!userDoc.exists) {
         print('User document not found for ID: $userId');
@@ -175,7 +326,7 @@ class FirebaseService {
       // Get likes from the last 24 hours
       final DateTime now = DateTime.now();
       final DateTime twentyFourHoursAgo =
-          now.subtract(const Duration(hours: 24));
+      now.subtract(const Duration(hours: 24));
 
       final QuerySnapshot likesSnapshot = await _firestore
           .collection('users')
@@ -198,6 +349,8 @@ class FirebaseService {
     required String dogOwnerId,
     required String dogId,
     required String dogName,
+    required String likedByDogId, // The dog that liked the profile
+    required String likedByUserId,
   }) async {
     try {
       print('Starting to store like for dog: $dogName');
@@ -210,9 +363,25 @@ class FirebaseService {
             'You have reached the 24-hour like limit. Please upgrade to continue.');
       }
 
+      // await _firestore
+      //     .collection('users')
+      //     .doc(dogOwnerId)
+      //     .collection('notifications')
+      //     .add({
+      //   'type': 'like',
+      //   'dogId': dogId,
+      //   'dogName': dogName,
+      //   'likedByUserId': likedByUserId,
+      //   'likedByUserName': likedByUserName,
+      //   'likedByUserProfilePic': likedByUserProfilePic,
+      //   'timestamp': FieldValue.serverTimestamp(),
+      //   'likedByDogId':
+      //       likedByDogId, // Storing the dog ID that liked the profile
+      // });
+
       // Get current user details with full name
       final userDoc =
-          await _firestore.collection('users').doc(currentUserId).get();
+      await _firestore.collection('users').doc(currentUserId).get();
       if (!userDoc.exists) {
         print('Error: User document not found for ID: $currentUserId');
         return;
@@ -230,10 +399,10 @@ class FirebaseService {
       final String fullName = firstName.isNotEmpty && lastName.isNotEmpty
           ? '$firstName $lastName'
           : firstName.isNotEmpty
-              ? firstName
-              : lastName.isNotEmpty
-                  ? lastName
-                  : 'A user';
+          ? firstName
+          : lastName.isNotEmpty
+          ? lastName
+          : 'A user';
 
       print('Storing like for user: $fullName');
 
@@ -332,6 +501,8 @@ class FirebaseService {
         'timestamp': FieldValue.serverTimestamp(),
         'read': false,
         'message': 'Your dog $dogName is getting popular!',
+        'likedDogId': dogId,
+        'likedByDogId': likedByDogId,
       });
 
       print('Notification created with ID: ${notificationRef.id}');
@@ -361,7 +532,7 @@ class FirebaseService {
     try {
       // Get current user details
       final userDoc =
-          await _firestore.collection('users').doc(currentUserId).get();
+      await _firestore.collection('users').doc(currentUserId).get();
       if (!userDoc.exists) {
         print('Error: User document not found');
         return;
@@ -378,10 +549,10 @@ class FirebaseService {
       final String fullName = firstName.isNotEmpty && lastName.isNotEmpty
           ? '$firstName $lastName'
           : firstName.isNotEmpty
-              ? firstName
-              : lastName.isNotEmpty
-                  ? lastName
-                  : 'A user';
+          ? firstName
+          : lastName.isNotEmpty
+          ? lastName
+          : 'A user';
 
       print('Storing dislike for user: $fullName');
 
@@ -488,6 +659,160 @@ class FirebaseService {
     } catch (e) {
       print('Error checking if user disliked dog: $e');
       return false;
+    }
+  }
+
+  // Upload and update user profile image
+  Future<String?> uploadUserProfileImage(String userId, File imageFile) async {
+    try {
+      print('Starting profile image upload for user: $userId');
+      print('Image file size: ${imageFile.lengthSync()} bytes');
+
+      // Create a unique filename
+      final String fileName =
+          '${DateTime.now().millisecondsSinceEpoch}_${imageFile.path.split('/').last}';
+      final storageRef =
+      _storage.ref().child('profile_images/$userId/$fileName');
+
+      print('Uploading to storage path: ${storageRef.fullPath}');
+
+      // Upload the file
+      final uploadTask = storageRef.putFile(imageFile);
+      final snapshot = await uploadTask;
+      final downloadUrl = await snapshot.ref.getDownloadURL();
+
+      print('Image uploaded successfully. URL: $downloadUrl');
+
+      // Only update the user document if it already exists
+      // During registration, the document doesn't exist yet
+      try {
+        final userDoc = await _firestore.collection('users').doc(userId).get();
+        if (userDoc.exists) {
+          print('Updating existing user document with profile image URL');
+          await _firestore.collection('users').doc(userId).update({
+            'profileImageUrl': downloadUrl,
+          });
+        } else {
+          print('User document does not exist yet, skipping Firestore update');
+        }
+      } catch (e) {
+        print('Note: Could not update user document: $e');
+        // Don't rethrow here, as we still want to return the download URL
+      }
+
+      return downloadUrl;
+    } catch (e) {
+      print('Error uploading profile image: $e');
+      return null;
+    }
+  }
+
+  // Get user details by ID
+  Future<Map<String, dynamic>?> getUserDetails(String userId) async {
+    try {
+      final userDoc = await _firestore.collection('users').doc(userId).get();
+
+      if (!userDoc.exists) {
+        print('User document not found for ID: $userId');
+        return null;
+      }
+
+      final userData = userDoc.data();
+      if (userData == null) {
+        print('User data is null for ID: $userId');
+        return null;
+      }
+
+      // Get first and last name with correct field names
+      final String firstName = userData['first name'] ?? '';
+      final String lastName = userData['last name'] ?? '';
+
+      // Combine names with proper spacing
+      final String fullName = firstName.isNotEmpty && lastName.isNotEmpty
+          ? '$firstName $lastName'
+          : firstName.isNotEmpty
+          ? firstName
+          : lastName.isNotEmpty
+          ? lastName
+          : 'Unknown User';
+
+      // Format the data to match what we need
+      return {
+        'name': fullName,
+        'email': userData['email'] ?? 'Not provided',
+        'address': userData['address'] ?? 'Not provided',
+        'contact': userData['phone number'] ?? 'Not provided',
+        'since': userData['created_at'] != null
+            ? 'since ${(userData['created_at'] as Timestamp).toDate().year}'
+            : 'Not provided',
+        'imagePath': userData['profileImageUrl'] ?? '',
+      };
+    } catch (e) {
+      print('Error fetching user details: $e');
+      return null;
+    }
+  }
+
+  // Get a specific dog profile by ID regardless of like status
+  Future<Map<String, dynamic>?> getDogProfileById(
+      String dogId, String ownerId) async {
+    try {
+      print('Fetching dog profile with ID: $dogId from owner: $ownerId');
+
+      final doc = await _firestore
+          .collection('users')
+          .doc(ownerId)
+          .collection('dogs')
+          .doc(dogId)
+          .get();
+
+      if (!doc.exists) {
+        print('Dog profile not found for dogId: $dogId and ownerId: $ownerId');
+        return null;
+      }
+
+      Map<String, dynamic> dogData = doc.data() as Map<String, dynamic>;
+      // Add the ID and owner ID to the data
+      dogData['id'] = dogId;
+      dogData['ownerId'] = ownerId;
+
+      print('Successfully fetched dog profile: ${dogData['name']}');
+      return dogData;
+    } catch (e) {
+      print('Error fetching dog profile: $e');
+      return null;
+    }
+  }
+
+  // Update user subscription details
+  Future<void> updateUserSubscription({
+    required String userId,
+    required String planName,
+    required double price,
+    required DateTime subscriptionDate,
+  }) async {
+    try {
+      print('Updating subscription for user: $userId');
+
+      // Calculate end date (one month from start date)
+      final DateTime endDate = subscriptionDate.add(const Duration(days: 30));
+
+      await _firestore.collection('users').doc(userId).update({
+        'subscription': {
+          'plan': planName,
+          'price': price,
+          'startDate': subscriptionDate,
+          'endDate': endDate,
+          'status': 'active',
+        },
+        'lastUpdated': FieldValue.serverTimestamp(),
+      });
+
+      print('Successfully updated subscription for user: $userId');
+      print('Subscription end date: $endDate');
+    } catch (e) {
+      print('Error updating subscription: $e');
+      rethrow;
     }
   }
 }

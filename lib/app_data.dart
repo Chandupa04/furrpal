@@ -1,35 +1,30 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:furrpal/constant/constant.dart';
-import 'package:furrpal/config/firebase_auth_repo.dart';
+import 'package:furrpal/features/auth/data/auth_repo_impl.dart';
 import 'package:furrpal/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:furrpal/features/auth/presentation/cubit/auth_state.dart';
 import 'package:furrpal/features/nav_bar/presentation/pages/nav_bar.dart';
 import 'package:furrpal/features/profiles/dog_profile/presentation/cubit/dog_profile_cubit.dart';
-import 'package:furrpal/features/profiles/user_profile/data/firebase_user_profile_repo.dart';
+import 'package:furrpal/features/profiles/user_profile/data/user_profile_repo_impl.dart';
 import 'package:furrpal/features/profiles/user_profile/presentation/cubit/profile_cubit.dart';
-import 'package:furrpal/features/profiles/user_profile/user_profile_picture/data/firebase_profile_picture_repo.dart';
 import 'package:provider/provider.dart';
 import 'package:furrpal/features/shop/presentation/pages/cart_provider.dart';
-import 'custom/text_custom.dart';
 import 'features/auth/presentation/pages/start_page.dart';
-import 'features/profiles/dog_profile/data/firebase_dog_profile_repo.dart';
+import 'features/profiles/dog_profile/data/dog_profile_repo_impl.dart';
 
 class MyApp extends StatelessWidget {
   MyApp({super.key});
 
   // Auth repo
-  final firebaseAuthRepo = FirebaseAuthRepo();
+  final authRepo = AuthRepoImpl();
 
   // Profile repo
-  final firebaseProfileRepo = FirebaseUserProfileRepo();
+  final profileRepo = UserProfileRepoImpl();
 
-  // Profile image repo
-  final firebasePictureRepo = FirebaseProfilePictureRepo();
-
-  final firebasedogProfileRepo = FirebaseDogProfileRepo();
+  // dog Profile repo
+  final dogProfileRepo = DogProfileRepoImpl();
 
   @override
   Widget build(BuildContext context) {
@@ -39,21 +34,21 @@ class MyApp extends StatelessWidget {
         providers: [
           // Auth cubit
           BlocProvider<AuthCubit>(
-            create: (context) => AuthCubit(authRepo: firebaseAuthRepo)
-              ..checkUserAuthentication(),
+            create: (context) =>
+                AuthCubit(authRepo: authRepo)..checkUserAuthentication(),
           ),
 
           // Profile cubit
           BlocProvider<ProfileCubit>(
             create: (context) => ProfileCubit(
-                profileRepo: firebaseProfileRepo,
-                pictureRepo: firebasePictureRepo),
+              profileRepo: profileRepo,
+            ),
           ),
 
           // Dog profile cubit
           BlocProvider<DogProfileCubit>(
             create: (context) => DogProfileCubit(
-              dogProfileRepo: firebasedogProfileRepo,
+              dogProfileRepo: dogProfileRepo,
             ),
           ),
 
@@ -83,7 +78,7 @@ class MyApp extends StatelessWidget {
               if (authState is Authenticated) {
                 cartProvider
                     .setUserId(authState.user.uid); // Set userId on login
-                return NavBar();
+                return const NavBar();
               } else {
                 return const Scaffold(
                   body: Center(

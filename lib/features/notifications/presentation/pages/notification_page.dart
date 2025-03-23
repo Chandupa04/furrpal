@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:furrpal/config/firebase_service.dart';
-import 'package:furrpal/features/profile/presentation/pages/dog_profile_page.dart';
+import 'package:furrpal/features/home/presentation/pages/dog_profile_page.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
@@ -16,7 +16,7 @@ class NotificationsPage extends StatefulWidget {
 class _NotificationsPageState extends State<NotificationsPage> {
   int selectedIndex = 0;
   final FirebaseService _firebaseService = FirebaseService();
-  final categories = ['Profile', 'Community', 'Pet Shop'];
+  final categories = ['Profile', 'Community'];
 
   @override
   Widget build(BuildContext context) {
@@ -31,9 +31,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
         leading: const SizedBox(width: 0), // Remove leading space
         title: Container(
           padding: const EdgeInsets.symmetric(vertical: 4.0),
-          child: Row(
+          child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
+            children: [
               Text(
                 "FurrPal",
                 style: TextStyle(
@@ -42,7 +42,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   color: Colors.black,
                 ),
               ),
-              SizedBox(width: 50),
+              const SizedBox(width: 50),
             ],
           ),
         ),
@@ -53,7 +53,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
             height: 60,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
                 categories.length,
                 (index) => GestureDetector(
@@ -153,6 +153,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
                         notifications[index].data() as Map<String, dynamic>;
                     print('Notification data: $notification');
 
+                    // Debugging: Print dogId and userId for each notification
+                    print('Dog ID: ${notification['dogId']}');
+                    print('User ID: ${notification['userId']}');
+
                     final timestamp = notification['timestamp'] as Timestamp;
                     final timeAgo = timeago.format(timestamp.toDate());
 
@@ -179,7 +183,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
                         message: message,
                         time: timeAgo,
                         userId: notification['likedByUserId'],
-                        dogId: notification['dogId'],
+                        dogId: notification['likedByDogId'],
+                        likedByUserId: notification['likedByUserId'],
+                        likedByDogId: notification['likedByDogId'],
                       ),
                     );
                   },
@@ -189,9 +195,12 @@ class _NotificationsPageState extends State<NotificationsPage> {
           : ListView.separated(
               itemCount: getCurrentNotifications().length,
               separatorBuilder: (context, index) => const Divider(
-                height: 1,
-                indent: 72,
-                endIndent: 16,
+                height: 0.5,
+                indent: 100,
+                endIndent: 16, // Matches the right padding
+                thickness: 0.8,
+                color: Color(
+                    0xFFDDDDDD), // Light grey line (optional for a premium feel)
               ),
               itemBuilder: (context, index) {
                 return NotificationTile(
@@ -206,8 +215,6 @@ class _NotificationsPageState extends State<NotificationsPage> {
     switch (selectedIndex) {
       case 1:
         return communityNotifications;
-      case 2:
-        return petShopNotifications;
       default:
         return [];
     }
@@ -235,82 +242,105 @@ class NotificationTile extends StatelessWidget {
                 width: 2,
               ),
             ),
-            child: notification.avatarPath.startsWith('http')
-                ? CircleAvatar(
-                    radius: 20,
-                    backgroundImage: NetworkImage(notification.avatarPath),
-                    onBackgroundImageError: (exception, stackTrace) {
-                      print('Error loading profile image: $exception');
-                    },
-                  )
-                : CircleAvatar(
-                    radius: 20,
-                    backgroundImage: AssetImage(notification.avatarPath),
-                  ),
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        notification.title,
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: const Color(0xFF333333),
+            child: Padding(
+              padding: const EdgeInsets.only(left: 15),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          notification.title,
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF333333),
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      notification.time,
-                      style: GoogleFonts.poppins(
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  notification.message,
-                  style: GoogleFonts.poppins(
-                    fontSize: 13,
-                    color: Colors.grey.shade600,
-                    height: 1.4,
-                  ),
-                ),
-                if (notification.userId != null && notification.dogId != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => DogProfilePage(
-                              dogId: notification.dogId!,
-                              userId: notification.userId!,
-                            ),
-                          ),
-                        );
-                      },
-                      child: Text(
-                        'View Profile',
+                      const SizedBox(width: 8),
+                      Text(
+                        notification.time,
                         style: GoogleFonts.poppins(
                           fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.blue,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    notification.message,
+                    style: GoogleFonts.poppins(
+                      fontSize: 13,
+                      color: Colors.grey.shade600,
+                      height: 1.4,
+                    ),
+                  ),
+                  if (notification.likedByUserId != null &&
+                      notification.likedByDogId != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: GestureDetector(
+                        onTap: () async {
+                          print('Viewing dog profile:');
+                          print('  likedByDogId: ${notification.likedByDogId}');
+                          print(
+                              '  likedByUserId: ${notification.likedByUserId}');
+
+                          // Fetch the dog profile before navigating
+                          final dogProfile =
+                              await _firebaseService.getDogProfileById(
+                            notification.likedByDogId!,
+                            notification.likedByUserId!,
+                          );
+
+                          if (dogProfile != null) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DogProfilePage(
+                                  dogId: notification.likedByDogId!,
+                                  userId: notification.likedByUserId!,
+                                ),
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Profile not found',
+                                  style: GoogleFonts.poppins(),
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
+                          // decoration: BoxDecoration(
+                          //   color: const Color(0xffF88158),
+                          //   borderRadius: BorderRadius.circular(16),
+                          // ),
+                          child: Text(
+                            'View Profile',
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: const Color.fromARGB(255, 254, 79, 21),
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
@@ -326,6 +356,8 @@ class Notification {
   final String time;
   final String? userId;
   final String? dogId;
+  final String? likedByUserId;
+  final String? likedByDogId;
 
   Notification({
     required this.avatarPath,
@@ -334,6 +366,8 @@ class Notification {
     required this.time,
     this.userId,
     this.dogId,
+    this.likedByUserId,
+    this.likedByDogId,
   });
 }
 
