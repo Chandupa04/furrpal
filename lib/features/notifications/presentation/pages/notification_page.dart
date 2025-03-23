@@ -42,7 +42,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   color: Colors.black,
                 ),
               ),
-              const SizedBox(width: 50),
+              SizedBox(width: 50),
             ],
           ),
         ),

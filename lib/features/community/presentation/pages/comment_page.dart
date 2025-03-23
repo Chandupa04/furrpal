@@ -113,7 +113,7 @@ class _CommentPageState extends State<CommentPage> {
                           // Displaying the user's name in bold before the comment
                           Text(
                             widget.comments[index]['name'] ?? 'Unknown User',
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
                             ),

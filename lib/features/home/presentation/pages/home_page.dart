@@ -254,7 +254,7 @@ class _HomePageState extends State<HomePage> {
         // Show a message that the profile was already liked
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('You have already liked ${dogName}'),
+            content: Text('You have already liked $dogName'),
             duration: const Duration(seconds: 2),
           ),
         );
@@ -691,13 +691,6 @@ class _DogProfileCardState extends State<DogProfileCard> {
             child: ElevatedButton(
               onPressed: () async {
                 final String ownerId = widget.dog["ownerId"];
-                if (ownerId == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('Owner details not available')),
-                  );
-                  return;
-                }
 
                 final userDetails =
                     await _firebaseService.getUserDetails(ownerId);

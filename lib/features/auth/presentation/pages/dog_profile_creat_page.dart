@@ -223,7 +223,7 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
                           contentPadding:
                               EdgeInsets.symmetric(horizontal: 16.w),
                         ),
-                        hint: Text('Years'),
+                        hint: const Text('Years'),
                         items: years.map((int year) {
                           return DropdownMenuItem<int>(
                             value: year,
@@ -266,7 +266,7 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
                           contentPadding:
                               EdgeInsets.symmetric(horizontal: 16.w),
                         ),
-                        hint: Text('Months'),
+                        hint: const Text('Months'),
                         items: months.map((int month) {
                           return DropdownMenuItem<int>(
                             value: month,
@@ -557,7 +557,7 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
                               ),
                             ),
                           ),
-                          Icon(Icons.upload_file, color: Colors.grey),
+                          const Icon(Icons.upload_file, color: Colors.grey),
                         ],
                       ),
                     ),
