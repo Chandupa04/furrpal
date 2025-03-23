@@ -322,6 +322,10 @@ class FirebaseService {
               !dislikedDogIds.contains(dog['id']))
           .toList();
 
+      // Filter out dogs that have been liked
+      //  final filteredDogs =
+      //   allDogs.where((dog) => !likedDogIds contains (dog ['id '])).toList();
+
       print('Retrieved ${allDogs.length} total dog profiles from Firestore');
       print(
           'After filtering liked and disliked profiles: ${filteredDogs.length} profiles remain');
