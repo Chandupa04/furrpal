@@ -237,17 +237,40 @@ class _HomePageState extends State<HomePage> {
     final String dogOwnerId = dog['ownerId'];
     final String dogName = dog['name'] ?? 'Unknown Dog';
 
-    // Check if user has reached like limit before showing toast
-    bool hasReachedLimit =
-        await _firebaseService.hasReachedLikeLimit(currentUserId!);
+    try {
+      // Check if the dog is already liked
+      final String likeId = dogId;
+      final existingLike = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUserId)
+          .collection('likes')
+          .doc(likeId)
+          .get();
 
-    if (hasReachedLimit && !_hasShownLikeLimitMessage) {
-      setState(() {
-        _hasShownLikeLimitMessage = true;
-      });
+      if (existingLike.exists) {
+        print('User already liked this dog');
+        if (!mounted) return;
 
-      // Show payment page when limit is reached
-      if (mounted) {
+        // Show a message that the profile was already liked
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('You have already liked ${dogName}'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+        return;
+      }
+
+      // Check if user has reached like limit before showing toast
+      bool hasReachedLimit =
+          await _firebaseService.hasReachedLikeLimit(currentUserId!);
+
+      if (hasReachedLimit && !_hasShownLikeLimitMessage) {
+        if (!mounted) return;
+        setState(() {
+          _hasShownLikeLimitMessage = true;
+        });
+
         showDialog(
           context: context,
           barrierDismissible: false,
@@ -259,7 +282,7 @@ class _HomePageState extends State<HomePage> {
               actions: [
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop(); // Close dialog
+                    Navigator.of(context).pop();
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -271,7 +294,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop(); // Close dialog
+                    Navigator.of(context).pop();
                   },
                   child: const Text('Cancel'),
                 ),
@@ -279,39 +302,33 @@ class _HomePageState extends State<HomePage> {
             );
           },
         );
+        return;
       }
-      return;
-    }
 
-    // Get the current user's dog ID that is doing the liking
-    String? currentUserDogId = await _fetchCurrentUserDogId();
+      // Get the current user's dog ID that is doing the liking
+      String? currentUserDogId = await _fetchCurrentUserDogId();
 
-    // Show toast immediately
-    _showToast(dogName, true);
+      // Show toast immediately
+      if (!mounted) return;
+      _showToast(dogName, true);
 
-    try {
-      // Perform the database operation
       await _firebaseService.storeDogLike(
         currentUserId: currentUserId!,
         dogOwnerId: dogOwnerId,
         dogId: dogId,
         dogName: dogName,
-        likedByDogId:
-            currentUserDogId ?? '', // Pass the dog ID of the user who is liking
+        likedByDogId: currentUserDogId ?? '',
         likedByUserId: currentUserId!,
       );
-
-      // After successful like, we'll let the swiper handle removing the card
-      // We don't need to manually remove it from the dogs list here
-      // This prevents the issue of skipping the next profile
     } catch (e) {
       print('Error liking dog: $e');
-      if (mounted && e.toString().contains('like limit')) {
+      if (!mounted) return;
+
+      if (e.toString().contains('like limit')) {
         setState(() {
           _hasShownLikeLimitMessage = true;
         });
 
-        // Show payment page when limit is reached
         showDialog(
           context: context,
           barrierDismissible: false,
@@ -323,7 +340,7 @@ class _HomePageState extends State<HomePage> {
               actions: [
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop(); // Close dialog
+                    Navigator.of(context).pop();
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -335,7 +352,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop(); // Close dialog
+                    Navigator.of(context).pop();
                   },
                   child: const Text('Cancel'),
                 ),
@@ -343,7 +360,7 @@ class _HomePageState extends State<HomePage> {
             );
           },
         );
-      } else if (mounted) {
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to like dog: $e')),
         );
@@ -384,11 +401,11 @@ class _HomePageState extends State<HomePage> {
     final String dogOwnerId = dog['ownerId'];
     final String dogName = dog['name'] ?? 'Unknown Dog';
 
-    // Show toast immediately
-    _showToast(dogName, false);
-
     try {
-      // Perform the database operation
+      // Show toast immediately
+      if (!mounted) return;
+      _showToast(dogName, false);
+
       await _firebaseService.storeDogDislike(
         currentUserId: currentUserId!,
         dogOwnerId: dogOwnerId,
@@ -396,16 +413,22 @@ class _HomePageState extends State<HomePage> {
         dogName: dogName,
       );
 
-      // After successful dislike, we'll let the swiper handle removing the card
-      // We don't need to manually remove it from the dogs list here
-      // This prevents the issue of skipping the next profile
+      // Wait a bit before updating the UI to ensure smooth animation
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      if (!mounted) return;
+      setState(() {
+        dogs.removeWhere((d) => d['id'] == dogId);
+        if (dogs.isEmpty) {
+          _showNoMoreDogsMessage = true;
+        }
+      });
     } catch (e) {
       print('Error disliking dog: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to dislike dog: $e')),
-        );
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to dislike dog: $e')),
+      );
     }
   }
 

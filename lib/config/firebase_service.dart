@@ -425,32 +425,21 @@ class FirebaseService {
             'You have reached your daily like limit. Please upgrade to continue.');
       }
 
-      // Get current user details with full name
-      final userDoc =
-          await _firestore.collection('users').doc(currentUserId).get();
-      if (!userDoc.exists) {
-        print('Error: User document not found for ID: $currentUserId');
+      // Create a unique like ID using dogId
+      final String likeId = dogId;
+
+      // Check if like already exists
+      final existingLike = await _firestore
+          .collection('users')
+          .doc(currentUserId)
+          .collection('likes')
+          .doc(likeId)
+          .get();
+
+      if (existingLike.exists) {
+        print('User already liked this dog');
         return;
       }
-
-      final userData = userDoc.data();
-      if (userData == null) {
-        print('Error: User data is null for ID: $currentUserId');
-        return;
-      }
-
-      // Get the user's first and last name
-      final String firstName = userData['firstName'] ?? '';
-      final String lastName = userData['lastName'] ?? '';
-      final String fullName = firstName.isNotEmpty && lastName.isNotEmpty
-          ? '$firstName $lastName'
-          : firstName.isNotEmpty
-              ? firstName
-              : lastName.isNotEmpty
-                  ? lastName
-                  : 'A user';
-
-      print('Storing like for user: $fullName');
 
       // Get the current dog document
       final dogRef = _firestore
@@ -473,29 +462,10 @@ class FirebaseService {
       }
 
       List<dynamic> currentLikes = dogData['likes'] ?? [];
-      print('Current likes before update: $currentLikes');
 
       // Check if user already liked this dog
       if (currentLikes.contains(currentUserId)) {
         print('User already liked this dog');
-        return;
-      }
-
-      // Create a unique notification ID to prevent duplicates
-      final String notificationId =
-          '${dogOwnerId}_${dogId}_${currentUserId}_like';
-
-      // Check for existing notification using the unique ID
-      print('Checking for existing notification with ID: $notificationId');
-      final existingNotification = await _firestore
-          .collection('users')
-          .doc(dogOwnerId)
-          .collection('notifications')
-          .doc(notificationId)
-          .get();
-
-      if (existingNotification.exists) {
-        print('Notification already exists, skipping...');
         return;
       }
 
@@ -507,30 +477,22 @@ class FirebaseService {
         'likes': currentLikes,
       });
 
-      // Store the like with timestamp
+      // Store the like with timestamp using dogId as document ID
       await _firestore
           .collection('users')
           .doc(currentUserId)
           .collection('likes')
-          .add({
+          .doc(likeId)
+          .set({
         'dogId': dogId,
         'dogOwnerId': dogOwnerId,
         'dogName': dogName,
         'timestamp': FieldValue.serverTimestamp(),
       });
 
-      // Verify the update
-      final updatedDogDoc = await dogRef.get();
-      final updatedDogData = updatedDogDoc.data();
-      if (updatedDogData != null) {
-        print('Updated likes array: ${updatedDogData['likes']}');
-      }
-
-      // Get user profile picture if available
-      String userProfilePic = userData['profilePicture'] ?? '';
-
-      // Create notification for dog owner using the unique ID
-      print('Creating notification for dog owner: $dogOwnerId');
+      // Create notification for dog owner
+      final String notificationId =
+          '${dogOwnerId}_${dogId}_${currentUserId}_like';
       final notificationRef = _firestore
           .collection('users')
           .doc(dogOwnerId)
@@ -542,24 +504,10 @@ class FirebaseService {
         'dogId': dogId,
         'dogName': dogName,
         'likedByUserId': currentUserId,
-        'likedByUserName': fullName,
-        'likedByUserProfilePic': userProfilePic,
         'timestamp': FieldValue.serverTimestamp(),
         'read': false,
-        'message': 'Your dog $dogName is getting popular!',
-        'likedDogId': dogId,
-        'likedByDogId': likedByDogId,
+        'message': 'Your dog $dogName has received a new like!',
       });
-
-      print('Notification created with ID: ${notificationRef.id}');
-
-      // Verify notification was created
-      final notificationDoc = await notificationRef.get();
-      if (notificationDoc.exists) {
-        print('Notification data: ${notificationDoc.data()}');
-      } else {
-        print('Error: Notification document was not created');
-      }
 
       print('Like and notification stored successfully');
     } catch (e) {
