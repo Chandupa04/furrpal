@@ -1,4 +1,3 @@
-import 'package:custom_check_box/custom_check_box.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,7 +6,6 @@ import 'package:furrpal/constant/constant.dart';
 import 'package:furrpal/custom/button_custom.dart';
 import 'package:furrpal/custom/container_custom.dart';
 import 'package:furrpal/features/auth/presentation/pages/dog_profile_creat_page.dart';
-import 'package:furrpal/features/auth/presentation/pages/verify_email_page.dart';
 import '../../../../custom/text_custom.dart';
 import '../../../../custom/textfield_custom.dart';
 import '../cubit/auth_cubit.dart';
@@ -139,16 +137,7 @@ class _SignupPageState extends State<SignupPage> {
               ),
             ),
           );
-        }
-        // else if (state is EmailVerificationRequired) {
-        //   Navigator.push(
-        //     context,
-        //     MaterialPageRoute(
-        //       builder: (context) => VerifyEmailPage(),
-        //     ),
-        //   );
-        // }
-        else if (state is Authenticated) {
+        } else if (state is Authenticated) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -260,32 +249,31 @@ class _SignupPageState extends State<SignupPage> {
                       marginBottom: 19.h,
                       obscureText: true,
                     ),
-                    Row(
-                      children: [
-                        CustomCheckBox(
-                          borderColor: primaryColor,
-                          checkedFillColor: primaryColor,
-                          value: isChecked,
-                          onChanged: (index) {
-                            setState(() {
-                              isChecked = index;
-                            });
-                          },
-                        ),
-                        TextCustomWidget(
-                          text: 'Agree with Terms & Conditions',
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ],
-                    ),
+                    // Row(
+                    //   children: [
+                    //     CustomCheckBox(
+                    //       borderColor: primaryColor,
+                    //       checkedFillColor: primaryColor,
+                    //       value: isChecked,
+                    //       onChanged: (index) {
+                    //         setState(() {
+                    //           isChecked = index;
+                    //         });
+                    //       },
+                    //     ),
+                    //     TextCustomWidget(
+                    //       text: 'Agree with Terms & Conditions',
+                    //       fontSize: 14.sp,
+                    //       fontWeight: FontWeight.w400,
+                    //     ),
+                    //   ],
+                    // ),
                     Expanded(child: Container()),
                     ButtonCustom(
                       text: 'Continue',
                       callback: signUp,
                       inProgress: inProgress,
-                      isDisabled:
-                      isChecked == false ? true : false || inProgress,
+                      isDisabled: inProgress,
                       disabledColor: inProgress == true ? primaryColor : null,
                       dontApplyMargin: true,
                     ),
