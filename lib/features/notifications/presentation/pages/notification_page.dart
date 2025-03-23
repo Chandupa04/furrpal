@@ -372,20 +372,20 @@ class Notification {
 }
 
 // Sample data
-final List<Notification> profileNotifications = [
-  Notification(
-    avatarPath: 'assets/user3.png',
-    title: 'Emily liked Max\'s profile',
-    message: 'Your Golden Retriever is getting popular!',
-    time: '30m ago',
-  ),
-  Notification(
-    avatarPath: 'assets/user4.png',
-    title: 'Tom viewed Bella\'s profile',
-    message: 'Your Labrador caught someone\'s attention',
-    time: '1d ago',
-  ),
-];
+// final List<Notification> profileNotifications = [
+//   // Notification(
+//   //   avatarPath: 'assets/user3.png',
+//   //   title: 'Emily liked Max\'s profile',
+//   //   message: 'Your Golden Retriever is getting popular!',
+//   //   time: '30m ago',
+//   // ),
+//   // Notification(
+//   //   avatarPath: 'assets/user4.png',
+//   //   title: 'Tom viewed Bella\'s profile',
+//   //   message: 'Your Labrador caught someone\'s attention',
+//   //   time: '1d ago',
+//   // ),
+// ];
 
 final List<Notification> communityNotifications = [
   Notification(
@@ -402,17 +402,17 @@ final List<Notification> communityNotifications = [
   ),
 ];
 
-final List<Notification> petShopNotifications = [
-  Notification(
-    avatarPath: 'assets/shop1.png',
-    title: 'PetMart Sale',
-    message: '20% off on all dog toys this weekend!',
-    time: '1h ago',
-  ),
-  Notification(
-    avatarPath: 'assets/shop2.png',
-    title: 'New Arrival',
-    message: 'Check out our new premium dog food collection',
-    time: '3h ago',
-  ),
-];
+// final List<Notification> petShopNotifications = [
+//   Notification(
+//     avatarPath: 'assets/shop1.png',
+//     title: 'PetMart Sale',
+//     message: '20% off on all dog toys this weekend!',
+//     time: '1h ago',
+//   ),
+//   Notification(
+//     avatarPath: 'assets/shop2.png',
+//     title: 'New Arrival',
+//     message: 'Check out our new premium dog food collection',
+//     time: '3h ago',
+//   ),
+// ];
