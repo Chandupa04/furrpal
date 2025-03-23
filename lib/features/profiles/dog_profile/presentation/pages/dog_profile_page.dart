@@ -47,74 +47,76 @@ class _DogProfilePageState extends State<DogProfilePage> {
           ),
         ],
       ),
-      body: ContainerCustom(
-        marginLeft: 20.w,
-        marginRight: 20.w,
-        child: Column(
-          children: [
-            CachedNetworkImage(
-              imageUrl: widget.dog.imageURL,
-              placeholder: (context, url) => ContainerCustom(
+      body: SingleChildScrollView(
+        child: ContainerCustom(
+          marginLeft: 20.w,
+          marginRight: 20.w,
+          child: Column(
+            children: [
+              CachedNetworkImage(
+                imageUrl: widget.dog.imageURL,
+                placeholder: (context, url) => ContainerCustom(
+                    width: 160.w,
+                    height: 160.h,
+                    child: const CircularProgressIndicator()),
+                errorWidget: (context, url, error) => Icon(
+                  Icons.person,
+                  size: 72.h,
+                  color: Colors.blue,
+                ),
+                imageBuilder: (context, imageProvider) => ContainerCustom(
                   width: 160.w,
                   height: 160.h,
-                  child: const CircularProgressIndicator()),
-              errorWidget: (context, url, error) => Icon(
-                Icons.person,
-                size: 72.h,
-                color: Colors.blue,
-              ),
-              imageBuilder: (context, imageProvider) => ContainerCustom(
-                width: 160.w,
-                height: 160.h,
-                shape: BoxShape.circle,
-                decorationImage: DecorationImage(
-                  image: imageProvider,
-                  fit: BoxFit.cover,
+                  shape: BoxShape.circle,
+                  decorationImage: DecorationImage(
+                    image: imageProvider,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextCustomWidget(
-                  marginBottom: 15.h,
-                  text: widget.dog.name,
-                  fontSize: 40.sp,
-                  fontWeight: FontWeight.w500,
-                  textColor: blackColor,
-                  containerAlignment: Alignment.center,
-                ),
-                dogDetailsCard(
-                  icon: LucideIcons.hourglass,
-                  title: 'Age',
-                  value: widget.dog.age,
-                ),
-                dogDetailsCard(
-                  icon: LucideIcons.venusAndMars,
-                  title: 'Gender',
-                  value: widget.dog.gender,
-                ),
-                dogDetailsCard(
-                    icon: LucideIcons.weight,
-                    title: 'Weight',
-                    value: '${widget.dog.weightKg} ${widget.dog.weightG}'),
-                dogDetailsCard(
-                  icon: LucideIcons.dog,
-                  title: 'Breed',
-                  value: widget.dog.breed,
-                ),
-                dogDetailsCard(
-                  icon: LucideIcons.house,
-                  title: 'Location',
-                  value: widget.dog.location,
-                ),
-                // dogDetailsCard(
-                //     icon: LucideIcons.heartPulse,
-                //     title: 'Health Condition',
-                //     value: widget.dog.healthConditions!),
-              ],
-            )
-          ],
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextCustomWidget(
+                    marginBottom: 15.h,
+                    text: widget.dog.name,
+                    fontSize: 40.sp,
+                    fontWeight: FontWeight.w500,
+                    textColor: blackColor,
+                    containerAlignment: Alignment.center,
+                  ),
+                  dogDetailsCard(
+                    icon: LucideIcons.hourglass,
+                    title: 'Age',
+                    value: widget.dog.age,
+                  ),
+                  dogDetailsCard(
+                    icon: LucideIcons.venusAndMars,
+                    title: 'Gender',
+                    value: widget.dog.gender,
+                  ),
+                  dogDetailsCard(
+                      icon: LucideIcons.weight,
+                      title: 'Weight',
+                      value: '${widget.dog.weightKg} ${widget.dog.weightG}'),
+                  dogDetailsCard(
+                    icon: LucideIcons.dog,
+                    title: 'Breed',
+                    value: widget.dog.breed,
+                  ),
+                  dogDetailsCard(
+                    icon: LucideIcons.house,
+                    title: 'Location',
+                    value: widget.dog.location,
+                  ),
+                  dogDetailsCard(
+                      icon: LucideIcons.heartPulse,
+                      title: 'Blood Line',
+                      value: widget.dog.bloodline),
+                ],
+              )
+            ],
+          ),
         ),
       ),
     );

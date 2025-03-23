@@ -35,7 +35,7 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
   late TextEditingController weightGcontroller;
   // late TextEditingController healthConditionTextController;
   late TextEditingController bloodlineTextController;
-  late TextEditingController healthReportController;
+  // late TextEditingController healthReportController;
 
   @override
   void initState() {
@@ -48,8 +48,8 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
     // healthConditionTextController =
     //     TextEditingController(text: widget.dog.healthConditions);
     bloodlineTextController = TextEditingController(text: widget.dog.bloodline);
-    healthReportController =
-        TextEditingController(text: widget.dog.healthReportUrl);
+    // healthReportController =
+    //     TextEditingController(text: widget.dog.healthReportUrl);
     selectedGender = widget.dog.gender;
     selectedBreed = widget.dog.breed;
   }
@@ -61,7 +61,7 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
     locationTextController.dispose();
     // healthConditionTextController.dispose();
     bloodlineTextController.dispose();
-    healthReportController.dispose();
+    // healthReportController.dispose();
     super.dispose();
   }
 
@@ -93,7 +93,7 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
       newLocation: locationTextController.text,
       // newHealthConditions: healthConditionTextController.text,
       bloodline: bloodlineTextController.text,
-      healthReportUrl: healthReportController.text,
+      // healthReportUrl: healthReportController.text,
     );
   }
 
@@ -384,6 +384,18 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                 },
               ),
               TextCustomWidget(
+                text: 'Blood Line',
+                textStyle: textFieldLableStyle,
+                marginLeft: 10.w,
+                marginBottom: 4.h,
+              ),
+              TextFieldCustom(
+                controller: bloodlineTextController,
+                hintText: widget.dog.bloodline,
+                borderColor: blackColor,
+                marginBottom: 15.h,
+              ),
+              TextCustomWidget(
                 text: 'Location',
                 textStyle: textFieldLableStyle,
                 marginLeft: 10.w,
@@ -393,20 +405,8 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                 controller: locationTextController,
                 hintText: widget.dog.location,
                 borderColor: blackColor,
-                marginBottom: 15.h,
+                marginBottom: 30.h,
               ),
-              // TextCustomWidget(
-              //   text: 'Health Condition',
-              //   textStyle: textFieldLableStyle,
-              //   marginLeft: 10.w,
-              //   marginBottom: 4.h,
-              // ),
-              // TextFieldCustom(
-              //   controller: healthConditionTextController,
-              //   hintText: widget.dog.healthConditions,
-              //   borderColor: blackColor,
-              //   marginBottom: 30.h,
-              // ),
               ButtonCustom(
                 text: 'Save Edit',
                 callback: updateProfile,
