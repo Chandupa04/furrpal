@@ -24,7 +24,7 @@ class _DogProfilePageState extends State<DogProfilePage> {
     return Scaffold(
       // backgroundColor: blackColor,
       appBar: AppBar(
-        // backgroundColor: blackColor,
+        surfaceTintColor: whiteColor,
         title: Text(
           'Dog Profile',
           style: appBarStyle,
@@ -51,6 +51,7 @@ class _DogProfilePageState extends State<DogProfilePage> {
         child: ContainerCustom(
           marginLeft: 20.w,
           marginRight: 20.w,
+          marginTop: 20.h,
           child: Column(
             children: [
               CachedNetworkImage(
@@ -65,9 +66,16 @@ class _DogProfilePageState extends State<DogProfilePage> {
                   color: Colors.blue,
                 ),
                 imageBuilder: (context, imageProvider) => ContainerCustom(
-                  width: 160.w,
-                  height: 160.h,
-                  shape: BoxShape.circle,
+                  width: 360.w,
+                  height: 180.h,
+                  borderRadius: BorderRadius.circular(20.r),
+                  shadow: [
+                    BoxShadow(
+                      color: blackColor.withOpacity(0.5),
+                      offset: Offset(0.0, 2.h),
+                      blurRadius: 10.0,
+                    ),
+                  ],
                   decorationImage: DecorationImage(
                     image: imageProvider,
                     fit: BoxFit.cover,
@@ -78,6 +86,7 @@ class _DogProfilePageState extends State<DogProfilePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   TextCustomWidget(
+                    marginTop: 10.h,
                     marginBottom: 15.h,
                     text: widget.dog.name,
                     fontSize: 40.sp,
@@ -98,7 +107,7 @@ class _DogProfilePageState extends State<DogProfilePage> {
                   dogDetailsCard(
                       icon: LucideIcons.weight,
                       title: 'Weight',
-                      value: '${widget.dog.weightKg} ${widget.dog.weightG}'),
+                      value: '${widget.dog.weightKg}kg'),
                   dogDetailsCard(
                     icon: LucideIcons.dog,
                     title: 'Breed',
@@ -110,9 +119,10 @@ class _DogProfilePageState extends State<DogProfilePage> {
                     value: widget.dog.location,
                   ),
                   dogDetailsCard(
-                      icon: LucideIcons.heartPulse,
-                      title: 'Blood Line',
-                      value: widget.dog.bloodline),
+                    icon: LucideIcons.heartPulse,
+                    title: 'Blood Line',
+                    value: widget.dog.bloodline!,
+                  ),
                 ],
               )
             ],
