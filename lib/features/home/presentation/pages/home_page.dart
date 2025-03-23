@@ -6,10 +6,13 @@ import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:furrpal/features/home/presentation/pages/payment_page.dart';
 import 'package:furrpal/features/home/presentation/pages/filter_search_page.dart';
 import 'package:furrpal/config/firebase_service.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:furrpal/features/home/presentation/pages/userdetails_page.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final String? focusBreed;
 
+  const HomePage({super.key, this.focusBreed});
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -20,6 +23,7 @@ class _HomePageState extends State<HomePage> {
   bool isLoading = true;
   bool _disposed = false;
   String? currentUserId;
+  String? _focusBreed;
 
   final CardSwiperController swiperController = CardSwiperController();
   OverlayEntry? _overlayEntry;
@@ -28,6 +32,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _getCurrentUserId();
+    _focusBreed = widget.focusBreed;
     _loadDogProfiles();
   }
 
@@ -62,10 +67,44 @@ class _HomePageState extends State<HomePage> {
     });
 
     try {
-      final dogProfiles = await _firebaseService.getAllDogProfiles();
+      final dogProfiles = _focusBreed != null
+          ? await _firebaseService
+              .getAllDogProfilesByBreedPriority(_focusBreed!)
+          : await _firebaseService.getAllDogProfiles();
 
-      // Debug: Print the number of profiles retrieved
       print('Loaded ${dogProfiles.length} dog profiles');
+      if (_focusBreed != null) {
+        print('Prioritized by breed: $_focusBreed');
+
+        // Count exact matches
+        int exactMatches = dogProfiles
+            .where((dog) =>
+                (dog['breed'] ?? '').toString().toLowerCase() ==
+                _focusBreed!.toLowerCase())
+            .length;
+
+        // Show popup if no exact matches found
+        if (exactMatches == 0 && mounted) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('No Exact Matches'),
+                content: Text(
+                    'No profiles found with the exact breed "$_focusBreed". '),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
+        }
+      }
 
       _safeSetState(() {
         dogs = dogProfiles;
@@ -78,7 +117,6 @@ class _HomePageState extends State<HomePage> {
           isLoading = false;
         });
 
-        // Show error message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to load dog profiles: $e')),
         );
@@ -186,61 +224,97 @@ class _HomePageState extends State<HomePage> {
     final String dogOwnerId = dog['ownerId'];
     final String dogName = dog['name'] ?? 'Unknown Dog';
 
-    // Show toast immediately
-    _showToast(dogName, true);
+    // Get the current user's dog ID that is doing the liking
+    // This needs to be fetched from Firestore
+    _fetchCurrentUserDogId().then((currentUserDogId) {
+      // Show toast immediately
+      _showToast(dogName, true);
 
-    // Then perform the database operation
-    _firebaseService
-        .storeDogLike(
-      currentUserId: currentUserId!,
-      dogOwnerId: dogOwnerId,
-      dogId: dogId,
-      dogName: dogName,
-    )
-        .catchError((e) {
-      print('Error liking dog: $e');
-      if (mounted) {
-        if (e.toString().contains('24-hour like limit')) {
-          // Show payment page when limit is reached
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('Like Limit Reached'),
-                content: const Text(
-                    'You have reached your 24-hour like limit. Upgrade to continue liking more profiles!'),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop(); // Close dialog
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const PricingPlansScreen(),
-                        ),
-                      );
-                    },
-                    child: const Text('Upgrade Now'),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop(); // Close dialog
-                      Navigator.of(context)
-                          .pop(); // Pop the current route to go back
-                    },
-                    child: const Text('Cancel'),
-                  ),
-                ],
-              );
-            },
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to like dog: $e')),
-          );
+      // Then perform the database operation
+      _firebaseService
+          .storeDogLike(
+        currentUserId: currentUserId!,
+        dogOwnerId: dogOwnerId,
+        dogId: dogId,
+        dogName: dogName,
+        likedByDogId:
+            currentUserDogId ?? '', // Pass the dog ID of the user who is liking
+        likedByUserId: currentUserId!,
+      )
+          .then((_) {
+        // After successful like, remove the liked dog from the list
+        if (mounted) {
+          setState(() {
+            dogs.removeWhere((d) => d['id'] == dogId);
+          });
         }
-      }
+      }).catchError((e) {
+        print('Error liking dog: $e');
+        if (mounted) {
+          if (e.toString().contains('24-hour like limit')) {
+            // Show payment page when limit is reached
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('Like Limit Reached'),
+                  content: const Text(
+                      'You have reached your 24-hour like limit. Upgrade to continue liking more profiles!'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Close dialog
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const PricingPlansScreen(),
+                          ),
+                        );
+                      },
+                      child: const Text('Upgrade Now'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Close dialog
+                        Navigator.of(context)
+                            .pop(); // Pop the current route to go back
+                      },
+                      child: const Text('Cancel'),
+                    ),
+                  ],
+                );
+              },
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Failed to like dog: $e')),
+            );
+          }
+        }
+      });
     });
+  }
+
+  // Fetch the current user's dog ID
+  Future<String?> _fetchCurrentUserDogId() async {
+    if (currentUserId == null) return null;
+
+    try {
+      final dogsSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUserId)
+          .collection('dogs')
+          .get();
+
+      if (dogsSnapshot.docs.isNotEmpty) {
+        // Return the first dog ID (assuming one dog per user for simplicity)
+        return dogsSnapshot.docs.first.id;
+      }
+      return null;
+    } catch (e) {
+      print('Error fetching current user dog ID: $e');
+      return null;
+    }
   }
 
   // Handle dislike action
@@ -306,14 +380,24 @@ class _HomePageState extends State<HomePage> {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 20),
-                  ElevatedButton(
+                  CupertinoButton(
                     onPressed: _loadDogProfiles,
-                    child: const Text("Refresh"),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    child: const Text(
+                      "Refresh",
+                      style: TextStyle(color: Colors.black),
+                    ),
                   ),
                   const SizedBox(height: 10),
-                  ElevatedButton(
+                  CupertinoButton(
                     onPressed: _testFirestore,
-                    child: const Text("Test Firestore Connection"),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    child: const Text(
+                      "Test Firestore Connection",
+                      style: TextStyle(color: Colors.black),
+                    ),
                   ),
                 ],
               ),
@@ -352,10 +436,6 @@ class _HomePageState extends State<HomePage> {
           const Spacer(),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _loadDogProfiles,
-        child: const Icon(Icons.refresh),
-      ),
     );
   }
 
@@ -366,12 +446,20 @@ class _HomePageState extends State<HomePage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           GestureDetector(
-            onTap: () {
-              Navigator.push(
+            onTap: () async {
+              final selectedBreed = await Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => const SearchFilterScreen()),
+                  builder: (context) => const SearchFilterScreen(),
+                ),
               );
+
+              if (selectedBreed != null) {
+                setState(() {
+                  _focusBreed = selectedBreed;
+                });
+                _loadDogProfiles();
+              }
             },
             child: Icon(Icons.search, color: Colors.grey.shade800, size: 28),
           ),
@@ -399,7 +487,7 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class DogProfileCard extends StatelessWidget {
+class DogProfileCard extends StatefulWidget {
   final Map<String, dynamic> dog;
   final bool isTopCard;
   final CardSwiperController swiperController;
@@ -416,9 +504,16 @@ class DogProfileCard extends StatelessWidget {
   });
 
   @override
+  State<DogProfileCard> createState() => _DogProfileCardState();
+}
+
+class _DogProfileCardState extends State<DogProfileCard> {
+  final FirebaseService _firebaseService = FirebaseService();
+
+  @override
   Widget build(BuildContext context) {
     // Get image from Firebase or use placeholder
-    final String imageUrl = dog["imageUrl"] ?? "";
+    final String imageUrl = widget.dog["imageUrl"] ?? "";
 
     return Container(
       height: 160,
@@ -446,49 +541,49 @@ class DogProfileCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                   child: imageUrl.isNotEmpty
                       ? Image.network(
-                    imageUrl,
-                    height: 200,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return Container(
-                        height: 200,
-                        width: double.infinity,
-                        color: Colors.grey[200],
-                        child: const Center(
-                          child: CircularProgressIndicator(),
-                        ),
-                      );
-                    },
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        height: 200,
-                        width: double.infinity,
-                        color: Colors.grey[200],
-                        child: const Icon(
-                          Icons.error,
-                          color: Colors.red,
-                          size: 50,
-                        ),
-                      );
-                    },
-                  )
+                          imageUrl,
+                          height: 200,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Container(
+                              height: 200,
+                              width: double.infinity,
+                              color: Colors.grey[200],
+                              child: const Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              height: 200,
+                              width: double.infinity,
+                              color: Colors.grey[200],
+                              child: const Icon(
+                                Icons.error,
+                                color: Colors.red,
+                                size: 50,
+                              ),
+                            );
+                          },
+                        )
                       : Image.asset(
-                    "assets/images/dog_placeholder.jpg",
-                    height: 200,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
+                          "assets/images/dog_placeholder.jpg",
+                          height: 200,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  dog["name"] ?? "Unknown",
+                  widget.dog["name"] ?? "Unknown",
                   style: const TextStyle(
                       fontSize: 26, fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  dog["breed"] ?? "Unknown breed",
+                  widget.dog["breed"] ?? "Unknown breed",
                   style: const TextStyle(
                     fontSize: 16,
                     fontStyle: FontStyle.italic,
@@ -496,7 +591,7 @@ class DogProfileCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 10),
-                _infoRow(dog),
+                _infoRow(widget.dog),
                 const SizedBox(height: 15),
               ],
             ),
@@ -504,14 +599,34 @@ class DogProfileCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: ElevatedButton(
-              onPressed: () {
-                // Show a message that this feature is coming soon
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('This feature is coming soon!'),
-                    duration: Duration(seconds: 2),
-                  ),
-                );
+              onPressed: () async {
+                final String ownerId = widget.dog["ownerId"];
+
+                final userDetails =
+                    await _firebaseService.getUserDetails(ownerId);
+                if (userDetails == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Failed to load user details')),
+                  );
+                  return;
+                }
+
+                if (mounted) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => UserDetailsPage(
+                        name: userDetails['name'],
+                        email: userDetails['email'],
+                        address: userDetails['address'],
+                        contact: userDetails['contact'],
+                        since: userDetails['since'],
+                        imagePath: userDetails['imagePath'],
+                      ),
+                    ),
+                  );
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(255, 183, 180, 177),
@@ -519,7 +634,7 @@ class DogProfileCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 padding:
-                const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                    const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
               ),
               child: const Text(
                 "Show User Details",
@@ -539,8 +654,8 @@ class DogProfileCard extends StatelessWidget {
                 color: Colors.redAccent,
                 backgroundColor: Colors.red.withOpacity(0.2),
                 onTap: () {
-                  onDislike();
-                  swiperController.swipe(CardSwiperDirection.left);
+                  widget.onDislike();
+                  widget.swiperController.swipe(CardSwiperDirection.left);
                 },
               ),
               const SizedBox(width: 30),
@@ -549,8 +664,8 @@ class DogProfileCard extends StatelessWidget {
                 color: Colors.green,
                 backgroundColor: Colors.green.withOpacity(0.2),
                 onTap: () {
-                  onLike();
-                  swiperController.swipe(CardSwiperDirection.right);
+                  widget.onLike();
+                  widget.swiperController.swipe(CardSwiperDirection.right);
                 },
               ),
             ],
