@@ -24,7 +24,6 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
   final TextEditingController _breedController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _weightKgController = TextEditingController();
-  final TextEditingController _weightGController = TextEditingController();
   final TextEditingController _bloodlineController = TextEditingController();
 
   String? selectedGender;
@@ -170,7 +169,6 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
     _breedController.dispose();
     _locationController.dispose();
     _weightKgController.dispose();
-    _weightGController.dispose();
     _bloodlineController.dispose();
     super.dispose();
   }
@@ -290,6 +288,13 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
         ],
       ),
     );
+  }
+
+  // Validate weight input (only digits and one decimal point)
+  bool _validateWeight(String value) {
+    // Allow digits and one decimal point
+    final RegExp regex = RegExp(r'^\d*\.?\d*$');
+    return regex.hasMatch(value);
   }
 
   @override
@@ -480,54 +485,27 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
                   ),
                   _buildAgeDropdowns(),
 
-                  // Weight fields (kg and g)
+                  // Weight field (kg only)
                   TextCustomWidget(
-                    text: 'Weight (Required)',
+                    text: 'Weight (kg) (Required)',
                     fontSize: 17.sp,
                     marginLeft: 9.w,
                     marginBottom: 4.h,
                     marginTop: 15.h,
                   ),
-                  Row(
-                    children: [
-                      Expanded(
-                        flex: 1,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            TextCustomWidget(
-                              text: 'kg',
-                              fontSize: 14.sp,
-                              marginLeft: 9.w,
-                              marginBottom: 4.h,
-                            ),
-                            TextFieldCustom(
-                              controller: _weightKgController,
-                              keyboardType: TextInputType.number,
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(width: 10.w),
-                      Expanded(
-                        flex: 1,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            TextCustomWidget(
-                              text: 'g',
-                              fontSize: 14.sp,
-                              marginLeft: 9.w,
-                              marginBottom: 4.h,
-                            ),
-                            TextFieldCustom(
-                              controller: _weightGController,
-                              keyboardType: TextInputType.number,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                  TextFieldCustom(
+                    controller: _weightKgController,
+                    keyboardType: TextInputType.numberWithOptions(decimal: true),
+                    marginBottom: 15.h,
+                    onChanged: (value) {
+                      if (!_validateWeight(value)) {
+                        // If the input is invalid, reset the field
+                        _weightKgController.value = TextEditingValue(
+                          text: value.replaceAll(RegExp(r'[^0-9\.]'), ''),
+                          selection: TextSelection.collapsed(offset: value.length),
+                        );
+                      }
+                    },
                   ),
 
                   // Bloodline field (optional)
@@ -620,10 +598,17 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
         selectedGender == null ||
         (selectedYears == null && selectedMonths == null) ||
         _locationController.text.isEmpty ||
-        _weightKgController.text.isEmpty ||
-        _weightGController.text.isEmpty) {
+        _weightKgController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill all required fields')),
+      );
+      return;
+    }
+
+    // Validate weight input
+    if (!_validateWeight(_weightKgController.text)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a valid weight')),
       );
       return;
     }
@@ -639,7 +624,6 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
         location: _locationController.text,
         imageFile: _imageFile,
         weightKg: _weightKgController.text,
-        weightG: _weightGController.text,
         bloodline: _bloodlineController.text,
         healthReportFile: _healthReportFile,
       );
@@ -656,3 +640,4 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
     }
   }
 }
+
