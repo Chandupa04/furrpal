@@ -1,142 +1,57 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:furrpal/constant/constant.dart';
 import 'package:furrpal/custom/container_custom.dart';
 import 'package:furrpal/custom/text_custom.dart';
 import 'package:furrpal/features/community/presentation/pages/comment_page.dart';
+import 'package:furrpal/features/community/presentation/pages/community_service.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class CommunityPostCard extends StatefulWidget {
-  const CommunityPostCard({super.key});
+  final String name;
+  final String profilePictureUrl;
+  final String imageUrl;
+  final String date;
+  final String caption;
+  final String postOwnerId;
+  final String postId;
+  final List<Map<String, dynamic>> comments;
+  final List<Map<String, dynamic>> likes;
+  final Function onPostDeleted;
+
+  const CommunityPostCard({
+    super.key,
+    required this.name,
+    required this.profilePictureUrl,
+    required this.date,
+    required this.imageUrl,
+    required this.caption,
+    required this.postOwnerId,
+    required this.postId,
+    required this.comments,
+    required this.likes,
+    required this.onPostDeleted,
+  });
 
   @override
   _CommunityPostCardState createState() => _CommunityPostCardState();
 }
 
 class _CommunityPostCardState extends State<CommunityPostCard> {
-  String _postContent = 'Original post content here'; // Initial post content
-  final TextEditingController _editController = TextEditingController();
-
-  void _editPost() {
-    // Set initial value of controller to the current post content
-    _editController.text = _postContent;
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Edit Post'),
-          content: TextField(
-            controller: _editController,
-            maxLines: 5,
-            decoration: const InputDecoration(
-              hintText: 'Edit your post...',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel"),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  _postContent = _editController.text;
-                });
-                Navigator.pop(context); // Close the dialog
-              },
-              child: const Text("Save"),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _hidePost() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("Hide Post?"),
-          content: const Text("Are you sure you want to hide this post?"),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel"),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                // Handle hide logic here (e.g., change state to hide the post)
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(const SnackBar(content: Text('Post hidden')));
-              },
-              child: const Text("Hide"),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _reportPost() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("Report Post?"),
-          content: const Text("Are you sure you want to report this post?"),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel"),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                // Handle report logic here (e.g., send report to the backend)
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Post reported')));
-              },
-              child: const Text("Report"),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _deletePost() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("Delete Post?"),
-          content: const Text(
-              "Are you sure you want to delete this post? This action cannot be undone."),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel"),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                // Handle delete logic here (e.g., remove the post from the list)
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Post deleted')));
-              },
-              child: const Text("Delete"),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   bool isLiked = false;
+  late int currentLikes;
+  late String currentUserId;
+
+  @override
+  void initState() {
+    super.initState();
+    currentLikes = widget.likes.length;
+    currentUserId = FirebaseAuth.instance.currentUser!.uid;
+
+    // Check if the current user has already liked the post
+    isLiked = widget.likes.any((like) => like['userId'] == currentUserId);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -145,6 +60,7 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
       marginRight: 10.w,
       marginBottom: 10.h,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -153,19 +69,25 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
                 children: [
                   CircleAvatar(
                     radius: 24.r,
+                    backgroundImage: widget.profilePictureUrl.isNotEmpty
+                        ? NetworkImage(widget.profilePictureUrl)
+                        : const AssetImage('assets/icons/user_profile.png')
+                            as ImageProvider,
+                    onBackgroundImageError: (_, __) =>
+                        const Icon(Icons.error, color: Colors.red),
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       TextCustomWidget(
-                        text: 'Name',
+                        text: widget.name,
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w700,
                         marginLeft: 10.w,
                         textColor: blackColor,
                       ),
                       TextCustomWidget(
-                        text: '2/25/2025',
+                        text: widget.date,
                         fontSize: 15.sp,
                         fontWeight: FontWeight.w500,
                         marginLeft: 10.w,
@@ -175,69 +97,81 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
                   ),
                 ],
               ),
-              ContainerCustom(
-                child: PopupMenuButton(
-                  icon: const Icon(
-                    Icons.more_vert_rounded,
-                    color: Color.fromARGB(255, 0, 0, 0),
-                  ),
-                  color: const Color.fromARGB(255, 255, 255, 255),
-                  padding: EdgeInsets.zero,
-                  shape: ContinuousRectangleBorder(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10.r),
-                      bottomLeft: Radius.circular(10.r),
-                      bottomRight: Radius.circular(10.r),
-                    ),
-                  ),
-                  position: PopupMenuPosition.under,
-                  itemBuilder: (context) => [
-                    PopupMenuItem(
-                      value: "Edit",
-                      height: 30.h,
-                      onTap: _editPost,
-                      child: TextCustomWidget(
-                        text: "Edit",
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
-                        textColor: blackColor,
+              IconButton(
+                icon: const Icon(Icons.more_vert),
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    builder: (context) => Container(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (currentUserId == widget.postOwnerId) ...[
+                            ListTile(
+                              leading: const Icon(Icons.edit),
+                              title: const Text('Edit Post'),
+                              onTap: () {
+                                // Handle Edit
+                              },
+                            ),
+                            ListTile(
+                              leading: const Icon(Icons.delete),
+                              title: const Text('Delete Post'),
+                              onTap: () async {
+                                final confirmDelete = await showDialog<bool>(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text('Delete Post'),
+                                    content: const Text(
+                                        'Are you sure you want to delete this post?'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context,
+                                            false), // Cancel the dialog
+                                        child: const Text('Cancel'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context,
+                                              true); // Confirm deletion and close the dialog
+                                        },
+                                        child: const Text('Delete'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+
+                                if (confirmDelete == true) {
+                                  await CommunityService().deletePost(
+                                    postOwnerId: widget.postOwnerId,
+                                    postId: widget.postId,
+                                  );
+
+                                  // Close the dialog and perform any necessary state updates
+                                  Navigator.of(context)
+                                      .pop(); // Close the current screen if needed (optional)
+
+                                  // Call the callback to refresh the posts on the parent page
+                                  widget.onPostDeleted();
+                                }
+                              },
+                            ),
+                          ],
+                          if (currentUserId != widget.postOwnerId) ...[
+                            ListTile(
+                              leading: const Icon(Icons.report),
+                              title: const Text('Report Post'),
+                              onTap: () {
+                                // Handle Report
+                              },
+                            ),
+                          ]
+                        ],
                       ),
                     ),
-                    PopupMenuItem(
-                      value: "Delete",
-                      height: 30.h,
-                      onTap: _deletePost,
-                      child: TextCustomWidget(
-                        text: "Delete",
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
-                        textColor: blackColor,
-                      ), // Show delete confirmation dialog
-                    ),
-                    PopupMenuItem(
-                      value: "Hide",
-                      height: 30.h,
-                      onTap: _hidePost,
-                      child: TextCustomWidget(
-                        text: "Hide",
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
-                        textColor: blackColor,
-                      ), // Show hide dialog
-                    ),
-                    PopupMenuItem(
-                      value: "Report",
-                      height: 30.h,
-                      onTap: _reportPost,
-                      child: TextCustomWidget(
-                        text: "Report",
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
-                        textColor: blackColor,
-                      ), // Show report dialog
-                    ),
-                  ],
-                ),
+                  );
+                },
               ),
             ],
           ),
@@ -246,46 +180,49 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
             width: double.infinity,
             marginTop: 10.h,
             marginBottom: 10.h,
-            child: Image.asset(
-              'assets/images/gallery.jpeg',
+            child: Image.network(
+              widget.imageUrl,
               height: 250.h,
               fit: BoxFit.contain,
             ),
-            // bgColor: Colors.grey,
           ),
           TextCustomWidget(
-            text: _postContent,
+            text: widget.caption,
             textColor: blackColor,
-          ),
-          TextCustomWidget(
-            text: _postContent, // Display the current post content
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w600,
-            marginLeft: 10.w,
-            marginRight: 10.w,
           ),
           Row(
             children: [
+              // Like Button
               Row(
                 children: [
                   ContainerCustom(
                     width: 30.w,
                     height: 30.h,
                     child: IconButton(
-                      onPressed: () {
+                      onPressed: () async {
                         setState(() {
+                          if (isLiked) {
+                            currentLikes -= 1;
+                          } else {
+                            currentLikes += 1;
+                          }
                           isLiked = !isLiked;
                         });
+
+                        // Update like status in Firestore
+                        await CommunityService().likePost(
+                            postId: widget.postId,
+                            postOwnerId: widget.postOwnerId);
                       },
                       padding: EdgeInsets.zero,
-                      icon: Icon(isLiked == true
+                      icon: Icon(isLiked
                           ? Icons.favorite
                           : Icons.favorite_border_rounded),
-                      color: isLiked == true ? Colors.red : null,
+                      color: isLiked ? Colors.red : null,
                     ),
                   ),
                   TextCustomWidget(
-                    text: '1',
+                    text: '$currentLikes',
                     fontSize: 20.sp,
                     fontWeight: FontWeight.bold,
                     marginLeft: 5.w,
@@ -293,6 +230,7 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
                   ),
                 ],
               ),
+              // Comment Button
               Row(
                 children: [
                   ContainerCustom(
@@ -301,10 +239,16 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
                     marginLeft: 30.w,
                     child: IconButton(
                       onPressed: () {
+                        // Navigate to the CommentPage with comments
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const CommentPage(),
+                            builder: (context) => CommentPage(
+                              comments: widget.comments,
+                              postId: widget.postId,
+                              postOwnerId: widget.postOwnerId,
+                              onCommentAdd: widget.onPostDeleted,
+                            ),
                           ),
                         );
                       },
@@ -314,7 +258,7 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
                     ),
                   ),
                   TextCustomWidget(
-                    text: '1',
+                    text: '${widget.comments.length}',
                     fontSize: 20.sp,
                     fontWeight: FontWeight.bold,
                     marginLeft: 5.w,
