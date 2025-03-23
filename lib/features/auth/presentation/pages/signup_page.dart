@@ -7,6 +7,7 @@ import 'package:furrpal/constant/constant.dart';
 import 'package:furrpal/custom/button_custom.dart';
 import 'package:furrpal/custom/container_custom.dart';
 import 'package:furrpal/features/auth/presentation/pages/dog_profile_creat_page.dart';
+import 'package:furrpal/features/auth/presentation/pages/verify_email_page.dart';
 import '../../../../custom/text_custom.dart';
 import '../../../../custom/textfield_custom.dart';
 import '../cubit/auth_cubit.dart';
@@ -37,7 +38,7 @@ class _SignupPageState extends State<SignupPage> {
     isValid = EmailValidator.validate(emailController.text.trim());
 
     final String email = emailController.text;
-    final String password = passwordController.text;
+    final String password = passwordController.text.trim();
     final String confirmPassword = confirmPasswordController.text;
     final String fName = fNameController.text;
     final String lName = lNameController.text;
@@ -138,7 +139,16 @@ class _SignupPageState extends State<SignupPage> {
               ),
             ),
           );
-        } else if (state is Authenticated) {
+        }
+        // else if (state is EmailVerificationRequired) {
+        //   Navigator.push(
+        //     context,
+        //     MaterialPageRoute(
+        //       builder: (context) => VerifyEmailPage(),
+        //     ),
+        //   );
+        // }
+        else if (state is Authenticated) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(

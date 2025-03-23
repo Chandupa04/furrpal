@@ -12,7 +12,7 @@ class DogEntity {
   final List<String>? likes;
   final List<String>? dislikes;
   final String bloodline;
-  final String healthReportUrl;
+  final String? healthReportUrl;
 
   DogEntity({
     required this.dogId,
@@ -22,11 +22,10 @@ class DogEntity {
     required this.age,
     required this.weightKg,
     required this.weightG,
-    // this.healthConditions,
     required this.location,
     required this.imageURL,
     required this.bloodline,
-    required this.healthReportUrl,
+    this.healthReportUrl,
     this.likes,
     this.dislikes,
   });
@@ -52,7 +51,6 @@ class DogEntity {
       age: newAge ?? age,
       weightKg: newWeightKg ?? weightKg,
       weightG: newWeightG ?? weightG,
-      // healthConditions: newHealthConditions ?? healthConditions,
       location: newLocation ?? location,
       imageURL: newImageURL ?? imageURL,
       bloodline: newBloodline ?? bloodline,
@@ -69,7 +67,6 @@ class DogEntity {
       age: json['age'],
       weightG: json['weightG'],
       weightKg: json['weightKg'],
-      // healthConditions: json['healthConditions'],
       location: json['location'],
       imageURL: json['imageUrl'],
       likes: json['likes'] != null ? List<String>.from(json['likes']) : [],
@@ -89,7 +86,6 @@ class DogEntity {
       'age': age,
       'weightG': weightG,
       'weightKg': weightKg,
-      // 'healthConditions': healthConditions,
       'location': location,
       'imageUrl': imageURL,
       'likes': likes,
