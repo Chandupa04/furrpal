@@ -95,7 +95,7 @@ class ProductDetailsPage extends StatelessWidget {
 
                   // Price
                   Text(
-                    'LKR ${product['price']}',
+                    ' ${product['price']} USD',
                     style: GoogleFonts.poppins(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,

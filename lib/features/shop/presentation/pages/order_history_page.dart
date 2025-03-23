@@ -9,9 +9,18 @@ class OrderHistoryPage extends StatelessWidget {
 
   OrderHistoryPage({super.key});
 
+  Stream<QuerySnapshot> _getUserOrders(String userId) {
+    return _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('orders')
+        .orderBy('timestamp', descending: true)
+        .snapshots();
+  }
+
   @override
   Widget build(BuildContext context) {
-    String? userId = _auth.currentUser?.uid;
+    final String? userId = _auth.currentUser?.uid;
 
     if (userId == null) {
       return Scaffold(
@@ -24,16 +33,11 @@ class OrderHistoryPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Order History'),
-        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-        foregroundColor: const Color.fromARGB(255, 10, 8, 1),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: _firestore
-            .collection('users')
-            .doc(userId)
-            .collection('orders')
-            .orderBy('timestamp', descending: true)
-            .snapshots(),
+        stream: _getUserOrders(userId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -56,7 +60,8 @@ class OrderHistoryPage extends StatelessWidget {
 
               double totalPrice = 0;
               for (final item in items) {
-                final price = item['price'] as int? ?? 0;
+                final price = (item['price'] as num?)?.toDouble() ??
+                    0.0; // Ensuring it's a double
                 final quantity = item['quantity'] as int? ?? 1;
                 totalPrice += price * quantity;
               }
@@ -72,7 +77,8 @@ class OrderHistoryPage extends StatelessWidget {
                 ),
                 child: ExpansionTile(
                   title: Text('Order #${order.id}'),
-                  subtitle: Text('Total: LKR ${totalPrice.toStringAsFixed(2)}'),
+                  subtitle:
+                      Text('Total:  ${totalPrice.toStringAsFixed(2)} USD'),
                   trailing: Text(formattedDate),
                   children: [
                     Padding(
@@ -89,7 +95,8 @@ class OrderHistoryPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           ...items.map((item) {
-                            final price = item['price'] as int? ?? 0;
+                            final price =
+                                (item['price'] as num?)?.toDouble() ?? 0.0;
                             final quantity = item['quantity'] as int? ?? 1;
                             return ListTile(
                               leading: Image.network(
@@ -99,11 +106,11 @@ class OrderHistoryPage extends StatelessWidget {
                                 fit: BoxFit.cover,
                               ),
                               title: Text(item['name'] ?? 'No Name'),
-                              subtitle: Text('LKR $price x $quantity'),
+                              subtitle: Text(' $price x $quantity USD'),
                               trailing: Text(
-                                  'LKR ${(price * quantity).toStringAsFixed(2)}'),
+                                  ' ${(price * quantity).toStringAsFixed(2)} USD'),
                             );
-                          }),
+                          }).toList(),
                         ],
                       ),
                     ),

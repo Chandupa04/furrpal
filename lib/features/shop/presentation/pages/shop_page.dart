@@ -265,7 +265,7 @@ class _ShopPageState extends State<ShopPage> {
 
 class ProductCard extends StatelessWidget {
   final String name;
-  final int price;
+  final double price;
   final String imageUrl;
   final String description;
   final VoidCallback onAddToCart;
@@ -354,7 +354,7 @@ class ProductCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'LKR $price',
+                        '$price USD',
                         style: GoogleFonts.poppins(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
