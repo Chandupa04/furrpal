@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:furrpal/config/firebase_service.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:furrpal/features/home/presentation/pages/userdetails_page.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -592,59 +591,6 @@ class _DogProfilePageState extends State<DogProfilePage> {
                   ],
                 ),
               ),
-            const SizedBox(height: 30),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: ElevatedButton(
-                onPressed: () async {
-                  final userDetails = await _firebaseService
-                      .getUserDetails(dogProfile!["ownerId"]);
-                  if (userDetails != null && mounted) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => UserDetailsPage(
-                          name: userDetails['name'],
-                          email: userDetails['email'],
-                          address: userDetails['address'],
-                          contact: userDetails['contact'],
-                          since: userDetails['since'],
-                          imagePath: userDetails['imagePath'],
-                        ),
-                      ),
-                    );
-                  } else {
-                    _showErrorSnackBar('Failed to load user details');
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF333333),
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 16,
-                  ),
-                  minimumSize: const Size(double.infinity, 54),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const SizedBox(width: 10),
-                    Text(
-                      "View Owner Profile",
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
             const SizedBox(height: 30),
           ],
         ),

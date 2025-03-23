@@ -19,7 +19,6 @@ class FirebaseService {
     required String location,
     File? imageFile,
     required String weightKg,
-    required String weightG,
     String? bloodline,
     File? healthReportFile,
   }) async {
@@ -116,7 +115,6 @@ class FirebaseService {
         'location': location,
         'imageUrl': imageUrl ?? '', // Changed from 'image' to 'imageUrl'
         'weightKg': weightKg,
-        'weightG': weightG,
         'bloodline': bloodline ?? '',
         'healthReportUrl': healthReportUrl ?? '',
         'createdAt': FieldValue.serverTimestamp(),
@@ -870,4 +868,53 @@ class FirebaseService {
       rethrow;
     }
   }
+
+  // Get user's dogs by email
+  Future<List<Map<String, dynamic>>?> getUserDogs(String email) async {
+    try {
+      print('Fetching dogs for user with email: $email');
+
+      // First, find the user document by email
+      final QuerySnapshot userQuery = await _firestore
+          .collection('users')
+          .where('email', isEqualTo: email)
+          .limit(1)
+          .get();
+
+      if (userQuery.docs.isEmpty) {
+        print('No user found with email: $email');
+        return null;
+      }
+
+      final String userId = userQuery.docs.first.id;
+      print('Found user with ID: $userId');
+
+      // Now get all dogs for this user
+      final QuerySnapshot dogsSnapshot = await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('dogs')
+          .get();
+
+      if (dogsSnapshot.docs.isEmpty) {
+        print('No dogs found for user with ID: $userId');
+        return [];
+      }
+
+      // Convert to list of maps
+      final List<Map<String, dynamic>> dogs = dogsSnapshot.docs.map((doc) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        data['id'] = doc.id;
+        data['ownerId'] = userId;
+        return data;
+      }).toList();
+
+      print('Found ${dogs.length} dogs for user with ID: $userId');
+      return dogs;
+    } catch (e) {
+      print('Error fetching user dogs: $e');
+      return null;
+    }
+  }
 }
+
