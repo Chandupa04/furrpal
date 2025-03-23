@@ -41,8 +41,7 @@ class DogProfileRepoImpl implements DogProfileRepo {
     required String gender,
     required String location,
     required String bloodline,
-    required String? healthReportUrl,
-    // String? healthConditions,
+    String? healthReportUrl,
   }) async {
     try {
       await firebaseFirestore
@@ -56,7 +55,6 @@ class DogProfileRepoImpl implements DogProfileRepo {
         'breed': breed,
         'gender': gender,
         'location': location,
-        // 'healthConditions': healthConditions,
         'bloodline': bloodline,
         'weightKg': weightKg,
         'weightG': weightG,
@@ -101,8 +99,7 @@ class DogProfileRepoImpl implements DogProfileRepo {
     required String gender,
     required String location,
     required String bloodline,
-    required String healthReportUrl,
-    // String? healthConditions,
+    String? healthReportUrl,
   }) async {
     try {
       // generate a unique ID for the dog
@@ -126,7 +123,6 @@ class DogProfileRepoImpl implements DogProfileRepo {
         weightKg: weightKg,
         weightG: weightG,
         location: location,
-        // healthConditions: healthConditions,
         imageURL: downloadUrl,
         bloodline: bloodline,
         healthReportUrl: healthReportUrl,

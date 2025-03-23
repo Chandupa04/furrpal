@@ -186,17 +186,17 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ],
                     ),
-                    IconButton(
-                      onPressed: () {},
-                      iconSize: 30.h,
-                      icon: Image.asset('assets/icons/google.png'),
-                      style: IconButton.styleFrom(
-                        shape: ContinuousRectangleBorder(
-                          borderRadius: BorderRadius.circular(18.r),
-                          side: const BorderSide(color: primaryColor),
-                        ),
-                      ),
-                    ),
+                    // IconButton(
+                    //   onPressed: () {},
+                    //   iconSize: 30.h,
+                    //   icon: Image.asset('assets/icons/google.png'),
+                    //   style: IconButton.styleFrom(
+                    //     shape: ContinuousRectangleBorder(
+                    //       borderRadius: BorderRadius.circular(18.r),
+                    //       side: const BorderSide(color: primaryColor),
+                    //     ),
+                    //   ),
+                    // ),
                     Expanded(child: Container()),
                     ButtonCustom(
                       text: 'Login to FurrPal',

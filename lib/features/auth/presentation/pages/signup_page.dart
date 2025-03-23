@@ -1,4 +1,3 @@
-import 'package:custom_check_box/custom_check_box.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -37,7 +36,7 @@ class _SignupPageState extends State<SignupPage> {
     isValid = EmailValidator.validate(emailController.text.trim());
 
     final String email = emailController.text;
-    final String password = passwordController.text;
+    final String password = passwordController.text.trim();
     final String confirmPassword = confirmPasswordController.text;
     final String fName = fNameController.text;
     final String lName = lNameController.text;
@@ -250,32 +249,31 @@ class _SignupPageState extends State<SignupPage> {
                       marginBottom: 19.h,
                       obscureText: true,
                     ),
-                    Row(
-                      children: [
-                        CustomCheckBox(
-                          borderColor: primaryColor,
-                          checkedFillColor: primaryColor,
-                          value: isChecked,
-                          onChanged: (index) {
-                            setState(() {
-                              isChecked = index;
-                            });
-                          },
-                        ),
-                        TextCustomWidget(
-                          text: 'Agree with Terms & Conditions',
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ],
-                    ),
+                    // Row(
+                    //   children: [
+                    //     CustomCheckBox(
+                    //       borderColor: primaryColor,
+                    //       checkedFillColor: primaryColor,
+                    //       value: isChecked,
+                    //       onChanged: (index) {
+                    //         setState(() {
+                    //           isChecked = index;
+                    //         });
+                    //       },
+                    //     ),
+                    //     TextCustomWidget(
+                    //       text: 'Agree with Terms & Conditions',
+                    //       fontSize: 14.sp,
+                    //       fontWeight: FontWeight.w400,
+                    //     ),
+                    //   ],
+                    // ),
                     Expanded(child: Container()),
                     ButtonCustom(
                       text: 'Continue',
                       callback: signUp,
                       inProgress: inProgress,
-                      isDisabled:
-                      isChecked == false ? true : false || inProgress,
+                      isDisabled: inProgress,
                       disabledColor: inProgress == true ? primaryColor : null,
                       dontApplyMargin: true,
                     ),
