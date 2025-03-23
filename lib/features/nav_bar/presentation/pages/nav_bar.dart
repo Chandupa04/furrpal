@@ -11,7 +11,7 @@ import 'package:furrpal/features/community/presentation/pages/community_page.dar
 import 'package:furrpal/features/home/presentation/pages/home_page.dart';
 import 'package:furrpal/features/notifications/presentation/pages/notification_page.dart';
 import 'package:furrpal/features/shop/presentation/pages/shop_page.dart';
-import 'package:furrpal/features/profiles/user_profile/presentation/pages/user_profile.dart';
+import 'package:furrpal/features/profiles/user/user_profile/presentation/pages/user_profile.dart';
 import '../../../../custom/container_custom.dart';
 import '../../../auth/presentation/pages/start_page.dart';
 
@@ -34,10 +34,6 @@ class _NavBarState extends State<NavBar> {
   bool isVerifiedEmail =
       FirebaseAuth.instance.currentUser?.emailVerified ?? false;
 
-  // void _onVerifiedEmail() async {
-  //   await
-  // }
-
   @override
   void initState() {
     FirebaseAuth.instance.currentUser!.reload();
@@ -49,6 +45,7 @@ class _NavBarState extends State<NavBar> {
     //get the current user
     final user = context.read<AuthCubit>().currentUser;
     String? uid = user!.uid;
+
     if (isVerifiedEmail) {
       return Scaffold(
         body: IndexedStack(
