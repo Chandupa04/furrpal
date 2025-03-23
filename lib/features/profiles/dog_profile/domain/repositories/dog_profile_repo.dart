@@ -9,11 +9,11 @@ abstract class DogProfileRepo {
     required String name,
     required String age,
     required String weightKg,
-    required String weightG,
     required String breed,
     required String gender,
     required String location,
-    String? healthConditions,
+    String? bloodline,
+    String? healthReportUrl,
   });
   Future<bool> updateDogProfileImage(
       {required File profileImage, required String dogId});
@@ -22,12 +22,12 @@ abstract class DogProfileRepo {
     required String name,
     required String age,
     required String weightKg,
-    required String weightG,
     required String breed,
     required String gender,
     required String location,
-    String? healthConditions,
     required File profileImage,
+    String? bloodline,
+    String? healthReportUrl,
   });
 
   Future<void> deleteDogProfile(String dogId);

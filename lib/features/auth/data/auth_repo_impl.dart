@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../features/auth/domain/models/user_entity.dart';
-import '../features/auth/domain/repositories/auth_repo.dart';
+import '../domain/models/user_entity.dart';
+import '../domain/repositories/auth_repo.dart';
 
-class FirebaseAuthRepo implements AuthRepo {
+class AuthRepoImpl implements AuthRepo {
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   final FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
 
@@ -41,8 +41,14 @@ class FirebaseAuthRepo implements AuthRepo {
       String confirmPassword) async {
     try {
       // Attempt sign in
-      UserCredential userCredential = await firebaseAuth
-          .createUserWithEmailAndPassword(email: email, password: password);
+      UserCredential userCredential =
+          await firebaseAuth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      final firebaseuser = userCredential.user!;
+      await firebaseuser.sendEmailVerification();
 
       UserEntity user = UserEntity(
         uid: userCredential.user!.uid,
@@ -90,5 +96,11 @@ class FirebaseAuthRepo implements AuthRepo {
       phoneNumber: '',
       address: '',
     );
+  }
+
+  @override
+  Future<void> verifyEmail() async {
+    final user = firebaseAuth.currentUser!;
+    await user.sendEmailVerification();
   }
 }

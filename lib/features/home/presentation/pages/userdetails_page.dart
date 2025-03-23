@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // Import Clipboard for copy function
 import 'package:flutter/cupertino.dart'; // Import Cupertino for iOS styling
+import 'package:furrpal/features/home/presentation/pages/dog_profile_page.dart';
+import 'package:furrpal/config/firebase_service.dart';
 
 class UserDetailsPage extends StatefulWidget {
   final String name;
@@ -25,6 +27,40 @@ class UserDetailsPage extends StatefulWidget {
 }
 
 class _UserDetailsPageState extends State<UserDetailsPage> {
+  final FirebaseService _firebaseService = FirebaseService();
+  bool isLoading = false;
+  List<Map<String, dynamic>>? userDogs;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserDogs();
+  }
+
+  Future<void> _loadUserDogs() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final dogs = await _firebaseService.getUserDogs(widget.email);
+
+      if (mounted) {
+        setState(() {
+          userDogs = dogs;
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error loading user dogs: $e');
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,21 +93,21 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                     CircleAvatar(
                       radius: 90,
                       backgroundImage: widget.imagePath.isNotEmpty &&
-                              (widget.imagePath.startsWith('http') ||
-                                  widget.imagePath.startsWith('assets'))
+                          (widget.imagePath.startsWith('http') ||
+                              widget.imagePath.startsWith('assets'))
                           ? (widget.imagePath.startsWith('http')
-                              ? NetworkImage(widget.imagePath)
-                              : AssetImage(widget.imagePath) as ImageProvider)
+                          ? NetworkImage(widget.imagePath)
+                          : AssetImage(widget.imagePath) as ImageProvider)
                           : null,
                       backgroundColor: CupertinoColors.systemGrey5,
                       child: (!widget.imagePath.isNotEmpty ||
-                              (!widget.imagePath.startsWith('http') &&
-                                  !widget.imagePath.startsWith('assets')))
+                          (!widget.imagePath.startsWith('http') &&
+                              !widget.imagePath.startsWith('assets')))
                           ? const Icon(
-                              Icons.person,
-                              size: 80,
-                              color: CupertinoColors.systemGrey,
-                            )
+                        Icons.person,
+                        size: 80,
+                        color: CupertinoColors.systemGrey,
+                      )
                           : null,
                     ),
                     const SizedBox(height: 16),
@@ -121,6 +157,73 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                   ),
                 ),
               ),
+
+              const SizedBox(height: 40),
+
+              // Add button to view dog profile
+              if (isLoading)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: CircularProgressIndicator(),
+                  ),
+                )
+              else if (userDogs != null && userDogs!.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DogProfilePage(
+                            dogId: userDogs!.first['id'],
+                            userId: userDogs!.first['ownerId'],
+                          ),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF333333),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
+                      minimumSize: const Size(double.infinity, 54),
+                    ),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.pets, size: 20),
+                        SizedBox(width: 10),
+                        Text(
+                          "View Dog Profile",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              else
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    "No dog profiles found for this user",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
@@ -151,29 +254,29 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
             flex: 3,
             child: isCopyable
                 ? GestureDetector(
-                    onTap: () {
-                      Clipboard.setData(ClipboardData(text: value));
-                      _showIosStyleToast("$label copied!");
-                    },
-                    child: Text(
-                      value,
-                      style: const TextStyle(
-                        fontSize: 17,
-                        color: CupertinoColors.activeBlue,
-                        fontWeight: FontWeight.w400,
-                      ),
-                      textAlign: TextAlign.right,
-                    ),
-                  )
+              onTap: () {
+                Clipboard.setData(ClipboardData(text: value));
+                _showIosStyleToast("$label copied!");
+              },
+              child: Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 17,
+                  color: CupertinoColors.activeBlue,
+                  fontWeight: FontWeight.w400,
+                ),
+                textAlign: TextAlign.right,
+              ),
+            )
                 : Text(
-                    value,
-                    style: const TextStyle(
-                      fontSize: 17,
-                      color: CupertinoColors.label,
-                      fontWeight: FontWeight.w400,
-                    ),
-                    textAlign: TextAlign.right,
-                  ),
+              value,
+              style: const TextStyle(
+                fontSize: 17,
+                color: CupertinoColors.label,
+                fontWeight: FontWeight.w400,
+              ),
+              textAlign: TextAlign.right,
+            ),
           ),
         ],
       ),
@@ -197,3 +300,4 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
     );
   }
 }
+

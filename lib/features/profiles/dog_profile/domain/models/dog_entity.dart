@@ -5,12 +5,12 @@ class DogEntity {
   final String gender;
   final String age;
   final String weightKg;
-  final String weightG;
-  final String? healthConditions;
   final String location;
   final String imageURL;
   final List<String>? likes;
   final List<String>? dislikes;
+  final String? bloodline;
+  final String? healthReportUrl;
 
   DogEntity({
     required this.dogId,
@@ -19,10 +19,10 @@ class DogEntity {
     required this.gender,
     required this.age,
     required this.weightKg,
-    required this.weightG,
-    this.healthConditions,
     required this.location,
     required this.imageURL,
+    this.bloodline,
+    this.healthReportUrl,
     this.likes,
     this.dislikes,
   });
@@ -37,6 +37,8 @@ class DogEntity {
     String? newHealthConditions,
     String? newLocation,
     String? newImageURL,
+    String? newBloodline,
+    String? newHealthReportUrl,
   }) {
     return DogEntity(
       dogId: dogId,
@@ -45,10 +47,10 @@ class DogEntity {
       gender: newGender ?? gender,
       age: newAge ?? age,
       weightKg: newWeightKg ?? weightKg,
-      weightG: newWeightG ?? weightG,
-      healthConditions: newHealthConditions ?? healthConditions,
       location: newLocation ?? location,
       imageURL: newImageURL ?? imageURL,
+      bloodline: newBloodline ?? bloodline,
+      healthReportUrl: newHealthReportUrl ?? healthReportUrl,
     );
   }
 
@@ -59,14 +61,14 @@ class DogEntity {
       breed: json['breed'],
       gender: json['gender'],
       age: json['age'],
-      weightG: json['weightG'],
       weightKg: json['weightKg'],
-      healthConditions: json['healthConditions'],
       location: json['location'],
       imageURL: json['imageUrl'],
       likes: json['likes'] != null ? List<String>.from(json['likes']) : [],
       dislikes:
           json['dislikes'] != null ? List<String>.from(json['dislikes']) : [],
+      bloodline: json['bloodline'],
+      healthReportUrl: json['healthReportUrl'],
     );
   }
 
@@ -77,13 +79,13 @@ class DogEntity {
       'breed': breed,
       'gender': gender,
       'age': age,
-      'weightG': weightG,
       'weightKg': weightKg,
-      'healthConditions': healthConditions,
       'location': location,
       'imageUrl': imageURL,
       'likes': likes,
       'dislikes': dislikes,
+      'bloodline': bloodline,
+      'healthReportUrl': healthReportUrl,
     };
   }
 }

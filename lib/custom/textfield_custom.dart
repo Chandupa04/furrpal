@@ -185,7 +185,7 @@ class _TextFieldCustomState extends State<TextFieldCustom> {
                 TextStyle(
                   fontSize: 17.sp,
                   fontWeight: FontWeight.w500,
-                  color: Colors.black,
+                  color: Colors.grey,
                 ),
             labelText: widget.labelText,
             labelStyle: widget.labelstyle ??

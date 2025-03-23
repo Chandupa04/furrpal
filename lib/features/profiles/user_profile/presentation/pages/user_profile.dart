@@ -100,7 +100,7 @@ class _UserProfileState extends State<UserProfile> {
                             errorWidget: (context, url, error) => Icon(
                               Icons.person,
                               size: 72.h,
-                              color: Colors.blue,
+                              color: Colors.grey,
                             ),
                             imageBuilder: (context, imageProvider) =>
                                 ContainerCustom(
@@ -149,7 +149,7 @@ class _UserProfileState extends State<UserProfile> {
                         textColor: blackColor,
                       ),
                       const Text(
-                        'Your Paws',
+                        'My Paws',
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -239,6 +239,7 @@ class _UserProfileState extends State<UserProfile> {
         } else {
           return Center(
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const TextCustomWidget(
                   text: 'No profile found',
@@ -248,6 +249,12 @@ class _UserProfileState extends State<UserProfile> {
                     onPressed: () {
                       Navigator.pop(context);
                       logout();
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const StartPage(),
+                          ),
+                          (route) => false);
                     },
                     icon: const Icon(Icons.logout))
               ],
