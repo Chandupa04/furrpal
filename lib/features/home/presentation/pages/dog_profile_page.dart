@@ -4,6 +4,7 @@ import 'package:furrpal/config/firebase_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:furrpal/features/home/presentation/pages/userdetails_page.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DogProfilePage extends StatefulWidget {
   final String dogId;
@@ -191,6 +192,28 @@ class _DogProfilePageState extends State<DogProfilePage> {
     }
   }
 
+  Future<void> _openHealthReport() async {
+    if (dogProfile != null &&
+        dogProfile!.containsKey("healthReportUrl") &&
+        dogProfile!["healthReportUrl"] != null &&
+        dogProfile!["healthReportUrl"].toString().isNotEmpty) {
+
+      final url = Uri.parse(dogProfile!["healthReportUrl"]);
+
+      try {
+        if (await canLaunchUrl(url)) {
+          await launchUrl(url, mode: LaunchMode.externalApplication);
+        } else {
+          _showErrorSnackBar('Could not open health report');
+        }
+      } catch (e) {
+        _showErrorSnackBar('Error opening health report: $e');
+      }
+    } else {
+      _showErrorSnackBar('No health report available');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -221,257 +244,411 @@ class _DogProfilePageState extends State<DogProfilePage> {
       ),
       body: isLoading
           ? const Center(
-              child: CircularProgressIndicator(),
-            )
+        child: CircularProgressIndicator(),
+      )
           : dogProfile == null
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+          ? Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 60,
+              color: Colors.grey[400],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Dog profile not found',
+              style: GoogleFonts.poppins(
+                fontSize: 18,
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _loadDogProfile,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+              ),
+              child: Text(
+                'Try Again',
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+      )
+          : SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: _getProfileImage(),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(
-                        Icons.error_outline,
-                        size: 60,
-                        color: Colors.grey[400],
-                      ),
-                      const SizedBox(height: 16),
                       Text(
-                        'Dog profile not found',
+                        dogProfile!["name"] ?? "Unknown Dog",
                         style: GoogleFonts.poppins(
-                          fontSize: 18,
-                          color: Colors.grey[600],
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
                         ),
                       ),
-                      const SizedBox(height: 24),
-                      ElevatedButton(
-                        onPressed: _loadDogProfile,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 12,
-                          ),
-                        ),
-                        child: Text(
-                          'Try Again',
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
+                      Text(
+                        dogProfile!["breed"] ?? "Unknown breed",
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          color: Colors.grey[600],
                         ),
                       ),
                     ],
                   ),
-                )
-              : SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: _getProfileImage(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.blue[50],
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.location_on,
+                          size: 16,
+                          color: Colors.blue[700],
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          dogProfile!["location"] ?? "Unknown",
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            color: Colors.blue[700],
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                "Details",
+                style: GoogleFonts.poppins(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            _buildInfoCards(),
+            const SizedBox(height: 24),
+
+            // Bloodline section (if available)
+            if (dogProfile!["bloodline"] != null &&
+                dogProfile!["bloodline"].toString().isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Bloodline",
+                      style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  dogProfile!["name"] ?? "Unknown Dog",
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                  ),
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: Colors.grey.shade200,
+                          width: 1,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 10,
+                            spreadRadius: 0,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.pets,
+                                color: Colors.brown[400],
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                "Bloodline Information",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black,
                                 ),
-                                Text(
-                                  dogProfile!["breed"] ?? "Unknown breed",
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 16,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
-                              ],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            dogProfile!["bloodline"],
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              color: Colors.grey[700],
+                              height: 1.5,
                             ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+            // Add spacing if bloodline was displayed
+            if (dogProfile!["bloodline"] != null &&
+                dogProfile!["bloodline"].toString().isNotEmpty)
+              const SizedBox(height: 24),
+
+            // Health Report section
+            if (dogProfile!["healthReportUrl"] != null &&
+                dogProfile!["healthReportUrl"].toString().isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Health Report",
+                      style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    GestureDetector(
+                      onTap: _openHealthReport,
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: Colors.grey.shade200,
+                            width: 1,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              spreadRadius: 0,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.medical_services_outlined,
+                              color: Colors.red[400],
+                              size: 24,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                "View Health Report",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.blue[700],
+                                ),
                               ),
-                              decoration: BoxDecoration(
-                                color: Colors.blue[50],
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.location_on,
-                                    size: 16,
-                                    color: Colors.blue[700],
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    dogProfile!["location"] ?? "Unknown",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 14,
-                                      color: Colors.blue[700],
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                            ),
+                            Icon(
+                              Icons.open_in_new,
+                              color: Colors.blue[700],
+                              size: 20,
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(height: 24),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Text(
-                          "Details",
-                          style: GoogleFonts.poppins(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
+                    ),
+                  ],
+                ),
+              ),
+
+            // Add spacing if health report was displayed
+            if (dogProfile!["healthReportUrl"] != null &&
+                dogProfile!["healthReportUrl"].toString().isNotEmpty)
+              const SizedBox(height: 24),
+
+            // Health Conditions section (if available)
+            if (dogProfile!["healthConditions"] != null &&
+                dogProfile!["healthConditions"].toString().isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Health Information",
+                      style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
                       ),
-                      const SizedBox(height: 12),
-                      _buildInfoCards(),
-                      const SizedBox(height: 24),
-                      if (dogProfile!["healthConditions"] != null &&
-                          dogProfile!["healthConditions"].toString().isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Health Information",
-                                style: GoogleFonts.poppins(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(
-                                    color: Colors.grey.shade200,
-                                    width: 1,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
-                                      blurRadius: 10,
-                                      spreadRadius: 0,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          Icons.medical_services_outlined,
-                                          color: Colors.red[400],
-                                          size: 20,
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          "Health Conditions",
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 12),
-                                    Text(
-                                      dogProfile!["healthConditions"],
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 14,
-                                        color: Colors.grey[700],
-                                        height: 1.5,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: Colors.grey.shade200,
+                          width: 1,
                         ),
-                      const SizedBox(height: 30),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            final userDetails = await _firebaseService
-                                .getUserDetails(dogProfile!["ownerId"]);
-                            if (userDetails != null && mounted) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => UserDetailsPage(
-                                    name: userDetails['name'],
-                                    email: userDetails['email'],
-                                    address: userDetails['address'],
-                                    contact: userDetails['contact'],
-                                    since: userDetails['since'],
-                                    imagePath: userDetails['imagePath'],
-                                  ),
-                                ),
-                              );
-                            } else {
-                              _showErrorSnackBar('Failed to load user details');
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF333333),
-                            foregroundColor: Colors.white,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 16,
-                            ),
-                            minimumSize: const Size(double.infinity, 54),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 10,
+                            spreadRadius: 0,
+                            offset: const Offset(0, 4),
                           ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
                             children: [
-                              const SizedBox(width: 10),
+                              Icon(
+                                Icons.medical_services_outlined,
+                                color: Colors.red[400],
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
                               Text(
-                                "View Owner Profile",
+                                "Health Conditions",
                                 style: GoogleFonts.poppins(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
+                                  color: Colors.black,
                                 ),
                               ),
                             ],
                           ),
+                          const SizedBox(height: 12),
+                          Text(
+                            dogProfile!["healthConditions"],
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              color: Colors.grey[700],
+                              height: 1.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            const SizedBox(height: 30),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: ElevatedButton(
+                onPressed: () async {
+                  final userDetails = await _firebaseService
+                      .getUserDetails(dogProfile!["ownerId"]);
+                  if (userDetails != null && mounted) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => UserDetailsPage(
+                          name: userDetails['name'],
+                          email: userDetails['email'],
+                          address: userDetails['address'],
+                          contact: userDetails['contact'],
+                          since: userDetails['since'],
+                          imagePath: userDetails['imagePath'],
                         ),
                       ),
-                      const SizedBox(height: 30),
-                    ],
+                    );
+                  } else {
+                    _showErrorSnackBar('Failed to load user details');
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF333333),
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
                   ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 16,
+                  ),
+                  minimumSize: const Size(double.infinity, 54),
                 ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const SizedBox(width: 10),
+                    Text(
+                      "View Owner Profile",
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 30),
+          ],
+        ),
+      ),
     );
   }
 
@@ -494,21 +671,37 @@ class _DogProfilePageState extends State<DogProfilePage> {
             dogProfile!["gender"] == "Male" ? Icons.male : Icons.female,
             dogProfile!["gender"] == "Male" ? Colors.blue : Colors.pink,
           ),
+          // Weight card - combining kg and g if available
           _buildInfoCard(
             "Weight",
-            dogProfile!["weight"] ?? "Unknown",
+            _getFormattedWeight(),
             Icons.monitor_weight_outlined,
             Colors.green,
-          ),
-          _buildInfoCard(
-            "Vaccinated",
-            dogProfile!["vaccinated"] ?? "Unknown",
-            Icons.check_circle_outline,
-            Colors.teal,
           ),
         ],
       ),
     );
+  }
+
+  String _getFormattedWeight() {
+    String weight = "Unknown";
+
+    if (dogProfile!.containsKey("weightKg") &&
+        dogProfile!.containsKey("weightG") &&
+        dogProfile!["weightKg"] != null &&
+        dogProfile!["weightG"] != null) {
+
+      final kg = dogProfile!["weightKg"].toString();
+      final g = dogProfile!["weightG"].toString();
+
+      if (kg.isNotEmpty && g.isNotEmpty) {
+        weight = "$kg.$g kg";
+      } else if (kg.isNotEmpty) {
+        weight = "$kg kg";
+      }
+    }
+
+    return weight;
   }
 
   Widget _buildInfoCard(
@@ -569,3 +762,4 @@ class _DogProfilePageState extends State<DogProfilePage> {
     );
   }
 }
+

@@ -14,8 +14,7 @@ abstract class DogProfileRepo {
     required String gender,
     required String location,
     required String bloodline,
-    required String healthReportUrl,
-    // String? healthConditions,
+    String? healthReportUrl,
   });
   Future<bool> updateDogProfileImage(
       {required File profileImage, required String dogId});
@@ -29,9 +28,8 @@ abstract class DogProfileRepo {
     required String gender,
     required String location,
     required String bloodline,
-    // String? healthConditions,
     required File profileImage,
-    required String healthReportUrl,
+    String? healthReportUrl,
   });
 
   Future<void> deleteDogProfile(String dogId);

@@ -261,33 +261,6 @@ class FirebaseService {
         return [];
       }
 
-      // First, get the dog profiles liked by current user to filter them out later
-      final QuerySnapshot likesSnapshot = await _firestore
-          .collection('users')
-          .doc(currentUser.uid)
-          .collection('likes')
-          .get();
-
-      // Get disliked profiles to filter them out as well
-      final QuerySnapshot dislikesSnapshot = await _firestore
-          .collection('users')
-          .doc(currentUser.uid)
-          .collection('dislikes')
-          .get();
-
-      // Create a set of liked dog IDs for faster lookup
-      final Set<String> likedDogIds = likesSnapshot.docs
-          .map((doc) => (doc.data() as Map<String, dynamic>)['dogId'] as String)
-          .toSet();
-
-      // Create a set of disliked dog IDs for faster lookup
-      final Set<String> dislikedDogIds = dislikesSnapshot.docs
-          .map((doc) => (doc.data() as Map<String, dynamic>)['dogId'] as String)
-          .toSet();
-
-      print('User has liked ${likedDogIds.length} dog profiles');
-      print('User has disliked ${dislikedDogIds.length} dog profiles');
-
       // Get all users except current user
       final QuerySnapshot usersSnapshot = await _firestore
           .collection('users')
@@ -315,22 +288,8 @@ class FirebaseService {
         allDogs.addAll(dogs);
       }
 
-      // Filter out dogs that have been liked or disliked
-      final filteredDogs = allDogs
-          .where((dog) =>
-              !likedDogIds.contains(dog['id']) &&
-              !dislikedDogIds.contains(dog['id']))
-          .toList();
-
-      // Filter out dogs that have been liked
-      //  final filteredDogs =
-      //   allDogs.where((dog) => !likedDogIds contains (dog ['id '])).toList();
-
       print('Retrieved ${allDogs.length} total dog profiles from Firestore');
-      print(
-          'After filtering liked and disliked profiles: ${filteredDogs.length} profiles remain');
-
-      return filteredDogs;
+      return allDogs; // Return all dogs without filtering
     } catch (e) {
       print('Error getting dog profiles: $e');
       rethrow;
@@ -440,6 +399,33 @@ class FirebaseService {
         print('User already liked this dog');
         return;
       }
+
+      // Get current user details
+      final userDoc =
+          await _firestore.collection('users').doc(currentUserId).get();
+      if (!userDoc.exists) {
+        print('Error: User document not found for ID: $currentUserId');
+        return;
+      }
+
+      final userData = userDoc.data();
+      if (userData == null) {
+        print('Error: User data is null for ID: $currentUserId');
+        return;
+      }
+
+      // Get the user's first and last name
+      final String firstName = userData['firstName'] ?? '';
+      final String lastName = userData['lastName'] ?? '';
+      final String fullName = firstName.isNotEmpty && lastName.isNotEmpty
+          ? '$firstName $lastName'
+          : firstName.isNotEmpty
+              ? firstName
+              : lastName.isNotEmpty
+                  ? lastName
+                  : 'A user';
+
+      print('Storing like for user: $fullName');
 
       // Get the current dog document
       final dogRef = _firestore
