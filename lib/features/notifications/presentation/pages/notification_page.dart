@@ -42,7 +42,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   color: Colors.black,
                 ),
               ),
-              const SizedBox(width: 50),
+              SizedBox(width: 50),
             ],
           ),
         ),
@@ -56,33 +56,46 @@ class _NotificationsPageState extends State<NotificationsPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
                 categories.length,
-                (index) => GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      selectedIndex = index;
-                    });
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: selectedIndex == index
-                          ? const Color(0xFF333333)
-                          : Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      categories[index],
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        fontWeight: selectedIndex == index
-                            ? FontWeight.w600
-                            : FontWeight.w500,
+                (index) => Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        selectedIndex = index;
+                      });
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
                         color: selectedIndex == index
-                            ? Colors.white
-                            : Colors.grey.shade600,
+                            ? const Color(0xFF333333)
+                            : Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: selectedIndex == index
+                            ? [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                )
+                              ]
+                            : null,
+                      ),
+                      child: Text(
+                        categories[index],
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          fontWeight: selectedIndex == index
+                              ? FontWeight.w600
+                              : FontWeight.w500,
+                          color: selectedIndex == index
+                              ? Colors.white
+                              : Colors.grey.shade600,
+                        ),
                       ),
                     ),
                   ),
@@ -112,7 +125,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   print('StreamBuilder waiting for data...');
                   return const Center(
-                    child: CircularProgressIndicator(),
+                    child: CircularProgressIndicator(
+                      color: Color(0xFF333333),
+                    ),
                   );
                 }
 
@@ -122,11 +137,23 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 if (notifications.isEmpty) {
                   print('No notifications found');
                   return Center(
-                    child: Text(
-                      'No likes yet',
-                      style: GoogleFonts.poppins(
-                        color: Colors.grey.shade600,
-                      ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.notifications_off_outlined,
+                          size: 48,
+                          color: Colors.grey.shade400,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'No likes yet',
+                          style: GoogleFonts.poppins(
+                            color: Colors.grey.shade600,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
                     ),
                   );
                 }
@@ -142,11 +169,13 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 });
 
                 return ListView.separated(
+                  padding: const EdgeInsets.only(top: 8, bottom: 16),
                   itemCount: notifications.length,
-                  separatorBuilder: (context, index) => const Divider(
+                  separatorBuilder: (context, index) => Divider(
                     height: 1,
                     indent: 72,
                     endIndent: 16,
+                    color: Colors.grey.shade200,
                   ),
                   itemBuilder: (context, index) {
                     final notification =
@@ -165,7 +194,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                         notification['likedByUserName'] ?? 'Someone';
                     final dogName = notification['dogName'] ?? 'your dog';
                     final message = notification['message'] ??
-                        'Your dog is getting popular!';
+                        "<dogName> has received a like.";
 
                     // Get profile picture if available, otherwise use default
                     final avatarPath =
@@ -179,8 +208,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     return NotificationTile(
                       notification: Notification(
                         avatarPath: avatarPath,
-                        title: '$likedByUserName liked your profile',
-                        message: message,
+                        title: 'A user liked your profile',
+                        message: '$dogName has received a like.',
                         time: timeAgo,
                         userId: notification['likedByUserId'],
                         dogId: notification['likedByDogId'],
@@ -193,14 +222,14 @@ class _NotificationsPageState extends State<NotificationsPage> {
               },
             )
           : ListView.separated(
+              padding: const EdgeInsets.only(top: 8, bottom: 16),
               itemCount: getCurrentNotifications().length,
-              separatorBuilder: (context, index) => const Divider(
+              separatorBuilder: (context, index) => Divider(
                 height: 0.5,
                 indent: 100,
-                endIndent: 16, // Matches the right padding
+                endIndent: 16,
                 thickness: 0.8,
-                color: Color(
-                    0xFFDDDDDD), // Light grey line (optional for a premium feel)
+                color: Colors.grey.shade200,
               ),
               itemBuilder: (context, index) {
                 return NotificationTile(
@@ -229,24 +258,71 @@ class NotificationTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: Colors.grey.shade200,
-                width: 2,
+    return InkWell(
+      onTap: () async {
+        if (notification.likedByUserId != null) {
+          print('Viewing user profile:');
+          print('  likedByUserId: ${notification.likedByUserId}');
+
+          // Fetch the user details before navigating
+          final userDetails = await _firebaseService
+              .getUserDetails(notification.likedByUserId!);
+
+          if (userDetails != null && context.mounted) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => UserDetailsPage(
+                  name: userDetails['name'],
+                  email: userDetails['email'],
+                  address: userDetails['address'],
+                  contact: userDetails['contact'],
+                  since: userDetails['since'],
+                  imagePath: userDetails['imagePath'],
+                ),
+              ),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Profile not found',
+                  style: GoogleFonts.poppins(),
+                ),
+                backgroundColor: Colors.red.shade400,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            );
+          }
+        }
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              // decoration: BoxDecoration(
+              //   shape: BoxShape.circle,
+              //   color: Colors.grey.shade100,
+              //   border: Border.all(
+              //     color: Colors.grey.shade200,
+              //     width: 2,
+              //   ),
+              // ),
+              child: Icon(
+                Icons.favorite,
+                color: const Color.fromARGB(255, 244, 149, 72),
+                size: 20,
               ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(left: 15),
+            const SizedBox(width: 16),
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -257,89 +333,67 @@ class NotificationTile extends StatelessWidget {
                         child: Text(
                           notification.title,
                           style: GoogleFonts.poppins(
-                            fontSize: 14,
+                            fontSize: 15,
                             fontWeight: FontWeight.w600,
                             color: const Color(0xFF333333),
                           ),
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Text(
-                        notification.time,
-                        style: GoogleFonts.poppins(
-                          fontSize: 12,
-                          color: Colors.grey.shade600,
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          notification.time,
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            color: Colors.grey.shade600,
+                          ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
                   Text(
                     notification.message,
                     style: GoogleFonts.poppins(
-                      fontSize: 13,
-                      color: Colors.grey.shade600,
+                      fontSize: 14,
+                      color: Colors.grey.shade700,
                       height: 1.4,
                     ),
                   ),
-                  if (notification.likedByUserId != null &&
-                      notification.likedByDogId != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: GestureDetector(
-                        onTap: () async {
-                          print('Viewing user profile:');
-                          print(
-                              '  likedByUserId: ${notification.likedByUserId}');
-
-                          // Fetch the user details before navigating
-                          final userDetails = await _firebaseService
-                              .getUserDetails(notification.likedByUserId!);
-
-                          if (userDetails != null && context.mounted) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => UserDetailsPage(
-                                  name: userDetails['name'],
-                                  email: userDetails['email'],
-                                  address: userDetails['address'],
-                                  contact: userDetails['contact'],
-                                  since: userDetails['since'],
-                                  imagePath: userDetails['imagePath'],
-                                ),
-                              ),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  'Profile not found',
-                                  style: GoogleFonts.poppins(),
-                                ),
-                              ),
-                            );
-                          }
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 6),
-                          child: Text(
-                            'View Profile',
-                            style: GoogleFonts.poppins(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: const Color.fromARGB(255, 254, 79, 21),
-                            ),
-                          ),
+                  if (notification.likedByUserId != null)
+                    Container(
+                      margin: const EdgeInsets.only(top: 10),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color.fromARGB(255, 254, 79, 21)
+                            .withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Text(
+                        'View Profile',
+                        style: GoogleFonts.poppins(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: const Color.fromARGB(255, 254, 79, 21),
                         ),
                       ),
                     ),
                 ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

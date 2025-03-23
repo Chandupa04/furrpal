@@ -452,6 +452,7 @@ class FirebaseService {
         'dogId': dogId,
         'dogName': dogName,
         'likedByUserId': currentUserId,
+        'likedByDogId': likedByDogId, // Add this line
         'timestamp': FieldValue.serverTimestamp(),
         'read': false,
         'message': 'Your dog $dogName has received a new like!',
