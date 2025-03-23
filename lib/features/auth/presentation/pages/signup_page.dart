@@ -275,7 +275,7 @@ class _SignupPageState extends State<SignupPage> {
                       callback: signUp,
                       inProgress: inProgress,
                       isDisabled:
-                          isChecked == false ? true : false || inProgress,
+                      isChecked == false ? true : false || inProgress,
                       disabledColor: inProgress == true ? primaryColor : null,
                       dontApplyMargin: true,
                     ),

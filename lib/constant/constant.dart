@@ -75,3 +75,4 @@ final List<String> breeds = [
 ];
 
 final List<String> genders = ['Male', 'Female'];
+final List<String> weights = ['Male', 'Female'];

@@ -32,7 +32,9 @@ class DogProfileCubit extends Cubit<DogProfileState> {
     required String weightG,
     required String newGender,
     required String newLocation,
-    String? newHealthConditions,
+    required String bloodline,
+    required String healthReportUrl,
+    // String? newHealthConditions,
   }) async {
     emit(DogProfileLoading());
     try {
@@ -50,7 +52,9 @@ class DogProfileCubit extends Cubit<DogProfileState> {
         breed: newBreed,
         gender: newGender,
         location: newLocation,
-        healthConditions: newHealthConditions,
+        // healthConditions: newHealthConditions,
+        bloodline: bloodline,
+        healthReportUrl: healthReportUrl,
       );
       if (updatedDog == true) {
         await fetchDogProfiles();
@@ -89,7 +93,6 @@ class DogProfileCubit extends Cubit<DogProfileState> {
 
   // add new dog profile
   Future<bool> addNewDogProfile({
-    // required String dogId,
     required File profileImage,
     required String name,
     required String age,
@@ -98,7 +101,9 @@ class DogProfileCubit extends Cubit<DogProfileState> {
     required String breed,
     required String gender,
     required String location,
-    String? healthConditions,
+    required String bloodline,
+    required String healthReportUrl,
+    // String? healthConditions,
   }) async {
     emit(DogProfileLoading());
     try {
@@ -111,7 +116,9 @@ class DogProfileCubit extends Cubit<DogProfileState> {
         breed: breed,
         gender: gender,
         location: location,
-        healthConditions: healthConditions,
+        // healthConditions: healthConditions,
+        bloodline: bloodline,
+        healthReportUrl: healthReportUrl,
       );
       if (newDog == true) {
         await fetchDogProfiles();

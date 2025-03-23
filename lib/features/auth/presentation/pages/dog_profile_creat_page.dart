@@ -223,7 +223,7 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
                             borderRadius: BorderRadius.circular(10.r),
                           ),
                           contentPadding:
-                              EdgeInsets.symmetric(horizontal: 16.w),
+                          EdgeInsets.symmetric(horizontal: 16.w),
                         ),
                         hint: Text('Years'),
                         items: years.map((int year) {
@@ -266,7 +266,7 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
                             borderRadius: BorderRadius.circular(10.r),
                           ),
                           contentPadding:
-                              EdgeInsets.symmetric(horizontal: 16.w),
+                          EdgeInsets.symmetric(horizontal: 16.w),
                         ),
                         hint: Text('Months'),
                         items: months.map((int month) {
@@ -331,39 +331,39 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
               onTap: _pickImage,
               child: _imageFile != null
                   ? ClipRRect(
-                      borderRadius: BorderRadius.circular(75.r),
-                      child: Image.file(
-                        _imageFile!,
-                        width: 150.w,
-                        height: 150.h,
-                        fit: BoxFit.cover,
-                      ),
-                    )
+                borderRadius: BorderRadius.circular(75.r),
+                child: Image.file(
+                  _imageFile!,
+                  width: 150.w,
+                  height: 150.h,
+                  fit: BoxFit.cover,
+                ),
+              )
                   : Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Image.asset(
-                          logoImage,
-                          width: 150.w,
-                          height: 150.h,
-                        ),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: Container(
-                            padding: EdgeInsets.all(8.r),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[300],
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.camera_alt,
-                              size: 24.r,
-                            ),
-                          ),
-                        ),
-                      ],
+                alignment: Alignment.center,
+                children: [
+                  Image.asset(
+                    logoImage,
+                    width: 150.w,
+                    height: 150.h,
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: Container(
+                      padding: EdgeInsets.all(8.r),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.camera_alt,
+                        size: 24.r,
+                      ),
                     ),
+                  ),
+                ],
+              ),
             ),
             ContainerCustom(
               marginLeft: 13.w,
@@ -429,7 +429,7 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
                                 onTap: () {
                                   setState(() {
                                     _breedController.text =
-                                        filteredBreeds[index];
+                                    filteredBreeds[index];
                                     showBreedDropdown = false;
                                   });
                                 },
@@ -545,7 +545,7 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
 
                   // Health Report (PDF) upload
                   TextCustomWidget(
-                    text: 'Health Report (PDF) (Required)',
+                    text: 'Health Report (PDF) (Optional)',
                     fontSize: 17.sp,
                     marginLeft: 9.w,
                     marginBottom: 4.h,
@@ -614,15 +614,14 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
       return;
     }
 
-    // Check for required fields including new mandatory fields
+    // Check for required fields
     if (_nameController.text.isEmpty ||
         _breedController.text.isEmpty ||
         selectedGender == null ||
         (selectedYears == null && selectedMonths == null) ||
         _locationController.text.isEmpty ||
         _weightKgController.text.isEmpty ||
-        _weightGController.text.isEmpty ||
-        _healthReportFile == null) {
+        _weightGController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill all required fields')),
       );
