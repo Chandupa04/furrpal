@@ -195,7 +195,8 @@ class _ShopPageState extends State<ShopPage> {
                     crossAxisCount: 2,
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 16,
-                    childAspectRatio: 0.7,
+                    childAspectRatio:
+                        0.65, // Changed from 0.7 to 0.65 to fix the overflow
                   ),
                   itemCount: productDocs.length,
                   itemBuilder: (context, index) {

@@ -136,7 +136,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                   decoration: BoxDecoration(
                     color: CupertinoColors.systemBackground,
                     borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
+                    boxShadow: const [
                       BoxShadow(
                         color: CupertinoColors.systemGrey5,
                         blurRadius: 5,
