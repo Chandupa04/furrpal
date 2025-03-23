@@ -16,7 +16,7 @@ class ShopPage extends StatefulWidget {
 
 class _ShopPageState extends State<ShopPage> {
   final CollectionReference products =
-      FirebaseFirestore.instance.collection('products');
+  FirebaseFirestore.instance.collection('products');
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
@@ -29,36 +29,15 @@ class _ShopPageState extends State<ShopPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Container(
-          width: double.infinity,
-          height: 40,
-          decoration: BoxDecoration(
-            color: Colors.grey[100],
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Center(
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search products...',
-                hintStyle: GoogleFonts.poppins(
-                  fontSize: 14,
-                  color: Colors.grey[500],
-                ),
-                border: InputBorder.none,
-                prefixIcon:
-                    Icon(Icons.search, color: Colors.grey[500], size: 20),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-              ),
-              style: GoogleFonts.poppins(fontSize: 14),
-              onChanged: (value) {
-                setState(() {
-                  _searchQuery = value.toLowerCase();
-                });
-              },
-            ),
+        title: Text(
+          "FurrPal",
+          style: GoogleFonts.poppins(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
           ),
         ),
+        centerTitle: true,
         actions: [
           IconButton(
             icon: AnimatedCartIcon(itemCount: cartProvider.cartItems.length),
@@ -104,7 +83,7 @@ class _ShopPageState extends State<ShopPage> {
             ),
             ListTile(
               leading:
-                  const Icon(Icons.shopping_cart, color: Color(0xFF333333)),
+              const Icon(Icons.shopping_cart, color: Color(0xFF333333)),
               title: Text('Cart', style: GoogleFonts.poppins()),
               onTap: () {
                 Navigator.pop(context);
@@ -125,45 +104,54 @@ class _ShopPageState extends State<ShopPage> {
                 );
               },
             ),
-            ListTile(
-              leading: const Icon(Icons.settings, color: Color(0xFF333333)),
-              title: Text('Settings', style: GoogleFonts.poppins()),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
+            // Settings ListTile removed as requested
           ],
         ),
       ),
       body: Column(
         children: [
+          // Search field moved below the app bar
+          Container(
+            margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            height: 40,
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Search products...',
+                hintStyle: GoogleFonts.poppins(
+                  fontSize: 14,
+                  color: Colors.grey[500],
+                ),
+                border: InputBorder.none,
+                prefixIcon:
+                Icon(Icons.search, color: Colors.grey[500], size: 20),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+              ),
+              style: GoogleFonts.poppins(fontSize: 14),
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value.toLowerCase();
+                });
+              },
+            ),
+          ),
+
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Row(
-              children: [
-                Text(
-                  'Featured Products',
-                  style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFF333333),
-                  ),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Featured Products',
+                style: GoogleFonts.poppins(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF333333),
                 ),
-                const Spacer(),
-                TextButton(
-                  onPressed: () {
-                    // View all products functionality
-                  },
-                  child: Text(
-                    'View All',
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.blue[700],
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
           Expanded(
@@ -312,51 +300,24 @@ class ProductCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image container with discount badge
-            Stack(
-              children: [
-                ClipRRect(
-                  borderRadius:
-                      const BorderRadius.vertical(top: Radius.circular(16)),
-                  child: Image.network(
-                    imageUrl,
+            // Image container (discount badge removed)
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              child: Image.network(
+                imageUrl,
+                height: 140,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
                     height: 140,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        height: 140,
-                        color: Colors.grey[200],
-                        child: const Center(
-                          child: Icon(Icons.image_not_supported,
-                              color: Colors.grey),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                // Optional: Add a discount badge
-                Positioned(
-                  top: 8,
-                  left: 8,
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(12),
+                    color: Colors.grey[200],
+                    child: const Center(
+                      child: Icon(Icons.image_not_supported, color: Colors.grey),
                     ),
-                    child: Text(
-                      '20% OFF',
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+                  );
+                },
+              ),
             ),
 
             // Product details

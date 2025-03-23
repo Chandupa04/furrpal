@@ -24,7 +24,7 @@ class OrderHistoryPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Order History'),
-        backgroundColor: const Color.fromARGB(255, 253, 162, 131),
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
         foregroundColor: const Color.fromARGB(255, 10, 8, 1),
       ),
       body: StreamBuilder<QuerySnapshot>(
