@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../../stripe_payment_page/services/stripe_service.dart'; // Import the StripeService
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../../../stripe_payment_page/services/stripe_service.dart';
 import '../../../../config/firebase_service.dart';
 
 class PricingPlansScreen extends StatefulWidget {
@@ -11,6 +11,8 @@ class PricingPlansScreen extends StatefulWidget {
 }
 
 class _PricingPlansScreenState extends State<PricingPlansScreen> {
+  bool _isLoading = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,7 +20,7 @@ class _PricingPlansScreenState extends State<PricingPlansScreen> {
         title: const Text(
           'FurrPal',
           style: TextStyle(
-            fontSize: 25, // Increased font size from default
+            fontSize: 25,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -53,58 +55,8 @@ class _PricingPlansScreenState extends State<PricingPlansScreen> {
                 ),
                 const SizedBox(height: 32),
 
-                // Pricing plans
-                ListView(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  children: [
-                    _buildPlanCard(
-                      name: 'Silver',
-                      price: 0.68,
-                      description: 'Essential features for casual users',
-                      color: Colors.blueGrey,
-                      gradient: LinearGradient(
-                        colors: [Colors.blueGrey[300]!, Colors.blueGrey[500]!],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      features: const [
-                        {'name': '50 likes per month', 'included': true},
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    _buildPlanCard(
-                      name: 'Gold',
-                      price: 1.18,
-                      description: 'Premium features for serious users',
-                      color: Colors.amber[500]!,
-                      gradient: LinearGradient(
-                        colors: [Colors.amber[500]!, Colors.orange[800]!],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      isPopular: true,
-                      features: const [
-                        {'name': '100 likes per month', 'included': true},
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    _buildPlanCard(
-                      name: 'Platinum',
-                      price: 1.69,
-                      description: 'VIP features for power users',
-                      color: Colors.deepPurple,
-                      gradient: LinearGradient(
-                        colors: [Colors.black, Colors.blueGrey[900]!],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      features: const [
-                        {'name': 'Unlimited likes', 'included': true},
-                      ],
-                    ),
-                  ],
-                ),
+                // Single Premium Plan
+                _buildPremiumPlanCard(),
               ],
             ),
           ),
@@ -113,25 +65,24 @@ class _PricingPlansScreenState extends State<PricingPlansScreen> {
     );
   }
 
-  Widget _buildPlanCard({
-    required String name,
-    required double price,
-    required String description,
-    required Color color,
-    required LinearGradient gradient,
-    required List<Map<String, dynamic>> features,
-    bool isPopular = false,
-  }) {
+  Widget _buildPremiumPlanCard() {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
       margin: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
-        gradient: gradient,
+        gradient: LinearGradient(
+          colors: [
+            const Color.fromARGB(255, 249, 154, 53)!,
+            const Color.fromARGB(255, 235, 156, 37)!
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: const Color.fromARGB(255, 234, 216, 57).withOpacity(0.2),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -139,37 +90,27 @@ class _PricingPlansScreenState extends State<PricingPlansScreen> {
       ),
       child: Stack(
         children: [
-          if (isPopular)
-            Positioned(
-              top: 0,
-              right: 0,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.amber[700],
-                  borderRadius: const BorderRadius.only(
-                    topRight: Radius.circular(20),
-                    bottomLeft: Radius.circular(20),
-                  ),
-                ),
-                child: const Text(
-                  'Popular',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
+          Positioned(
+            top: 0,
+            right: 0,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.amber[700],
+                borderRadius: const BorderRadius.only(
+                  topRight: Radius.circular(20),
+                  bottomLeft: Radius.circular(20),
                 ),
               ),
             ),
+          ),
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  name,
+                  'Premium',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -177,7 +118,7 @@ class _PricingPlansScreenState extends State<PricingPlansScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  description,
+                  'VIP features for power users',
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.9),
                     fontSize: 14,
@@ -189,7 +130,7 @@ class _PricingPlansScreenState extends State<PricingPlansScreen> {
                   textBaseline: TextBaseline.alphabetic,
                   children: [
                     Text(
-                      '\$${price.toStringAsFixed(2)}',
+                      '\$1.69',
                       style:
                           Theme.of(context).textTheme.headlineSmall?.copyWith(
                                 color: Colors.white,
@@ -206,54 +147,40 @@ class _PricingPlansScreenState extends State<PricingPlansScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                ...features.map((feature) => Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
-                      child: Row(
-                        children: [
-                          Icon(
-                            feature['included']
-                                ? Icons.check_circle
-                                : Icons.cancel,
-                            color: feature['included']
-                                ? Colors.white
-                                : Colors.grey[300],
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            feature['name'],
-                            style: TextStyle(
-                              color: feature['included']
-                                  ? Colors.white
-                                  : Colors.grey[300],
-                            ),
-                          ),
-                        ],
-                      ),
-                    )),
+                _buildFeatureItem('Unlimited likes'),
+                _buildFeatureItem('Priority matching'),
+                _buildFeatureItem('Advanced filters'),
+                _buildFeatureItem('24/7 support'),
                 const SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
-                      // Direct subscription without showing payment modal
-                      _handleDirectSubscription(name, price);
-                    },
+                    onPressed: _isLoading ? null : () => _handleSubscription(),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
-                      foregroundColor: color,
+                      foregroundColor: Colors.deepPurple[900],
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                       elevation: 5,
                     ),
-                    child: Text(
-                      isPopular ? 'Get Started' : 'Select Plan',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.deepPurple),
+                            ),
+                          )
+                        : const Text(
+                            'Get Premium',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                   ),
                 ),
               ],
@@ -264,28 +191,39 @@ class _PricingPlansScreenState extends State<PricingPlansScreen> {
     );
   }
 
-  // New method to handle subscription without showing the modal
-  void _handleDirectSubscription(String plan, double price) async {
-    try {
-      // Show loading indicator
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        },
-      );
+  Widget _buildFeatureItem(String feature) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.check_circle,
+            color: Colors.white,
+            size: 20,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            feature,
+            style: const TextStyle(
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-      // Use StripeService to process the payment directly
+  void _handleSubscription() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Use StripeService to process the payment
       final bool paymentSuccess = await StripeService.instance.makePayment(
-        amount: price,
+        amount: 1.69,
         currency: 'USD',
       );
-
-      // Hide loading indicator
-      Navigator.pop(context);
 
       if (paymentSuccess) {
         // Get current user
@@ -294,16 +232,16 @@ class _PricingPlansScreenState extends State<PricingPlansScreen> {
           // Update subscription in Firebase
           await FirebaseService().updateUserSubscription(
             userId: user.uid,
-            planName: plan,
-            price: price,
+            planName: 'Premium',
+            price: 1.69,
             subscriptionDate: DateTime.now(),
           );
         }
 
         // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Successfully subscribed to $plan plan!'),
+          const SnackBar(
+            content: Text('Successfully subscribed to Premium plan!'),
             backgroundColor: Colors.green,
           ),
         );
@@ -317,11 +255,6 @@ class _PricingPlansScreenState extends State<PricingPlansScreen> {
         );
       }
     } catch (error) {
-      // Hide loading indicator if it's still showing
-      if (Navigator.canPop(context)) {
-        Navigator.pop(context);
-      }
-
       print('Error processing payment: $error');
 
       // Show an error message
@@ -331,6 +264,10 @@ class _PricingPlansScreenState extends State<PricingPlansScreen> {
           backgroundColor: Colors.red,
         ),
       );
+    } finally {
+      setState(() {
+        _isLoading = true;
+      });
     }
   }
 }

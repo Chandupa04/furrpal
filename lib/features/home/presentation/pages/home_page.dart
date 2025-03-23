@@ -24,6 +24,8 @@ class _HomePageState extends State<HomePage> {
   bool _disposed = false;
   String? currentUserId;
   String? _focusBreed;
+  bool _showNoMoreDogsMessage = false;
+  bool _hasShownLikeLimitMessage = false;
 
   final CardSwiperController swiperController = CardSwiperController();
   OverlayEntry? _overlayEntry;
@@ -64,6 +66,7 @@ class _HomePageState extends State<HomePage> {
 
     _safeSetState(() {
       isLoading = true;
+      _showNoMoreDogsMessage = false;
     });
 
     try {
@@ -73,6 +76,16 @@ class _HomePageState extends State<HomePage> {
           : await _firebaseService.getAllDogProfiles();
 
       print('Loaded ${dogProfiles.length} dog profiles');
+
+      if (dogProfiles.isEmpty) {
+        _safeSetState(() {
+          _showNoMoreDogsMessage = true;
+          isLoading = false;
+          dogs = [];
+        });
+        return;
+      }
+
       if (_focusBreed != null) {
         print('Prioritized by breed: $_focusBreed');
 
@@ -214,7 +227,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   // Handle like action
-  void _handleLike(Map<String, dynamic> dog) {
+  void _handleLike(Map<String, dynamic> dog) async {
     if (currentUserId == null) {
       print('No user is logged in, cannot like dog');
       return;
@@ -224,15 +237,61 @@ class _HomePageState extends State<HomePage> {
     final String dogOwnerId = dog['ownerId'];
     final String dogName = dog['name'] ?? 'Unknown Dog';
 
-    // Get the current user's dog ID that is doing the liking
-    // This needs to be fetched from Firestore
-    _fetchCurrentUserDogId().then((currentUserDogId) {
-      // Show toast immediately
-      _showToast(dogName, true);
+    // Check if user has reached like limit before showing toast
+    bool hasReachedLimit =
+        await _firebaseService.hasReachedLikeLimit(currentUserId!);
 
-      // Then perform the database operation
-      _firebaseService
-          .storeDogLike(
+    if (hasReachedLimit && !_hasShownLikeLimitMessage) {
+      setState(() {
+        _hasShownLikeLimitMessage = true;
+      });
+
+      // Show payment page when limit is reached
+      if (mounted) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Like Limit Reached'),
+              content: const Text(
+                  'You have reached your daily like limit. Upgrade to continue liking more profiles!'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close dialog
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const PricingPlansScreen(),
+                      ),
+                    );
+                  },
+                  child: const Text('Upgrade Now'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close dialog
+                  },
+                  child: const Text('Cancel'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+      return;
+    }
+
+    // Get the current user's dog ID that is doing the liking
+    String? currentUserDogId = await _fetchCurrentUserDogId();
+
+    // Show toast immediately
+    _showToast(dogName, true);
+
+    try {
+      // Perform the database operation
+      await _firebaseService.storeDogLike(
         currentUserId: currentUserId!,
         dogOwnerId: dogOwnerId,
         dogId: dogId,
@@ -240,59 +299,56 @@ class _HomePageState extends State<HomePage> {
         likedByDogId:
             currentUserDogId ?? '', // Pass the dog ID of the user who is liking
         likedByUserId: currentUserId!,
-      )
-          .then((_) {
-        // After successful like, remove the liked dog from the list
-        if (mounted) {
-          setState(() {
-            dogs.removeWhere((d) => d['id'] == dogId);
-          });
-        }
-      }).catchError((e) {
-        print('Error liking dog: $e');
-        if (mounted) {
-          if (e.toString().contains('24-hour like limit')) {
-            // Show payment page when limit is reached
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: const Text('Like Limit Reached'),
-                  content: const Text(
-                      'You have reached your 24-hour like limit. Upgrade to continue liking more profiles!'),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop(); // Close dialog
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const PricingPlansScreen(),
-                          ),
-                        );
-                      },
-                      child: const Text('Upgrade Now'),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop(); // Close dialog
-                        Navigator.of(context)
-                            .pop(); // Pop the current route to go back
-                      },
-                      child: const Text('Cancel'),
-                    ),
-                  ],
-                );
-              },
+      );
+
+      // After successful like, we'll let the swiper handle removing the card
+      // We don't need to manually remove it from the dogs list here
+      // This prevents the issue of skipping the next profile
+    } catch (e) {
+      print('Error liking dog: $e');
+      if (mounted && e.toString().contains('like limit')) {
+        setState(() {
+          _hasShownLikeLimitMessage = true;
+        });
+
+        // Show payment page when limit is reached
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Like Limit Reached'),
+              content: const Text(
+                  'You have reached your daily like limit. Upgrade to continue liking more profiles!'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close dialog
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const PricingPlansScreen(),
+                      ),
+                    );
+                  },
+                  child: const Text('Upgrade Now'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close dialog
+                  },
+                  child: const Text('Cancel'),
+                ),
+              ],
             );
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Failed to like dog: $e')),
-            );
-          }
-        }
-      });
-    });
+          },
+        );
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to like dog: $e')),
+        );
+      }
+    }
   }
 
   // Fetch the current user's dog ID
@@ -318,7 +374,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   // Handle dislike action
-  void _handleDislike(Map<String, dynamic> dog) {
+  void _handleDislike(Map<String, dynamic> dog) async {
     if (currentUserId == null) {
       print('No user is logged in, cannot dislike dog');
       return;
@@ -331,22 +387,26 @@ class _HomePageState extends State<HomePage> {
     // Show toast immediately
     _showToast(dogName, false);
 
-    // Then perform the database operation
-    _firebaseService
-        .storeDogDislike(
-      currentUserId: currentUserId!,
-      dogOwnerId: dogOwnerId,
-      dogId: dogId,
-      dogName: dogName,
-    )
-        .catchError((e) {
+    try {
+      // Perform the database operation
+      await _firebaseService.storeDogDislike(
+        currentUserId: currentUserId!,
+        dogOwnerId: dogOwnerId,
+        dogId: dogId,
+        dogName: dogName,
+      );
+
+      // After successful dislike, we'll let the swiper handle removing the card
+      // We don't need to manually remove it from the dogs list here
+      // This prevents the issue of skipping the next profile
+    } catch (e) {
       print('Error disliking dog: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to dislike dog: $e')),
         );
       }
-    });
+    }
   }
 
   void _showToast(String dogName, bool isLiked) {
@@ -370,13 +430,13 @@ class _HomePageState extends State<HomePage> {
             const Center(
               child: CircularProgressIndicator(),
             )
-          else if (dogs.isEmpty)
+          else if (_showNoMoreDogsMessage || dogs.isEmpty)
             Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
-                    "No dog profiles found",
+                    "No more dog profiles to show",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 20),
@@ -386,16 +446,6 @@ class _HomePageState extends State<HomePage> {
                     borderRadius: BorderRadius.circular(10),
                     child: const Text(
                       "Refresh",
-                      style: TextStyle(color: Colors.black),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  CupertinoButton(
-                    onPressed: _testFirestore,
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    child: const Text(
-                      "Test Firestore Connection",
                       style: TextStyle(color: Colors.black),
                     ),
                   ),
@@ -419,6 +469,19 @@ class _HomePageState extends State<HomePage> {
                     _showSkipToast(
                         dogs[previousIndex]['name'] ?? 'Unknown Dog');
                   }
+
+                  // Check if we've run out of cards after this swipe
+                  if (currentIndex == null || currentIndex >= dogs.length) {
+                    // This was the last card
+                    Future.microtask(() {
+                      if (mounted) {
+                        setState(() {
+                          _showNoMoreDogsMessage = true;
+                        });
+                      }
+                    });
+                  }
+
                   return true;
                 },
                 cardBuilder:
