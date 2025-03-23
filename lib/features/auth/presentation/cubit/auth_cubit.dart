@@ -72,4 +72,13 @@ class AuthCubit extends Cubit<AuthState> {
     await authRepo.logout();
     emit(UnAuthenticated());
   }
+
+  Future<void> verifyEmail() async {
+    try {
+      // emit(AuthLoading());
+      await authRepo.verifyEmail();
+    } catch (e) {
+      emit(AuthError(e.toString()));
+    }
+  }
 }

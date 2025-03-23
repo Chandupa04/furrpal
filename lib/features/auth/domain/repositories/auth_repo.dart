@@ -5,15 +5,18 @@ abstract class AuthRepo {
   Future<UserEntity?> loginwithEmailPassword(String email, String password);
 
   Future<UserEntity?> registerwithEmailPassword(
-      String fName,
-      String lName,
-      String email,
-      String address,
-      String phone,
-      String password,
-      String confirmPassword);
+    String fName,
+    String lName,
+    String email,
+    String address,
+    String phone,
+    String password,
+    String confirmPassword,
+  );
 
   Future<void> logout();
 
   Future<UserEntity?> getCurrentUser();
+
+  Future<void> verifyEmail();
 }
