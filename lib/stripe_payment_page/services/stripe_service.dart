@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:flutter/foundation.dart';
 import '../consts.dart';
 
 class StripeService {
@@ -30,12 +32,31 @@ class StripeService {
         return false;
       }
 
-      // Initialize payment sheet
+      // Initialize payment sheet with more detailed configuration
       await Stripe.instance.initPaymentSheet(
         paymentSheetParameters: SetupPaymentSheetParameters(
           paymentIntentClientSecret: paymentIntentClientSecret,
           merchantDisplayName: 'FurrPal',
-          // You can customize appearance, enable Google Pay/Apple Pay, etc. here
+          style: ThemeMode.light,
+          appearance: const PaymentSheetAppearance(
+            colors: PaymentSheetAppearanceColors(
+              primary: Color(0xFFF9A035),
+              background: Colors.white,
+              componentBackground: Colors.white,
+              primaryText: Colors.black,
+              secondaryText: Colors.grey,
+              componentText: Colors.black,
+            ),
+            shapes: PaymentSheetShape(
+              borderRadius: 12.0,
+              borderWidth: 1.0,
+            ),
+          ),
+          billingDetails: const BillingDetails(
+            name: 'FurrPal User',
+          ),
+          returnURL: 'flutterstripe://redirect',
+          allowsDelayedPaymentMethods: true,
         ),
       );
 
@@ -43,6 +64,11 @@ class StripeService {
       return await _processPayment();
     } catch (error) {
       print('Error making payment: $error');
+      if (error is StripeException) {
+        print('Stripe error code: ${error.error.code}');
+        print('Stripe error message: ${error.error.message}');
+        print('Stripe error localizedMessage: ${error.error.localizedMessage}');
+      }
       return false;
     }
   }
@@ -56,6 +82,11 @@ class StripeService {
       return true; // Payment was successful
     } on Exception catch (error) {
       print('Error processing payment: $error');
+      if (error is StripeException) {
+        print('Stripe error code: ${error.error.code}');
+        print('Stripe error message: ${error.error.message}');
+        print('Stripe error localizedMessage: ${error.error.localizedMessage}');
+      }
       return false; // Payment failed
     }
   }
@@ -71,6 +102,7 @@ class StripeService {
       final Map<String, dynamic> data = {
         'amount': _calculateAmount(amount),
         'currency': currency,
+        'payment_method_types[]': 'card',
       };
 
       // Send request to Stripe API
@@ -87,6 +119,7 @@ class StripeService {
 
       // Check if response contains data
       if (response.data != null) {
+        print('Payment intent created successfully');
         return response.data['client_secret'];
       }
 

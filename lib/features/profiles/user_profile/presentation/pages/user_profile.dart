@@ -18,7 +18,6 @@ import 'package:furrpal/features/profiles/user_profile/presentation/cubit/profil
 import 'package:furrpal/features/profiles/user_profile/presentation/cubit/profile_state.dart';
 import 'package:furrpal/features/profiles/user_profile/presentation/pages/edit_user_profile.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-
 import '../widgets/build_info_row.dart';
 
 class UserProfile extends StatefulWidget {
