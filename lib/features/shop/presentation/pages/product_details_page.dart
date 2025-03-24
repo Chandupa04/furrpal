@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
 
@@ -36,7 +37,7 @@ class ProductDetailsPage extends StatelessWidget {
           children: [
             // Hero Image
             SizedBox(
-              height: 350,
+              height: 350.h,
               width: double.infinity,
               child: Hero(
                 tag: product['imageUrl'],
@@ -69,11 +70,11 @@ class ProductDetailsPage extends StatelessWidget {
             // Content Container
             Container(
               padding: const EdgeInsets.all(24),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(30),
-                  topRight: Radius.circular(30),
+                  topLeft: Radius.circular(30.r),
+                  topRight: Radius.circular(30.r),
                 ),
               ),
               transform: Matrix4.translationValues(0, -30, 0),
@@ -84,26 +85,26 @@ class ProductDetailsPage extends StatelessWidget {
                   Text(
                     product['name'],
                     style: GoogleFonts.poppins(
-                      fontSize: 26,
+                      fontSize: 26.sp,
                       fontWeight: FontWeight.bold,
                       color: const Color(0xFF333333),
-                      height: 1.2,
+                      height: 1.2.h,
                     ),
                   ),
 
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12.h),
 
                   // Price
                   Text(
                     ' ${product['price']} USD',
                     style: GoogleFonts.poppins(
-                      fontSize: 22,
+                      fontSize: 22.sp,
                       fontWeight: FontWeight.bold,
                       color: const Color(0xFF4CAF50),
                     ),
                   ),
 
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16.h),
 
                   // Rating
                   Row(
@@ -133,46 +134,46 @@ class ProductDetailsPage extends StatelessWidget {
                       Text(
                         '(128 reviews)',
                         style: GoogleFonts.poppins(
-                          fontSize: 14,
+                          fontSize: 14.sp,
                           color: Colors.grey[600],
                         ),
                       ),
                     ],
                   ),
 
-                  const SizedBox(height: 24),
+                  SizedBox(height: 24.h),
 
                   // Description Header
                   Text(
                     'Description',
                     style: GoogleFonts.poppins(
-                      fontSize: 18,
+                      fontSize: 18.sp,
                       fontWeight: FontWeight.bold,
                       color: const Color(0xFF333333),
                     ),
                   ),
 
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12.h),
 
                   // Description
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: Colors.grey[50],
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(16.r),
                       border: Border.all(color: Colors.grey.shade200),
                     ),
                     child: Text(
                       product['description'],
                       style: GoogleFonts.poppins(
-                        fontSize: 15,
+                        fontSize: 15.sp,
                         color: Colors.grey[800],
-                        height: 1.6,
+                        height: 1.6.h,
                       ),
                     ),
                   ),
 
-                  const SizedBox(height: 24),
+                  SizedBox(height: 24.h),
 
                   // Related Products (Optional)
                 ],
