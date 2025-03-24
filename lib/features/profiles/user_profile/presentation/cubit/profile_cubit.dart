@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:furrpal/features/profiles/user/user_profile/domain/repositories/profile_repo.dart';
-import 'package:furrpal/features/profiles/user/user_profile/presentation/cubit/profile_state.dart';
+import 'package:furrpal/features/profiles/user_profile/domain/repositories/profile_repo.dart';
+import 'package:furrpal/features/profiles/user_profile/presentation/cubit/profile_state.dart';
 
 class ProfileCubit extends Cubit<ProfileState> {
   final ProfileRepo profileRepo;

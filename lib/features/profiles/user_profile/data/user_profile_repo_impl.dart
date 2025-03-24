@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:furrpal/features/profiles/user/user_profile/domain/models/profile_user.dart';
-import 'package:furrpal/features/profiles/user/user_profile/domain/repositories/profile_repo.dart';
+import 'package:furrpal/features/profiles/user_profile/domain/models/profile_user.dart';
+import 'package:furrpal/features/profiles/user_profile/domain/repositories/profile_repo.dart';
 
 class UserProfileRepoImpl implements ProfileRepo {
   FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
