@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +30,58 @@ class _NavBarState extends State<NavBar> {
     setState(() {
       _currentIndex = index;
     });
+  }
+
+  Widget _buildNotificationIcon(int index) {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) return const SizedBox();
+
+    return GestureDetector(
+      onTap: () => _onItemTap(index),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Icon(
+            _currentIndex == index
+                ? CupertinoIcons.bell_fill
+                : CupertinoIcons.bell,
+            size: 32.w,
+            color:
+                _currentIndex == index ? const Color(0xffF88158) : Colors.grey,
+          ),
+          StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('users')
+                .doc(currentUser.uid)
+                .collection('notifications')
+                .where('read', isEqualTo: false)
+                .snapshots(),
+            builder: (context, snapshot) {
+              int count = snapshot.hasData ? snapshot.data!.docs.length : 0;
+              if (count > 0) {
+                return Positioned(
+                  right: 0,
+                  top: 4,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      '$count',
+                      style: const TextStyle(color: Colors.white, fontSize: 10),
+                    ),
+                  ),
+                );
+              } else {
+                return const SizedBox();
+              }
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   bool isVerifiedEmail =
@@ -81,11 +134,7 @@ class _NavBarState extends State<NavBar> {
                 CupertinoIcons.house_fill,
                 0,
               ),
-              _buildNavItem(
-                CupertinoIcons.bell,
-                CupertinoIcons.bell_fill,
-                1,
-              ),
+              _buildNotificationIcon(1), // <— shows badge
               _buildNavItem(
                 CupertinoIcons.group,
                 CupertinoIcons.group_solid,

@@ -325,6 +325,38 @@ class FirebaseService {
     }
   }
 
+  // Fetch unopened notification count for current user
+  Future<int> getUnopenedNotificationCount(String userId) async {
+    try {
+      final querySnapshot = await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('notifications')
+          .where('read', isEqualTo: false)
+          .get();
+      return querySnapshot.size;
+    } catch (e) {
+      print('Error fetching unopened notification count: $e');
+      return 0;
+    }
+  }
+
+  // Mark a notification as read
+  Future<void> markNotificationAsRead(
+      String userId, String notificationId) async {
+    try {
+      await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('notifications')
+          .doc(notificationId)
+          .update({'read': true});
+      print('Notification $notificationId marked as read');
+    } catch (e) {
+      print('Error marking notification as read: $e');
+    }
+  }
+
   // Store a like interaction with timestamp
   Future<void> storeDogLike({
     required String currentUserId,
@@ -451,6 +483,7 @@ class FirebaseService {
         'dogId': dogId,
         'dogName': dogName,
         'likedByUserId': currentUserId,
+        'likedByDogId': likedByDogId, // Add this line
         'timestamp': FieldValue.serverTimestamp(),
         'read': false,
         'message': 'Your dog $dogName has received a new like!',
