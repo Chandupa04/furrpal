@@ -78,173 +78,368 @@ class _UserProfileState extends State<UserProfile> {
 
             return SafeArea(
               child: Scaffold(
+                backgroundColor: const Color(0xFFF8F9FA),
                 appBar: AppBar(
-                  surfaceTintColor: whiteColor,
+                  backgroundColor: const Color(0xFFF8F9FA),
+                  elevation: 0,
+                  surfaceTintColor: Colors.transparent,
                   automaticallyImplyLeading: false,
                   title: Text(
-                    'My profile',
-                    style: appBarStyle,
+                    'My Profile',
+                    style: TextStyle(
+                      fontSize: 22.sp,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
                   ),
                   centerTitle: true,
                   actions: [
-                    IconButton(
-                      icon: const Icon(Icons.more_vert),
-                      onPressed: () {
-                        showOptionsMenu(context, user);
-                      },
+                    Container(
+                      margin: EdgeInsets.only(right: 8.w),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade200,
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        icon: const Icon(Icons.more_vert, color: Colors.black),
+                        onPressed: () {
+                          showOptionsMenu(context, user);
+                        },
+                      ),
                     ),
                   ],
                 ),
                 body: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          // crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Profile Header
+                      Padding(
+                        padding: EdgeInsets.only(top: 20.h, bottom: 20.h),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            CachedNetworkImage(
-                              imageUrl: user.profileImageUrl,
-                              placeholder: (context, url) => ContainerCustom(
-                                width: 120.w,
-                                height: 100.h,
-                                child: const CircularProgressIndicator(),
-                              ),
-                              errorWidget: (context, url, error) => Icon(
-                                Icons.person,
-                                size: 72.h,
-                                color: Colors.grey,
-                              ),
-                              imageBuilder: (context, imageProvider) =>
-                                  ContainerCustom(
-                                width: 120.w,
-                                height: 100.h,
-                                shape: BoxShape.circle,
-                                decorationImage: DecorationImage(
-                                  image: imageProvider,
-                                  fit: BoxFit.cover,
+                            // Profile Image
+                            Center(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.white,
+                                    width: 4.w,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.2),
+                                      blurRadius: 10,
+                                      spreadRadius: 2,
+                                    ),
+                                  ],
+                                ),
+                                child: CachedNetworkImage(
+                                  imageUrl: user.profileImageUrl,
+                                  placeholder: (context, url) => ContainerCustom(
+                                    width: 120.w,
+                                    height: 120.h,
+                                    shape: BoxShape.circle,
+                                    bgColor: Colors.white.withOpacity(0.3),
+                                    child: const CircularProgressIndicator(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  errorWidget: (context, url, error) => ContainerCustom(
+                                    width: 120.w,
+                                    height: 120.h,
+                                    shape: BoxShape.circle,
+                                    bgColor: Colors.white.withOpacity(0.3),
+                                    child: Icon(
+                                      Icons.person,
+                                      size: 72.h,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  imageBuilder: (context, imageProvider) =>
+                                      ContainerCustom(
+                                        width: 120.w,
+                                        height: 120.h,
+                                        shape: BoxShape.circle,
+                                        decorationImage: DecorationImage(
+                                          image: imageProvider,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 20),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  TextCustomWidget(
-                                    text: '${user.fName} ${user.lName}',
-                                    fontSize: 20.sp,
-                                    fontWeight: FontWeight.w700,
-                                    textColor: blackColor,
-                                    marginBottom: 5.h,
-                                  ),
-                                  buildInfoRow(Icons.email, user.email),
-                                  const SizedBox(height: 4),
-                                  buildInfoRow(Icons.location_on, user.address),
-                                  const SizedBox(height: 4),
-                                  buildInfoRow(Icons.phone, user.phoneNumber),
-                                ],
+                            SizedBox(height: 16.h),
+                            // User Name
+                            Center(
+                              child: Text(
+                                '${user.fName} ${user.lName}',
+                                style: TextStyle(
+                                  fontSize: 24.sp,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
                               ),
                             ),
                           ],
                         ),
-                        TextCustomWidget(
-                          text: 'Bio',
-                          marginTop: 10.h,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16.sp,
-                          textColor: blackColor,
-                        ),
-                        TextCustomWidget(
-                          text: user.bio,
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w400,
-                          textColor: blackColor,
-                        ),
+                      ),
 
-                        // my paws section
-                        TextCustomWidget(
-                          text: 'My Paws',
-                          fontSize: 24.sp,
-                          fontWeight: FontWeight.bold,
-                          textColor: blackColor,
-                        ),
-
-                        const SizedBox(height: 16),
-                        BlocBuilder<DogProfileCubit, DogProfileState>(
-                            builder: (context, state) {
-                          if (state is DogProfileLoaded) {
-                            final dogs = state.dogEntity;
-                            return ContainerCustom(
-                              alignment: Alignment.centerLeft,
-                              height: 130.h,
-                              child: ListView(
-                                clipBehavior: Clip.none,
-                                scrollDirection: Axis.horizontal,
-                                children: [
-                                  ListView.builder(
-                                    shrinkWrap: true,
-                                    itemCount: dogs.length,
-                                    scrollDirection: Axis.horizontal,
-                                    itemBuilder: (context, index) =>
-                                        _buildDogCard(dogs[index]),
-                                  ),
-                                  IconButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              AddNewDogProfilePage(),
-                                        ),
-                                      );
-                                    },
-                                    color: primaryColor,
-                                    iconSize: 25.h,
-                                    icon: const Icon(LucideIcons.cross),
+                      // User Info Cards
+                      Padding(
+                        padding: EdgeInsets.all(20.w),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Contact Info Card
+                            Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.all(20.w),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20.r),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.05),
+                                    blurRadius: 10,
+                                    spreadRadius: 1,
                                   ),
                                 ],
                               ),
-                            );
-                          } else if (state is DogProfileLoading) {
-                            return const Center(
-                                child: CircularProgressIndicator());
-                          }
-                          return const SizedBox();
-                        }),
-                        const SizedBox(height: 32),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.contact_phone,
+                                        color: const Color(0xFFFBA182),
+                                        size: 22.sp,
+                                      ),
+                                      SizedBox(width: 10.w),
+                                      Text(
+                                        'Contact Information',
+                                        style: TextStyle(
+                                          fontSize: 18.sp,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Divider(height: 24.h, thickness: 1),
+                                  SizedBox(height: 8.h),
+                                  buildInfoRow(Icons.email, user.email),
+                                  SizedBox(height: 8.h),
+                                  buildInfoRow(Icons.location_on, user.address),
+                                  SizedBox(height: 12.h),
+                                  buildInfoRow(Icons.phone, user.phoneNumber),
+                                ],
+                              ),
+                            ),
 
-                        // gallery section
-                        TextCustomWidget(
-                          text: 'Post Gallery',
-                          fontSize: 24.sp,
-                          textColor: blackColor,
-                          fontWeight: FontWeight.bold,
+                            SizedBox(height: 20.h),
+
+                            // Bio Card
+                            Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.all(20.w),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20.r),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.05),
+                                    blurRadius: 10,
+                                    spreadRadius: 1,
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.person_outline,
+                                        color: const Color(0xFFFBA182),
+                                        size: 22.sp,
+                                      ),
+                                      SizedBox(width: 10.w),
+                                      Text(
+                                        'About Me',
+                                        style: TextStyle(
+                                          fontSize: 18.sp,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Divider(height: 24.h, thickness: 1),
+                                  Text(
+                                    user.bio,
+                                    style: TextStyle(
+                                      fontSize: 16.sp,
+                                      color: Colors.black87,
+                                      height: 1.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            // My Paws Section
+                            Padding(
+                              padding: EdgeInsets.symmetric(vertical: 24.h),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.pets,
+                                        color: const Color(0xFFFBA182),
+                                        size: 24.sp,
+                                      ),
+                                      SizedBox(width: 10.w),
+                                      Text(
+                                        'My Paws',
+                                        style: TextStyle(
+                                          fontSize: 22.sp,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF9A4CAF).withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(12.r),
+                                    ),
+                                    child: IconButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => AddNewDogProfilePage(),
+                                          ),
+                                        );
+                                      },
+                                      icon: Icon(
+                                        Icons.add,
+                                        color: const Color(0xFFFBA182),
+                                        size: 24.sp,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            BlocBuilder<DogProfileCubit, DogProfileState>(
+                              builder: (context, state) {
+                                if (state is DogProfileLoaded) {
+                                  final dogs = state.dogEntity;
+                                  return SizedBox(
+                                    height: 180.h,
+                                    child: dogs.isEmpty
+                                        ? Center(
+                                      child: Text(
+                                        'No pets added yet. Add your first pet!',
+                                        style: TextStyle(
+                                          fontSize: 16.sp,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    )
+                                        : ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: dogs.length,
+                                      itemBuilder: (context, index) => _buildDogCard(dogs[index]),
+                                    ),
+                                  );
+                                } else if (state is DogProfileLoading) {
+                                  return SizedBox(
+                                    height: 180.h,
+                                    child: const Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                  );
+                                }
+                                return const SizedBox();
+                              },
+                            ),
+
+                            // Gallery Section
+                            Padding(
+                              padding: EdgeInsets.symmetric(vertical: 24.h),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.photo_library,
+                                    color: const Color(0xFFFBA182),
+                                    size: 24.sp,
+                                  ),
+                                  SizedBox(width: 10.w),
+                                  Text(
+                                    'Gallery',
+                                    style: TextStyle(
+                                      fontSize: 22.sp,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            BlocBuilder<PostCubit, PostState>(
+                              builder: (context, state) {
+                                if (state is PostLoaded) {
+                                  final posts = state.postEntity;
+                                  return posts.isEmpty
+                                      ? Center(
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 30.h),
+                                      child: Text(
+                                        'No posts yet. Share your first moment!',
+                                        style: TextStyle(
+                                          fontSize: 16.sp,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                      : ListView.builder(
+                                    itemCount: posts.length,
+                                    shrinkWrap: true,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    itemBuilder: (context, index) => Padding(
+                                      padding: EdgeInsets.only(bottom: 16.h),
+                                      child: UserPostCard(
+                                        post: posts[index],
+                                      ),
+                                    ),
+                                  );
+                                } else if (state is PostLoading) {
+                                  return const Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                }
+                                return const SizedBox();
+                              },
+                            ),
+
+                            // Bottom padding
+                            SizedBox(height: 20.h),
+                          ],
                         ),
-                        const SizedBox(height: 16),
-                        BlocBuilder<PostCubit, PostState>(
-                          builder: (context, state) {
-                            if (state is PostLoaded) {
-                              final posts = state.postEntity;
-                              return ListView.builder(
-                                itemCount: posts.length,
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemBuilder: (context, index) => UserPostCard(
-                                  post: posts[index],
-                                ),
-                              );
-                            } else if (state is PostLoading) {
-                              return const Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            }
-                            return SizedBox();
-                          },
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -252,21 +447,45 @@ class _UserProfileState extends State<UserProfile> {
 
             //loading
           } else if (state is ProfileLoading) {
-            return const Scaffold(
+            return Scaffold(
               body: Center(
-                child: CircularProgressIndicator(),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const CircularProgressIndicator(
+                      color: Color(0xFF9A4CAF),
+                    ),
+                    SizedBox(height: 20.h),
+                    Text(
+                      'Loading profile...',
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             );
           } else {
-            return Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const TextCustomWidget(
-                    text: 'No profile found',
-                    textColor: blackColor,
-                  ),
-                  IconButton(
+            return Scaffold(
+              body: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      size: 60.sp,
+                      color: Colors.red.shade300,
+                    ),
+                    SizedBox(height: 16.h),
+                    const TextCustomWidget(
+                      text: 'No profile found',
+                      textColor: blackColor,
+                      fontSize: 18,
+                    ),
+                    SizedBox(height: 20.h),
+                    ElevatedButton.icon(
                       onPressed: () {
                         Navigator.pop(context);
                         logout();
@@ -275,10 +494,21 @@ class _UserProfileState extends State<UserProfile> {
                             MaterialPageRoute(
                               builder: (context) => const StartPage(),
                             ),
-                            (route) => false);
+                                (route) => false);
                       },
-                      icon: const Icon(Icons.logout))
-                ],
+                      icon: const Icon(Icons.logout),
+                      label: const Text('Logout'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFFBA182),
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             );
           }
@@ -289,49 +519,92 @@ class _UserProfileState extends State<UserProfile> {
 
   Future<dynamic> showOptionsMenu(BuildContext context, ProfileUser user) {
     return showModalBottomSheet(
-      backgroundColor: whiteColor,
       context: context,
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(20.r),
+        ),
+      ),
       builder: (BuildContext context) {
         return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              ListTile(
-                leading: const Icon(Icons.edit),
-                title: const Text('Edit Profile'),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => EditUserProfile(user: user),
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 20.h),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Container(
+                  width: 40.w,
+                  height: 4.h,
+                  margin: EdgeInsets.only(bottom: 20.h),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(10.r),
+                  ),
+                ),
+                ListTile(
+                  leading: Container(
+                    padding: EdgeInsets.all(8.w),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFBA182).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(10.r),
                     ),
-                  );
-                },
-              ),
-              // ListTile(
-              //   leading: const Icon(Icons.settings),
-              //   title: const Text('Settings'),
-              //   onTap: () {
-              //     Navigator.pop(context);
-              //     // Add settings logic here
-              //   },
-              // ),
-              ListTile(
-                leading: const Icon(Icons.logout),
-                title: const Text('Logout'),
-                onTap: () {
-                  Navigator.pop(context);
-                  logout();
-                  Navigator.pushAndRemoveUntil(
+                    child: Icon(
+                      Icons.edit,
+                      color: const Color(0xFFFBA182),
+                      size: 24.sp,
+                    ),
+                  ),
+                  title: Text(
+                    'Edit Profile',
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const StartPage(),
+                        builder: (context) => EditUserProfile(user: user),
                       ),
-                      (route) => false);
-                },
-              ),
-            ],
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: Container(
+                    padding: EdgeInsets.all(8.w),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(10.r),
+                    ),
+                    child: Icon(
+                      Icons.logout,
+                      color: Colors.red,
+                      size: 24.sp,
+                    ),
+                  ),
+                  title: Text(
+                    'Logout',
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    logout();
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const StartPage(),
+                        ),
+                            (route) => false);
+                  },
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -339,8 +612,8 @@ class _UserProfileState extends State<UserProfile> {
   }
 
   Widget _buildDogCard(DogEntity dog) {
-    return ContainerCustom(
-      callback: () {
+    return GestureDetector(
+      onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -348,54 +621,83 @@ class _UserProfileState extends State<UserProfile> {
           ),
         );
       },
-      shadow: [
-        BoxShadow(
-          color: Colors.grey.withOpacity(0.5),
-          spreadRadius: 1,
-          blurRadius: 7,
-          offset: Offset(0, 3.h),
-        ),
-      ],
-      width: 120.w,
-      height: 130.h,
-      padding: EdgeInsets.all(10.w),
-      marginRight: 12.w,
-      bgColor: postColor,
-      borderRadius: BorderRadius.circular(10.r),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CachedNetworkImage(
-            imageUrl: dog.imageURL,
-            placeholder: (context, url) => ContainerCustom(
-                width: 80.w,
-                height: 80.h,
-                child: const CircularProgressIndicator()),
-            errorWidget: (context, url, error) => Icon(
-              Icons.person,
-              size: 72.h,
-              color: Colors.blue,
+      child: Container(
+        width: 150.w,
+        margin: EdgeInsets.only(right: 16.w),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              spreadRadius: 1,
             ),
-            imageBuilder: (context, imageProvider) => ContainerCustom(
-              width: 95.w,
-              height: 80.h,
-              borderRadius: BorderRadius.circular(10.r),
-              clipBehavior: Clip.hardEdge,
-              decorationImage: DecorationImage(
-                image: imageProvider,
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Dog Image
+            ClipRRect(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20.r),
+                topRight: Radius.circular(20.r),
+              ),
+              child: CachedNetworkImage(
+                imageUrl: dog.imageURL,
+                height: 120.h,
+                width: double.infinity,
                 fit: BoxFit.cover,
+                placeholder: (context, url) => Container(
+                  height: 120.h,
+                  color: Colors.grey.shade200,
+                  child: const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+                errorWidget: (context, url, error) => Container(
+                  height: 120.h,
+                  color: Colors.grey.shade200,
+                  child: Icon(
+                    Icons.pets,
+                    size: 40.sp,
+                    color: Colors.grey,
+                  ),
+                ),
               ),
             ),
-          ),
-          TextCustomWidget(
-            text: dog.name.toUpperCase(),
-            fontSize: 16.sp,
-            marginTop: 10.h,
-            containerAlignment: Alignment.center,
-            textColor: Colors.black87,
-            fontWeight: FontWeight.bold,
-          ),
-        ],
+            // Dog Name
+            Padding(
+              padding: EdgeInsets.all(12.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    dog.name.toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: 4.h),
+                  Text(
+                    dog.breed,
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: Colors.grey.shade600,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
