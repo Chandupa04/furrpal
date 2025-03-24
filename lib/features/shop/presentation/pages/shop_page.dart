@@ -104,7 +104,6 @@ class _ShopPageState extends State<ShopPage> {
                 );
               },
             ),
-            // Settings ListTile removed as requested
           ],
         ),
       ),
@@ -195,26 +194,29 @@ class _ShopPageState extends State<ShopPage> {
                     crossAxisCount: 2,
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 16,
-                    childAspectRatio:
-                        0.65, // Changed from 0.7 to 0.65 to fix the overflow
+                    childAspectRatio: 0.65,
                   ),
                   itemCount: productDocs.length,
                   itemBuilder: (context, index) {
                     var product = productDocs[index];
+                    // Convert price to double to prevent type errors
+                    double price = (product['price'] is int)
+                        ? (product['price'] as int).toDouble()
+                        : product['price'];
+
                     return ProductCard(
                       name: product['name'],
-                      price: product['price'],
+                      price: price,
                       imageUrl: product['imageUrl'],
                       description: product['description'],
                       onAddToCart: () {
                         cartProvider.addToCart({
                           'name': product['name'],
-                          'price': product['price'],
+                          'price': price,
                           'imageUrl': product['imageUrl'],
                           'description': product['description'],
                         });
 
-                        // Show a more elegant snackbar
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Row(
@@ -244,7 +246,7 @@ class _ShopPageState extends State<ShopPage> {
                           MaterialPageRoute(
                             builder: (context) => ProductDetailsPage(product: {
                               'name': product['name'],
-                              'price': product['price'],
+                              'price': price,
                               'imageUrl': product['imageUrl'],
                               'description': product['description'],
                             }),
@@ -301,7 +303,6 @@ class ProductCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image container (discount badge removed)
             ClipRRect(
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(16)),
@@ -354,7 +355,7 @@ class ProductCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        '$price USD',
+                        'LKR ${price.toStringAsFixed(2)}',
                         style: GoogleFonts.poppins(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
