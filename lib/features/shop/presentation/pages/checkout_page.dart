@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'cart_provider.dart';
 
@@ -9,10 +10,10 @@ class CheckoutPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Checkout',
           style: TextStyle(
-            fontSize: 20,
+            fontSize: 20.sp,
             fontWeight: FontWeight.bold,
             color: Colors.black,
           ),
@@ -61,7 +62,7 @@ class CheckoutPage extends StatelessWidget {
           Text(
             "Your cart is empty",
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 18.sp,
               fontWeight: FontWeight.bold,
               color: Colors.grey[600],
             ),
@@ -70,7 +71,7 @@ class CheckoutPage extends StatelessWidget {
           Text(
             "Add items to get started",
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 14.sp,
               color: Colors.grey[500],
             ),
           ),
@@ -106,12 +107,12 @@ class CheckoutPage extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                     child: Image.network(
                       item['imageUrl'],
-                      width: 70,
-                      height: 70,
+                      width: 70.w,
+                      height: 70.h,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) => Container(
-                        width: 70,
-                        height: 70,
+                        width: 70.w,
+                        height: 70.h,
                         color: Colors.grey[200],
                         child: Icon(Icons.image_not_supported,
                             color: Colors.grey[400]),
@@ -119,7 +120,7 @@ class CheckoutPage extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12.w),
                 // Product details
                 Expanded(
                   child: Column(
@@ -127,16 +128,18 @@ class CheckoutPage extends StatelessWidget {
                     children: [
                       Text(
                         item['name'],
-                        style: const TextStyle(
-                          fontSize: 16,
+                        style: TextStyle(
+                          fontSize: 16.sp,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4.h),
                       Text(
+
                         'USD ${price.toStringAsFixed(2)}',
+
                         style: TextStyle(
-                          fontSize: 15,
+                          fontSize: 15.sp,
                           fontWeight: FontWeight.w500,
                           color: Colors.grey[800],
                         ),
@@ -153,7 +156,7 @@ class CheckoutPage extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             // Quantity controls in a new row
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -170,12 +173,12 @@ class CheckoutPage extends StatelessWidget {
                   },
                 ),
                 Container(
-                  width: 32,
+                  width: 32.w,
                   alignment: Alignment.center,
                   child: Text(
                     '${item['quantity']}',
-                    style: const TextStyle(
-                      fontSize: 16,
+                    style: TextStyle(
+                      fontSize: 16.sp,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -228,7 +231,7 @@ class CheckoutPage extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
+            blurRadius: 10.r,
             offset: const Offset(0, -3),
           ),
         ],
@@ -238,27 +241,29 @@ class CheckoutPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'Total:',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 18.sp,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               Text(
+
                 'USD ${totalPrice.toStringAsFixed(2)}',
+
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 20.sp,
                   fontWeight: FontWeight.bold,
                   color: Colors.green[700],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           SizedBox(
             width: double.infinity,
-            height: 54,
+            height: 54.h,
             child: ElevatedButton(
               onPressed: () {
                 cartProvider.placeOrder();
@@ -267,10 +272,10 @@ class CheckoutPage extends StatelessWidget {
                     content: Row(
                       children: [
                         const Icon(Icons.check_circle, color: Colors.white),
-                        const SizedBox(width: 12),
-                        const Text(
+                        SizedBox(width: 12.w),
+                        Text(
                           'Order placed successfully!',
-                          style: TextStyle(fontSize: 16),
+                          style: TextStyle(fontSize: 16.sp),
                         ),
                       ],
                     ),
@@ -286,13 +291,13 @@ class CheckoutPage extends StatelessWidget {
                 backgroundColor: const Color(0xffF88158),
                 elevation: 2,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(12.r),
                 ),
               ),
-              child: const Text(
+              child: Text(
                 'Place Order',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 18.sp,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
@@ -320,9 +325,9 @@ class _QuantityButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: Colors.transparent,
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(20.r),
       child: InkWell(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20.r),
         onTap: onPressed,
         child: Padding(
           padding: const EdgeInsets.all(6.0),

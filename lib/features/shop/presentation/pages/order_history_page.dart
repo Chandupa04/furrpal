@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 
 class OrderHistoryPage extends StatelessWidget {
@@ -32,10 +33,10 @@ class OrderHistoryPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Order History',
           style: TextStyle(
-            fontSize: 20,
+            fontSize: 20.sp,
             fontWeight: FontWeight.bold,
             color: Colors.black,
           ),
@@ -73,7 +74,7 @@ class OrderHistoryPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.receipt_long, size: 70, color: Colors.grey[500]),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           Text(
             "No orders found",
             style: TextStyle(
@@ -82,11 +83,11 @@ class OrderHistoryPage extends StatelessWidget {
               color: Colors.grey[600],
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Text(
             "Your order history will appear here",
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 14.sp,
               color: Colors.grey[500],
             ),
           ),
@@ -109,7 +110,7 @@ class OrderHistoryPage extends StatelessWidget {
       elevation: 3,
       margin: const EdgeInsets.symmetric(vertical: 8),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12.r),
       ),
       child: ExpansionTile(
         title: Text(
@@ -121,13 +122,15 @@ class OrderHistoryPage extends StatelessWidget {
         subtitle: Row(
           children: [
             Text(
+
               'USD ${totalPrice.toStringAsFixed(2)}',
+
               style: TextStyle(
                 fontWeight: FontWeight.w500,
                 color: Colors.green[700],
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12.w),
             Text(
               formattedDate,
               style: TextStyle(color: Colors.grey[600], fontSize: 12),
@@ -158,14 +161,14 @@ class OrderHistoryPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Divider(),
-          const Text(
+          Text(
             'Items',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 16.sp,
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           ListView.builder(
             physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
@@ -189,21 +192,21 @@ class OrderHistoryPage extends StatelessWidget {
         children: [
           // Image
           ClipRRect(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(8.r),
             child: Image.network(
               item['imageUrl'] ?? '',
-              width: 60,
-              height: 60,
+              width: 60.w,
+              height: 60.h,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) => Container(
-                width: 60,
-                height: 60,
+                width: 60.w,
+                height: 60.h,
                 color: Colors.grey[200],
                 child: Icon(Icons.image_not_supported, color: Colors.grey[400]),
               ),
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12.w),
           // Item details
           Expanded(
             child: Column(
@@ -215,9 +218,11 @@ class OrderHistoryPage extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4.h),
                 Text(
+
                   'USD ${price.toStringAsFixed(2)} × $quantity',
+
                   style: TextStyle(
                     color: Colors.grey[600],
                   ),
@@ -227,7 +232,9 @@ class OrderHistoryPage extends StatelessWidget {
           ),
           // Item total
           Text(
+
             'USD ${itemTotal.toStringAsFixed(2)}',
+
             style: const TextStyle(
               fontWeight: FontWeight.w500,
             ),

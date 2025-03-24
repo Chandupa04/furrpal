@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'cart_provider.dart';
@@ -32,7 +33,7 @@ class _ShopPageState extends State<ShopPage> {
         title: Text(
           "FurrPal",
           style: GoogleFonts.poppins(
-            fontSize: 22,
+            fontSize: 22.sp,
             fontWeight: FontWeight.bold,
             color: Colors.black,
           ),
@@ -66,16 +67,16 @@ class _ShopPageState extends State<ShopPage> {
                     'Pet Shop',
                     style: GoogleFonts.poppins(
                       color: Colors.white,
-                      fontSize: 24,
+                      fontSize: 24.sp,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8.h),
                   Text(
                     'Find everything for your pet',
                     style: GoogleFonts.poppins(
                       color: Colors.white70,
-                      fontSize: 14,
+                      fontSize: 14.sp,
                     ),
                   ),
                 ],
@@ -104,7 +105,6 @@ class _ShopPageState extends State<ShopPage> {
                 );
               },
             ),
-            // Settings ListTile removed as requested
           ],
         ),
       ),
@@ -113,17 +113,17 @@ class _ShopPageState extends State<ShopPage> {
           // Search field moved below the app bar
           Container(
             margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            height: 40,
+            height: 40.h,
             decoration: BoxDecoration(
               color: Colors.grey[100],
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(20.r),
             ),
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
                 hintText: 'Search products...',
                 hintStyle: GoogleFonts.poppins(
-                  fontSize: 14,
+                  fontSize: 14.sp,
                   color: Colors.grey[500],
                 ),
                 border: InputBorder.none,
@@ -131,7 +131,7 @@ class _ShopPageState extends State<ShopPage> {
                     Icon(Icons.search, color: Colors.grey[500], size: 20),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16),
               ),
-              style: GoogleFonts.poppins(fontSize: 14),
+              style: GoogleFonts.poppins(fontSize: 14.sp),
               onChanged: (value) {
                 setState(() {
                   _searchQuery = value.toLowerCase();
@@ -147,7 +147,7 @@ class _ShopPageState extends State<ShopPage> {
               child: Text(
                 'Featured Products',
                 style: GoogleFonts.poppins(
-                  fontSize: 18,
+                  fontSize: 18.sp,
                   fontWeight: FontWeight.w600,
                   color: const Color(0xFF333333),
                 ),
@@ -195,33 +195,36 @@ class _ShopPageState extends State<ShopPage> {
                     crossAxisCount: 2,
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 16,
-                    childAspectRatio:
-                        0.65, // Changed from 0.7 to 0.65 to fix the overflow
+                    childAspectRatio: 0.65,
                   ),
                   itemCount: productDocs.length,
                   itemBuilder: (context, index) {
                     var product = productDocs[index];
+                    // Convert price to double to prevent type errors
+                    double price = (product['price'] is int)
+                        ? (product['price'] as int).toDouble()
+                        : product['price'];
+
                     return ProductCard(
                       name: product['name'],
-                      price: product['price'],
+                      price: price,
                       imageUrl: product['imageUrl'],
                       description: product['description'],
                       onAddToCart: () {
                         cartProvider.addToCart({
                           'name': product['name'],
-                          'price': product['price'],
+                          'price': price,
                           'imageUrl': product['imageUrl'],
                           'description': product['description'],
                         });
 
-                        // Show a more elegant snackbar
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Row(
                               children: [
                                 const Icon(Icons.check_circle,
                                     color: Colors.white),
-                                const SizedBox(width: 12),
+                                SizedBox(width: 12.w),
                                 Text(
                                   'Added to cart',
                                   style: GoogleFonts.poppins(),
@@ -231,7 +234,7 @@ class _ShopPageState extends State<ShopPage> {
                             backgroundColor: Colors.green[700],
                             behavior: SnackBarBehavior.floating,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(10.r),
                             ),
                             margin: const EdgeInsets.all(10),
                             duration: const Duration(seconds: 2),
@@ -244,7 +247,7 @@ class _ShopPageState extends State<ShopPage> {
                           MaterialPageRoute(
                             builder: (context) => ProductDetailsPage(product: {
                               'name': product['name'],
-                              'price': product['price'],
+                              'price': price,
                               'imageUrl': product['imageUrl'],
                               'description': product['description'],
                             }),
@@ -292,8 +295,8 @@ class ProductCard extends StatelessWidget {
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              spreadRadius: 0,
+              blurRadius: 10.sp,
+              spreadRadius: 0.sp,
               offset: const Offset(0, 4),
             ),
           ],
@@ -301,18 +304,17 @@ class ProductCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image container (discount badge removed)
             ClipRRect(
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(16)),
               child: Image.network(
                 imageUrl,
-                height: 140,
+                height: 140.h,
                 width: double.infinity,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
-                    height: 140,
+                    height: 140.h,
                     color: Colors.grey[200],
                     child: const Center(
                       child:
@@ -332,29 +334,29 @@ class ProductCard extends StatelessWidget {
                   Text(
                     name,
                     style: GoogleFonts.poppins(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
                       color: const Color(0xFF333333),
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4.h),
                   Text(
                     description,
                     style: GoogleFonts.poppins(
-                      fontSize: 12,
+                      fontSize: 12.sp,
                       color: Colors.grey[600],
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8.h),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        '$price USD',
+                        ' ${price.toStringAsFixed(2)} USD',
                         style: GoogleFonts.poppins(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -446,14 +448,14 @@ class _AnimatedCartIconState extends State<AnimatedCartIcon>
                   color: Colors.red,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                constraints: const BoxConstraints(
-                  minWidth: 16,
-                  minHeight: 16,
+                constraints: BoxConstraints(
+                  minWidth: 16.w,
+                  minHeight: 16.h,
                 ),
                 child: Text(
                   '${widget.itemCount}',
                   style: GoogleFonts.poppins(
-                    fontSize: 10,
+                    fontSize: 10.sp,
                     color: Colors.white,
                     fontWeight: FontWeight.w500,
                   ),
