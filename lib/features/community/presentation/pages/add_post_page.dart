@@ -1,5 +1,7 @@
+import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:furrpal/features/community/presentation/pages/community_service.dart';
 import 'package:image_picker/image_picker.dart';
 
 class AddPostPage extends StatefulWidget {
@@ -23,16 +25,36 @@ class _AddPostPageState extends State<AddPostPage> {
     }
   }
 
-  void _submitPost() {
-    if (_postController.text.isNotEmpty || _selectedImage != null) {
-      // Handle post submission (e.g., send data to backend)
-      Navigator.pop(context); // Close the page after submission
+  void _submitPost() async {
+  if (_postController.text.isNotEmpty || _selectedImage != null) {
+    if (_selectedImage != null) {
+      var firebase = CommunityService();
+
+      try {
+        await firebase.createCommunityPost(
+          caption: _postController.text,
+          imageFile: _selectedImage,
+        );
+
+        // Return success result to CommunityPage
+        if (mounted) {
+          Navigator.pop(context, true); // Passing 'true' as a success flag
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error creating post: $e")),
+        );
+      }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please add some text or an image")),
-      );
+      log('No image selected');
     }
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Please add some text or an image")),
+    );
   }
+}
+
 
   Future<bool> _onBackPressed() async {
     if (_postController.text.isNotEmpty || _selectedImage != null) {
@@ -84,7 +106,7 @@ class _AddPostPageState extends State<AddPostPage> {
               TextField(
                 controller: _postController,
                 decoration: const InputDecoration(
-                  hintText: "What's on your mind?",
+                  hintText: "Add a caption...",
                   border: OutlineInputBorder(),
                 ),
                 maxLines: 5,
@@ -99,9 +121,18 @@ class _AddPostPageState extends State<AddPostPage> {
                     ),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: _submitPost,
-                child: const Text("Post"),
-              ),
+  onPressed: _submitPost,
+  style: ElevatedButton.styleFrom(
+    backgroundColor: const Color(0xffF88158), // Change this to your desired color
+    foregroundColor: Colors.white, // Text color
+    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12), // Optional: Adjust padding
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(10), // Optional: Rounded corners
+    ),
+  ),
+  child: const Text("Post"),
+)
+
             ],
           ),
         ),

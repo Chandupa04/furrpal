@@ -221,9 +221,9 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
                             borderRadius: BorderRadius.circular(10.r),
                           ),
                           contentPadding:
-                          EdgeInsets.symmetric(horizontal: 16.w),
+                              EdgeInsets.symmetric(horizontal: 16.w),
                         ),
-                        hint: Text('Years'),
+                        hint: const Text('Years'),
                         items: years.map((int year) {
                           return DropdownMenuItem<int>(
                             value: year,
@@ -264,9 +264,9 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
                             borderRadius: BorderRadius.circular(10.r),
                           ),
                           contentPadding:
-                          EdgeInsets.symmetric(horizontal: 16.w),
+                              EdgeInsets.symmetric(horizontal: 16.w),
                         ),
-                        hint: Text('Months'),
+                        hint: const Text('Months'),
                         items: months.map((int month) {
                           return DropdownMenuItem<int>(
                             value: month,
@@ -336,39 +336,39 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
               onTap: _pickImage,
               child: _imageFile != null
                   ? ClipRRect(
-                borderRadius: BorderRadius.circular(75.r),
-                child: Image.file(
-                  _imageFile!,
-                  width: 150.w,
-                  height: 150.h,
-                  fit: BoxFit.cover,
-                ),
-              )
+                      borderRadius: BorderRadius.circular(75.r),
+                      child: Image.file(
+                        _imageFile!,
+                        width: 150.w,
+                        height: 150.h,
+                        fit: BoxFit.cover,
+                      ),
+                    )
                   : Stack(
-                alignment: Alignment.center,
-                children: [
-                  Image.asset(
-                    logoImage,
-                    width: 150.w,
-                    height: 150.h,
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Container(
-                      padding: EdgeInsets.all(8.r),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.camera_alt,
-                        size: 24.r,
-                      ),
+                      alignment: Alignment.center,
+                      children: [
+                        Image.asset(
+                          logoImage,
+                          width: 150.w,
+                          height: 150.h,
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Container(
+                            padding: EdgeInsets.all(8.r),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.camera_alt,
+                              size: 24.r,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
             ),
             ContainerCustom(
               marginLeft: 13.w,
@@ -434,7 +434,7 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
                                 onTap: () {
                                   setState(() {
                                     _breedController.text =
-                                    filteredBreeds[index];
+                                        filteredBreeds[index];
                                     showBreedDropdown = false;
                                   });
                                 },
@@ -495,14 +495,16 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
                   ),
                   TextFieldCustom(
                     controller: _weightKgController,
-                    keyboardType: TextInputType.numberWithOptions(decimal: true),
+                    keyboardType:
+                        TextInputType.numberWithOptions(decimal: true),
                     marginBottom: 15.h,
                     onChanged: (value) {
                       if (!_validateWeight(value)) {
                         // If the input is invalid, reset the field
                         _weightKgController.value = TextEditingValue(
                           text: value.replaceAll(RegExp(r'[^0-9\.]'), ''),
-                          selection: TextSelection.collapsed(offset: value.length),
+                          selection:
+                              TextSelection.collapsed(offset: value.length),
                         );
                       }
                     },
@@ -555,7 +557,7 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
                               ),
                             ),
                           ),
-                          Icon(Icons.upload_file, color: Colors.grey),
+                          const Icon(Icons.upload_file, color: Colors.grey),
                         ],
                       ),
                     ),
@@ -570,6 +572,18 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
                   TextFieldCustom(
                     controller: _locationController,
                   ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 15.h, bottom: 10.h),
+                    child: Text(
+                      'Verify your email by clicking on the link sent to your inbox.',
+                      style: TextStyle(
+                        color: const Color.fromARGB(255, 0, 0, 0),
+                        fontSize: 14.sp,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+
                   ButtonCustom(
                     text: 'Create Profile',
                     dontApplyMargin: true,
@@ -640,4 +654,3 @@ class _DogProfileCreatPageState extends State<DogProfileCreatPage> {
     }
   }
 }
-

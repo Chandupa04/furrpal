@@ -34,10 +34,6 @@ class _NavBarState extends State<NavBar> {
   bool isVerifiedEmail =
       FirebaseAuth.instance.currentUser?.emailVerified ?? false;
 
-  // void _onVerifiedEmail() async {
-  //   await
-  // }
-
   @override
   void initState() {
     FirebaseAuth.instance.currentUser!.reload();
@@ -49,6 +45,7 @@ class _NavBarState extends State<NavBar> {
     //get the current user
     final user = context.read<AuthCubit>().currentUser;
     String? uid = user!.uid;
+
     if (isVerifiedEmail) {
       return Scaffold(
         body: IndexedStack(

@@ -29,12 +29,10 @@ class DogProfileCubit extends Cubit<DogProfileState> {
     required String newBreed,
     required String newAge,
     required String weightKg,
-    required String weightG,
     required String newGender,
     required String newLocation,
-    required String bloodline,
+    String? bloodline,
     String? healthReportUrl,
-    // String? newHealthConditions,
   }) async {
     emit(DogProfileLoading());
     try {
@@ -48,7 +46,6 @@ class DogProfileCubit extends Cubit<DogProfileState> {
         name: newName,
         age: newAge,
         weightKg: weightKg,
-        weightG: weightG,
         breed: newBreed,
         gender: newGender,
         location: newLocation,
@@ -96,11 +93,10 @@ class DogProfileCubit extends Cubit<DogProfileState> {
     required String name,
     required String age,
     required String weightKg,
-    required String weightG,
     required String breed,
     required String gender,
     required String location,
-    required String bloodline,
+    String? bloodline,
     String? healthReportUrl,
   }) async {
     emit(DogProfileLoading());
@@ -110,7 +106,6 @@ class DogProfileCubit extends Cubit<DogProfileState> {
         name: name,
         age: age,
         weightKg: weightKg,
-        weightG: weightG,
         breed: breed,
         gender: gender,
         location: location,

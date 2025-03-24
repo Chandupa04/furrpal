@@ -7,6 +7,8 @@ import 'package:furrpal/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:furrpal/features/auth/presentation/cubit/auth_state.dart';
 import 'package:furrpal/features/nav_bar/presentation/pages/nav_bar.dart';
 import 'package:furrpal/features/profiles/dog_profile/presentation/cubit/dog_profile_cubit.dart';
+import 'package:furrpal/features/profiles/post/data/post_repo_impl.dart';
+import 'package:furrpal/features/profiles/post/presentation/cubit/post_cubit.dart';
 import 'package:furrpal/features/profiles/user_profile/data/user_profile_repo_impl.dart';
 import 'package:furrpal/features/profiles/user_profile/presentation/cubit/profile_cubit.dart';
 import 'package:provider/provider.dart';
@@ -25,6 +27,9 @@ class MyApp extends StatelessWidget {
 
   // dog Profile repo
   final dogProfileRepo = DogProfileRepoImpl();
+
+  // post repo
+  final postRepo = PostRepoImpl();
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +54,13 @@ class MyApp extends StatelessWidget {
           BlocProvider<DogProfileCubit>(
             create: (context) => DogProfileCubit(
               dogProfileRepo: dogProfileRepo,
+            ),
+          ),
+
+          // Post cubit
+          BlocProvider<PostCubit>(
+            create: (context) => PostCubit(
+              postRepo: postRepo,
             ),
           ),
 

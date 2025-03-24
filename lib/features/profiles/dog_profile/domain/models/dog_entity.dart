@@ -5,13 +5,11 @@ class DogEntity {
   final String gender;
   final String age;
   final String weightKg;
-  final String weightG;
-  // final String? healthConditions;
   final String location;
   final String imageURL;
   final List<String>? likes;
   final List<String>? dislikes;
-  final String bloodline;
+  final String? bloodline;
   final String? healthReportUrl;
 
   DogEntity({
@@ -21,10 +19,9 @@ class DogEntity {
     required this.gender,
     required this.age,
     required this.weightKg,
-    required this.weightG,
     required this.location,
     required this.imageURL,
-    required this.bloodline,
+    this.bloodline,
     this.healthReportUrl,
     this.likes,
     this.dislikes,
@@ -50,7 +47,6 @@ class DogEntity {
       gender: newGender ?? gender,
       age: newAge ?? age,
       weightKg: newWeightKg ?? weightKg,
-      weightG: newWeightG ?? weightG,
       location: newLocation ?? location,
       imageURL: newImageURL ?? imageURL,
       bloodline: newBloodline ?? bloodline,
@@ -65,7 +61,6 @@ class DogEntity {
       breed: json['breed'],
       gender: json['gender'],
       age: json['age'],
-      weightG: json['weightG'],
       weightKg: json['weightKg'],
       location: json['location'],
       imageURL: json['imageUrl'],
@@ -84,7 +79,6 @@ class DogEntity {
       'breed': breed,
       'gender': gender,
       'age': age,
-      'weightG': weightG,
       'weightKg': weightKg,
       'location': location,
       'imageUrl': imageURL,

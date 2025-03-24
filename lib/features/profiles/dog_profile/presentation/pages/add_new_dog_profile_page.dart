@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -26,14 +27,18 @@ class _AddNewDogProfilePageState extends State<AddNewDogProfilePage> {
   File? selectedFile;
   String? selectedGender;
   String? selectedBreed;
+  File? healthReportFile;
+  String? healthReportName;
+  int? selectedYears;
+  int? selectedMonths;
+
+  final List<int> years = List.generate(16, (index) => index);
+  final List<int> months = List.generate(12, (index) => index);
 
   final TextEditingController nameTextController = TextEditingController();
-  final TextEditingController ageTextController = TextEditingController();
   final TextEditingController weightKgcontroller = TextEditingController();
-  final TextEditingController weightGcontroller = TextEditingController();
   final TextEditingController locationTextController = TextEditingController();
   final TextEditingController bloodlineTextController = TextEditingController();
-  // final TextEditingController healthReportController = TextEditingController();
 
   void pickImage() async {
     final ImagePicker picker = ImagePicker();
@@ -46,25 +51,145 @@ class _AddNewDogProfilePageState extends State<AddNewDogProfilePage> {
     }
   }
 
+  Future<void> pickHealthReport() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf'],
+      );
+
+      if (result != null) {
+        setState(() {
+          healthReportFile = File(result.files.single.path!);
+          healthReportName = result.files.single.name;
+        });
+      }
+    } catch (e) {
+      print("Error picking file: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error picking file: $e')),
+      );
+    }
+  }
+
+  String getFormattedAge() {
+    if (selectedYears == null && selectedMonths == null) {
+      return '';
+    }
+
+    final years = selectedYears ?? 0;
+    final months = selectedMonths ?? 0;
+
+    if (years > 0 && months > 0) {
+      return '$years.$months yrs';
+    } else if (years > 0) {
+      return '$years yrs';
+    } else {
+      return '$months months';
+    }
+  }
+
+  Widget buildAgeDropdowns() {
+    return Container(
+      margin: EdgeInsets.only(bottom: 15.h),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              // Years dropdown
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10.r),
+                      ),
+                      child: DropdownButtonFormField<int>(
+                        value: selectedYears,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.r),
+                          ),
+                          contentPadding:
+                              EdgeInsets.symmetric(horizontal: 16.w),
+                        ),
+                        hint: const Text('Years'),
+                        items: years.map((int year) {
+                          return DropdownMenuItem<int>(
+                            value: year,
+                            child: Text('$year'),
+                          );
+                        }).toList(),
+                        onChanged: (int? value) {
+                          setState(() {
+                            selectedYears = value;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(width: 16.w),
+              // Months dropdown
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10.r),
+                      ),
+                      child: DropdownButtonFormField<int>(
+                        value: selectedMonths,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.r),
+                          ),
+                          contentPadding:
+                              EdgeInsets.symmetric(horizontal: 16.w),
+                        ),
+                        hint: const Text('Months'),
+                        items: months.map((int month) {
+                          return DropdownMenuItem<int>(
+                            value: month,
+                            child: Text('$month'),
+                          );
+                        }).toList(),
+                        onChanged: (int? value) {
+                          setState(() {
+                            selectedMonths = value;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   void addNewProfile() async {
     final dogProfileCubit = context.read<DogProfileCubit>();
 
     final String name = nameTextController.text;
-    final String age = ageTextController.text;
     final String weightKg = weightKgcontroller.text;
-    final String weightG = weightGcontroller.text;
     final String location = locationTextController.text;
-    // final String healthCondition = healthConditionTextController.text;
     final String bloodline = bloodlineTextController.text;
-    // final String healthReport = healthReportController.text;
+    final String formattedAge = getFormattedAge();
 
     if (name.isEmpty ||
-        age.isEmpty ||
+        formattedAge.isEmpty ||
         location.isEmpty ||
         weightKg.isEmpty ||
-        weightG.isEmpty ||
-        bloodline.isEmpty ||
-        // healthReport.isEmpty ||
         selectedFile == null ||
         selectedGender == null ||
         selectedBreed == null) {
@@ -86,14 +211,13 @@ class _AddNewDogProfilePageState extends State<AddNewDogProfilePage> {
       dogProfileCubit.addNewDogProfile(
         profileImage: selectedFile!,
         name: name,
-        age: age,
+        age: formattedAge,
         weightKg: weightKg,
-        weightG: weightG,
         breed: selectedBreed!,
         gender: selectedGender!,
         location: location,
         bloodline: bloodline,
-        // healthReportUrl: healthReport,
+        healthReportUrl: healthReportName,
       );
     }
   }
@@ -101,10 +225,8 @@ class _AddNewDogProfilePageState extends State<AddNewDogProfilePage> {
   @override
   void dispose() {
     nameTextController.dispose();
-    ageTextController.dispose();
     locationTextController.dispose();
     weightKgcontroller.dispose();
-    weightGcontroller.dispose();
     bloodlineTextController.dispose();
     super.dispose();
   }
@@ -197,40 +319,18 @@ class _AddNewDogProfilePageState extends State<AddNewDogProfilePage> {
                 text: 'Age',
                 textStyle: textFieldLableStyle,
                 marginLeft: 10.w,
-                marginTop: 10.h,
                 marginBottom: 4.h,
               ),
-              TextFieldCustom(
-                controller: ageTextController,
-                hintText: 'age',
-                keyboardType: TextInputType.number,
-                borderColor: blackColor,
-                marginBottom: 15.h,
-              ),
+              buildAgeDropdowns(),
               TextCustomWidget(
                 text: 'weight (Kg)',
                 textStyle: textFieldLableStyle,
                 marginLeft: 10.w,
-                marginTop: 10.h,
                 marginBottom: 4.h,
               ),
               TextFieldCustom(
                 controller: weightKgcontroller,
                 hintText: 'weightKg',
-                keyboardType: TextInputType.number,
-                borderColor: blackColor,
-                marginBottom: 15.h,
-              ),
-              TextCustomWidget(
-                text: 'weight (G)',
-                textStyle: textFieldLableStyle,
-                marginLeft: 10.w,
-                marginTop: 10.h,
-                marginBottom: 4.h,
-              ),
-              TextFieldCustom(
-                controller: weightGcontroller,
-                hintText: 'weightG',
                 keyboardType: TextInputType.number,
                 borderColor: blackColor,
                 marginBottom: 15.h,
@@ -244,7 +344,7 @@ class _AddNewDogProfilePageState extends State<AddNewDogProfilePage> {
               DropdownButtonFormField<String>(
                 hint: TextCustomWidget(
                   text: 'Select Gender',
-                  textColor: blackColor,
+                  textColor: Colors.grey,
                   fontSize: 17.sp,
                   fontWeight: FontWeight.w500,
                 ),
@@ -278,7 +378,7 @@ class _AddNewDogProfilePageState extends State<AddNewDogProfilePage> {
               DropdownButtonFormField<String>(
                 hint: TextCustomWidget(
                   text: 'Select breed',
-                  textColor: blackColor,
+                  textColor: Colors.grey,
                   fontSize: 17.sp,
                   fontWeight: FontWeight.w500,
                 ),
@@ -304,6 +404,51 @@ class _AddNewDogProfilePageState extends State<AddNewDogProfilePage> {
                 },
               ),
               TextCustomWidget(
+                text: 'Blood Line',
+                textStyle: textFieldLableStyle,
+                marginLeft: 10.w,
+                marginBottom: 4.h,
+              ),
+              TextFieldCustom(
+                controller: bloodlineTextController,
+                hintText: 'Blood Line (Optional)',
+                borderColor: blackColor,
+                marginBottom: 15.h,
+              ),
+              TextCustomWidget(
+                text: 'Health Report (PDF) (Optional)',
+                textStyle: textFieldLableStyle,
+                textColor: blackColor,
+                marginLeft: 10.w,
+                marginBottom: 4.h,
+              ),
+              ContainerCustom(
+                callback: pickHealthReport,
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(vertical: 15.h, horizontal: 15.w),
+                margin: EdgeInsets.only(bottom: 15.h),
+                bgColor: Colors.white,
+                borderRadius: BorderRadius.circular(10.r),
+                border: Border.all(color: blackColor),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        healthReportName ?? 'Upload health report (PDF)',
+                        style: TextStyle(
+                          color: healthReportName != null
+                              ? Colors.black
+                              : Colors.grey,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
+                    const Icon(Icons.upload_file, color: Colors.grey),
+                  ],
+                ),
+              ),
+              TextCustomWidget(
                 text: 'Location',
                 textStyle: textFieldLableStyle,
                 marginLeft: 10.w,
@@ -312,18 +457,6 @@ class _AddNewDogProfilePageState extends State<AddNewDogProfilePage> {
               TextFieldCustom(
                 controller: locationTextController,
                 hintText: 'location',
-                borderColor: blackColor,
-                marginBottom: 15.h,
-              ),
-              TextCustomWidget(
-                text: 'Blood Line',
-                textStyle: textFieldLableStyle,
-                marginLeft: 10.w,
-                marginBottom: 4.h,
-              ),
-              TextFieldCustom(
-                controller: bloodlineTextController,
-                hintText: 'Blood Line',
                 borderColor: blackColor,
                 marginBottom: 30.h,
               ),
