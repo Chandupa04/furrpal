@@ -106,7 +106,7 @@ class _AddPostPageState extends State<AddPostPage> {
               TextField(
                 controller: _postController,
                 decoration: const InputDecoration(
-                  hintText: "What's on your mind?",
+                  hintText: "Add a caption...",
                   border: OutlineInputBorder(),
                 ),
                 maxLines: 5,
@@ -121,9 +121,18 @@ class _AddPostPageState extends State<AddPostPage> {
                     ),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: _submitPost,
-                child: const Text("Post"),
-              ),
+  onPressed: _submitPost,
+  style: ElevatedButton.styleFrom(
+    backgroundColor: const Color(0xffF88158), // Change this to your desired color
+    foregroundColor: Colors.white, // Text color
+    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12), // Optional: Adjust padding
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(10), // Optional: Rounded corners
+    ),
+  ),
+  child: const Text("Post"),
+)
+
             ],
           ),
         ),
