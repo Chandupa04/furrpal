@@ -113,7 +113,7 @@ class _CommentPageState extends State<CommentPage> {
                           // Displaying the user's name in bold before the comment
                           Text(
                             widget.comments[index]['name'] ?? 'Unknown User',
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
                             ),
@@ -141,7 +141,7 @@ class _CommentPageState extends State<CommentPage> {
                           IconButton(
                             icon: const Icon(
                               Icons.delete,
-                              color: Colors.black,
+                              color: const Color(0xffF88158),
                               size: 20,
                             ),
                             onPressed: () async {
@@ -228,7 +228,7 @@ class _CommentPageState extends State<CommentPage> {
                 ),
                 const SizedBox(width: 10),
                 IconButton(
-                  icon: const Icon(Icons.send, color: Colors.blue),
+                  icon: const Icon(Icons.send, color: const Color(0xffF88158)),
                   onPressed: _addComment,
                 ),
               ],

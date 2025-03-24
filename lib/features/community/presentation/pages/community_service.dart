@@ -54,8 +54,9 @@ class CommunityService {
         'createdAt': FieldValue.serverTimestamp(),
         'caption': caption,
         'imageUrl': imageUrl ?? '',
-        'likesCount': 0,
-        'comments': []
+        'likes': [],
+        'comments': [],
+        'reports': [],
       };
 
       await reference.set(postData);
@@ -287,5 +288,76 @@ class CommunityService {
       print('Error deleting post: $e');
       throw Exception('Failed to delete post');
     }
+  }
+
+// like community posts
+  Future<void> reportPost({
+    required String postId,
+    required String postOwnerId,
+  }) async {
+    try {
+      User? user = _auth.currentUser;
+      if (user == null) {
+        log('Error: No user logged in');
+        throw Exception('No user logged in');
+      }
+
+      final postRef = _firestore
+          .collection('users')
+          .doc(postOwnerId)
+          .collection('community')
+          .doc(postId);
+
+      final postSnapshot = await postRef.get();
+
+      if (!postSnapshot.exists) {
+        log('Post not found.');
+        return;
+      }
+
+      final postData = postSnapshot.data() as Map<String, dynamic>;
+      final List<dynamic> reports = postData['reports'] ?? [];
+
+      if (reports.contains(user.uid)) {
+        print('User has already reported this post');
+      } else {
+        reports.add(user.uid);
+        await postRef.update({
+          'reports': reports,
+        });
+        log('Post successfully updated with new report count: ${reports.length}');
+      }
+
+      if (reports.length > 20) {
+        await deletePost(postId: postId, postOwnerId: postOwnerId);
+        log('Post successfully deleted');
+      }
+    } catch (e) {
+      log('Error reporting the post: $e');
+    }
+  }
+
+  Future<void> editPost({
+    required String postId,
+    required String newContent,
+  }) async {
+    User? user = _auth.currentUser;
+    if (user == null) {
+      log('Error: No user logged in');
+      throw Exception('No user logged in');
+    }
+
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .collection('community')
+        .doc(postId)
+        .update({
+      'caption': newContent,
+      'editedAt': Timestamp.now(),
+    });
+
+            log('Post successfully updated');
+
   }
 }

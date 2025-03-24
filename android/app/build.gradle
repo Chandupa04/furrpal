@@ -45,5 +45,6 @@ flutter {
 dependencies {
     implementation platform('com.google.firebase:firebase-bom:32.2.2') // Ensure Firebase BOM is up-to-date
     implementation "org.jetbrains.kotlin:kotlin-stdlib:1.8.0" // Ensure latest stable Kotlin stdlib
+    implementation "com.google.android.material:material:1.9.0" // Add Material Components dependency
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3' // Enable Desugaring
 }

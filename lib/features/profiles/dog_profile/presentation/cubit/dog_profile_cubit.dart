@@ -33,7 +33,6 @@ class DogProfileCubit extends Cubit<DogProfileState> {
     required String newLocation,
     String? bloodline,
     String? healthReportUrl,
-    // String? newHealthConditions,
   }) async {
     emit(DogProfileLoading());
     try {
