@@ -134,7 +134,7 @@ class CheckoutPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'LKR ${price.toStringAsFixed(2)}',
+                        'USD ${price.toStringAsFixed(2)}',
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w500,
@@ -246,7 +246,7 @@ class CheckoutPage extends StatelessWidget {
                 ),
               ),
               Text(
-                'LKR ${totalPrice.toStringAsFixed(2)}',
+                'USD ${totalPrice.toStringAsFixed(2)}',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
