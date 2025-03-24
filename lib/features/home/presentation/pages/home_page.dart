@@ -72,7 +72,7 @@ class _HomePageState extends State<HomePage> {
     try {
       final dogProfiles = _focusBreed != null
           ? await _firebaseService
-              .getAllDogProfilesByBreedPriority(_focusBreed!)
+          .getAllDogProfilesByBreedPriority(_focusBreed!)
           : await _firebaseService.getAllDogProfiles();
 
       print('Loaded ${dogProfiles.length} dog profiles');
@@ -92,8 +92,8 @@ class _HomePageState extends State<HomePage> {
         // Count exact matches
         int exactMatches = dogProfiles
             .where((dog) =>
-                (dog['breed'] ?? '').toString().toLowerCase() ==
-                _focusBreed!.toLowerCase())
+        (dog['breed'] ?? '').toString().toLowerCase() ==
+            _focusBreed!.toLowerCase())
             .length;
 
         // Show popup if no exact matches found
@@ -254,7 +254,7 @@ class _HomePageState extends State<HomePage> {
         // Show a message that the profile was already liked
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('You have already liked $dogName'),
+            content: Text('You have already liked ${dogName}'),
             duration: const Duration(seconds: 2),
           ),
         );
@@ -263,7 +263,7 @@ class _HomePageState extends State<HomePage> {
 
       // Check if user has reached like limit before showing toast
       bool hasReachedLimit =
-          await _firebaseService.hasReachedLikeLimit(currentUserId!);
+      await _firebaseService.hasReachedLikeLimit(currentUserId!);
 
       if (hasReachedLimit && !_hasShownLikeLimitMessage) {
         if (!mounted) return;
@@ -317,11 +317,7 @@ class _HomePageState extends State<HomePage> {
         dogOwnerId: dogOwnerId,
         dogId: dogId,
         dogName: dogName,
-
         likedByDogId: currentUserDogId ?? '',
-
-        // Pass the dog ID of the user who is liking
-
         likedByUserId: currentUserId!,
       );
     } catch (e) {
@@ -448,41 +444,39 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 242, 241, 240),
-      body: Column(
-        children: [
-          const SizedBox(height: 50),
-          _buildTopBar(),
-          const Spacer(),
-          if (isLoading)
-            const Center(
-              child: CircularProgressIndicator(),
-            )
-          else if (_showNoMoreDogsMessage || dogs.isEmpty)
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    "No more dog profiles to show",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 20),
-                  CupertinoButton(
-                    onPressed: _loadDogProfiles,
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    child: const Text(
-                      "Refresh",
-                      style: TextStyle(color: Colors.black),
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildTopBar(),
+            Expanded(
+              child: isLoading
+                  ? const Center(
+                child: CircularProgressIndicator(),
+              )
+                  : _showNoMoreDogsMessage || dogs.isEmpty
+                  ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      "No more dog profiles to show",
+                      style: TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold),
                     ),
-                  ),
-                ],
-              ),
-            )
-          else
-            SizedBox(
-              height: 650,
-              child: CardSwiper(
+                    const SizedBox(height: 20),
+                    CupertinoButton(
+                      onPressed: _loadDogProfiles,
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      child: const Text(
+                        "Refresh",
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+                  : CardSwiper(
                 controller: swiperController,
                 cardsCount: dogs.length,
                 onSwipe: (previousIndex, currentIndex, direction) {
@@ -498,7 +492,8 @@ class _HomePageState extends State<HomePage> {
                   }
 
                   // Check if we've run out of cards after this swipe
-                  if (currentIndex == null || currentIndex >= dogs.length) {
+                  if (currentIndex == null ||
+                      currentIndex >= dogs.length) {
                     // This was the last card
                     Future.microtask(() {
                       if (mounted) {
@@ -511,8 +506,8 @@ class _HomePageState extends State<HomePage> {
 
                   return true;
                 },
-                cardBuilder:
-                    (context, index, percentThresholdX, percentThresholdY) {
+                cardBuilder: (context, index, percentThresholdX,
+                    percentThresholdY) {
                   return DogProfileCard(
                     dog: dogs[index],
                     isTopCard: index == 0,
@@ -523,8 +518,8 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
             ),
-          const Spacer(),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -570,7 +565,6 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           const SizedBox(width: 30),
-          // Icon(Icons.person, color: Colors.grey.shade800, size: 28),
         ],
       ),
     );
@@ -599,16 +593,26 @@ class DogProfileCard extends StatefulWidget {
 
 class _DogProfileCardState extends State<DogProfileCard> {
   final FirebaseService _firebaseService = FirebaseService();
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     // Get image from Firebase or use placeholder
     final String imageUrl = widget.dog["imageUrl"] ?? "";
 
+    // Get screen size to ensure proper sizing
+    final Size screenSize = MediaQuery.of(context).size;
+    final double cardHeight = screenSize.height * 0.75;
+
     return Container(
-      height: 160,
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      padding: const EdgeInsets.all(16),
+      height: cardHeight,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(25),
@@ -621,57 +625,69 @@ class _DogProfileCardState extends State<DogProfileCard> {
           ),
         ],
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Expanded(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(25),
+        // This SingleChildScrollView allows scrolling within each card
+        child: SingleChildScrollView(
+          controller: _scrollController,
+          physics: const BouncingScrollPhysics(),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
             child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                // Dog image
                 ClipRRect(
                   borderRadius: BorderRadius.circular(20),
                   child: imageUrl.isNotEmpty
                       ? Image.network(
-                          imageUrl,
-                          height: 200,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return Container(
-                              height: 200,
-                              width: double.infinity,
-                              color: Colors.grey[200],
-                              child: const Center(
-                                child: CircularProgressIndicator(),
-                              ),
-                            );
-                          },
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              height: 200,
-                              width: double.infinity,
-                              color: Colors.grey[200],
-                              child: const Icon(
-                                Icons.error,
-                                color: Colors.red,
-                                size: 50,
-                              ),
-                            );
-                          },
-                        )
-                      : Image.asset(
-                          "assets/images/dog_placeholder.jpg",
-                          height: 200,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
+                    imageUrl,
+                    height: 240,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Container(
+                        height: 240,
+                        width: double.infinity,
+                        color: Colors.grey[200],
+                        child: const Center(
+                          child: CircularProgressIndicator(),
                         ),
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        height: 240,
+                        width: double.infinity,
+                        color: Colors.grey[200],
+                        child: const Icon(
+                          Icons.error,
+                          color: Colors.red,
+                          size: 50,
+                        ),
+                      );
+                    },
+                  )
+                      : Image.asset(
+                    "assets/images/dog_placeholder.jpg",
+                    height: 240,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
                 ),
-                const SizedBox(height: 20),
+
+                const SizedBox(height: 24),
+
+                // Dog name and breed
                 Text(
                   widget.dog["name"] ?? "Unknown",
                   style: const TextStyle(
-                      fontSize: 26, fontWeight: FontWeight.bold),
+                      fontSize: 24, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
                 ),
+                const SizedBox(height: 4),
                 Text(
                   widget.dog["breed"] ?? "Unknown breed",
                   style: const TextStyle(
@@ -679,106 +695,131 @@ class _DogProfileCardState extends State<DogProfileCard> {
                     fontStyle: FontStyle.italic,
                     color: Colors.brown,
                   ),
+                  textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 10),
-                _infoRow(widget.dog),
-                const SizedBox(height: 15),
+
+                const SizedBox(height: 20),
+
+                // Info pills (Age, Gender, Location)
+                _buildInfoRow(widget.dog),
+
+                const SizedBox(height: 24),
+
+                // Show User Details button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      final String ownerId = widget.dog["ownerId"];
+                      if (ownerId == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Owner details not available')),
+                        );
+                        return;
+                      }
+
+                      final userDetails =
+                      await _firebaseService.getUserDetails(ownerId);
+                      if (userDetails == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Failed to load user details')),
+                        );
+                        return;
+                      }
+
+                      if (context.mounted) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => UserDetailsPage(
+                              name: userDetails['name'],
+                              email: userDetails['email'],
+                              address: userDetails['address'],
+                              contact: userDetails['contact'],
+                              since: userDetails['since'],
+                              imagePath: userDetails['imagePath'],
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 183, 180, 177),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 12),
+                    ),
+                    child: const Text(
+                      "Show User Details",
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // Like/Dislike buttons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildActionButton(
+                      icon: Icons.close,
+                      color: Colors.redAccent,
+                      backgroundColor: Colors.red.withOpacity(0.2),
+                      onTap: () {
+                        HapticFeedback.mediumImpact();
+                        widget.onDislike();
+                        widget.swiperController.swipe(CardSwiperDirection.left);
+                      },
+                    ),
+                    const SizedBox(width: 30),
+                    _buildActionButton(
+                      icon: Icons.favorite,
+                      color: Colors.green,
+                      backgroundColor: Colors.green.withOpacity(0.2),
+                      onTap: () {
+                        HapticFeedback.mediumImpact();
+                        widget.onLike();
+                        widget.swiperController
+                            .swipe(CardSwiperDirection.right);
+                      },
+                    ),
+                  ],
+                ),
+
+                // Add some padding at the bottom for better scrolling
+                const SizedBox(height: 20),
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: ElevatedButton(
-              onPressed: () async {
-                final String ownerId = widget.dog["ownerId"];
-
-                final userDetails =
-                    await _firebaseService.getUserDetails(ownerId);
-                if (userDetails == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('Failed to load user details')),
-                  );
-                  return;
-                }
-
-                if (mounted) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => UserDetailsPage(
-                        name: userDetails['name'],
-                        email: userDetails['email'],
-                        address: userDetails['address'],
-                        contact: userDetails['contact'],
-                        since: userDetails['since'],
-                        imagePath: userDetails['imagePath'],
-                      ),
-                    ),
-                  );
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 183, 180, 177),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-              ),
-              child: const Text(
-                "Show User Details",
-                style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
-              ),
-            ),
-          ),
-          const SizedBox(height: 15),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _floatingButton(
-                icon: Icons.close,
-                color: Colors.redAccent,
-                backgroundColor: Colors.red.withOpacity(0.2),
-                onTap: () {
-                  widget.onDislike();
-                  widget.swiperController.swipe(CardSwiperDirection.left);
-                },
-              ),
-              const SizedBox(width: 30),
-              _floatingButton(
-                icon: Icons.favorite,
-                color: Colors.green,
-                backgroundColor: Colors.green.withOpacity(0.2),
-                onTap: () {
-                  widget.onLike();
-                  widget.swiperController.swipe(CardSwiperDirection.right);
-                },
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _infoRow(Map<String, dynamic> dog) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  Widget _buildInfoRow(Map<String, dynamic> dog) {
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 10,
+      runSpacing: 10,
       children: [
-        _infoPill("Age", dog["age"] ?? "Unknown"),
-        _infoPill("Gender", dog["gender"] ?? "Unknown"),
-        _infoPill("Location", dog["location"] ?? "Unknown"),
+        _buildInfoPill("Age", dog["age"] ?? "Unknown"),
+        _buildInfoPill("Gender", dog["gender"] ?? "Unknown"),
+        _buildInfoPill("Location", dog["location"] ?? "Unknown"),
       ],
     );
   }
 
-  Widget _infoPill(String title, String value) {
+  Widget _buildInfoPill(String title, String value) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Text(title,
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
@@ -795,31 +836,30 @@ class _DogProfileCardState extends State<DogProfileCard> {
     );
   }
 
-  Widget _floatingButton({
+  Widget _buildActionButton({
     required IconData icon,
     required Color color,
     required Color backgroundColor,
     required VoidCallback onTap,
   }) {
     return GestureDetector(
-      onTapDown: (_) => HapticFeedback.mediumImpact(),
       onTap: onTap,
       child: Container(
-        width: 70,
-        height: 70,
+        width: 60,
+        height: 60,
         decoration: BoxDecoration(
           color: backgroundColor,
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
               color: color.withOpacity(0.5),
-              blurRadius: 20,
-              spreadRadius: 5,
+              blurRadius: 15,
+              spreadRadius: 3,
             ),
           ],
         ),
         child: Center(
-          child: Icon(icon, size: 32, color: color),
+          child: Icon(icon, size: 30, color: color),
         ),
       ),
     );

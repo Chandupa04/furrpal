@@ -12,6 +12,7 @@ class PricingPlansScreen extends StatefulWidget {
 
 class _PricingPlansScreenState extends State<PricingPlansScreen> {
   bool _isLoading = false;
+  String _errorMessage = '';
 
   @override
   Widget build(BuildContext context) {
@@ -40,23 +41,45 @@ class _PricingPlansScreenState extends State<PricingPlansScreen> {
                 Text(
                   'Choose Your Subscription Plan',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey[800],
-                      ),
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey[800],
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Select the perfect subscription that fits your needs',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: Colors.grey[600],
-                      ),
+                    color: Colors.grey[600],
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 32),
 
                 // Single Premium Plan
                 _buildPremiumPlanCard(),
+
+                // Show error message if any
+                if (_errorMessage.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16.0),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.red[400],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        _errorMessage,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
@@ -71,10 +94,10 @@ class _PricingPlansScreenState extends State<PricingPlansScreen> {
       curve: Curves.easeInOut,
       margin: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           colors: [
-            const Color.fromARGB(255, 249, 154, 53),
-            const Color.fromARGB(255, 235, 156, 37)
+            Color(0xFFF9A035),
+            Color(0xFFEB9C25),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -82,7 +105,7 @@ class _PricingPlansScreenState extends State<PricingPlansScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color.fromARGB(255, 234, 216, 57).withOpacity(0.2),
+            color: const Color(0xFFEAD839).withOpacity(0.2),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -112,9 +135,9 @@ class _PricingPlansScreenState extends State<PricingPlansScreen> {
                 Text(
                   'Premium',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -132,10 +155,10 @@ class _PricingPlansScreenState extends State<PricingPlansScreen> {
                     Text(
                       '\$1.69',
                       style:
-                          Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
+                      Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     Text(
                       '/month',
@@ -167,20 +190,20 @@ class _PricingPlansScreenState extends State<PricingPlansScreen> {
                     ),
                     child: _isLoading
                         ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.deepPurple),
-                            ),
-                          )
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.deepPurple),
+                      ),
+                    )
                         : const Text(
-                            'Get Premium',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                      'Get Premium',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -216,6 +239,7 @@ class _PricingPlansScreenState extends State<PricingPlansScreen> {
   void _handleSubscription() async {
     setState(() {
       _isLoading = true;
+      _errorMessage = '';
     });
 
     try {
@@ -239,35 +263,36 @@ class _PricingPlansScreenState extends State<PricingPlansScreen> {
         }
 
         // Show success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Successfully subscribed to Premium plan!'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Successfully subscribed to Premium plan!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+
+          // Navigate back after successful payment
+          Navigator.of(context).pop();
+        }
       } else {
         // Show an error message
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Payment failed. Please try again.'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        setState(() {
+          _errorMessage = 'Payment failed. Please try again.';
+        });
       }
     } catch (error) {
       print('Error processing payment: $error');
 
-      // Show an error message
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Payment failed. Please try again.'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } finally {
+      // Show a more detailed error message
       setState(() {
-        _isLoading = true;
+        _errorMessage = 'Payment failed: ${error.toString().split(':').last}';
       });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 }

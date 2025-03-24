@@ -6,18 +6,23 @@ import 'package:furrpal/firebase_options.dart';
 import 'stripe_payment_page/consts.dart'; // Import the file with your Stripe keys
 
 void main() async {
-  // Ensure Flutter is initialized
-  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    // Ensure Flutter is initialized
+    WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Firebase
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    // Initialize Stripe - this must be done before Firebase
+    Stripe.publishableKey = stripePublishableKey;
+    Stripe.merchantIdentifier = 'merchant.com.furrpal.furrpal'; // Add this for Apple Pay support
+    await Stripe.instance.applySettings(); // Uncomment this line - it's critical!
 
-  // Initialize Stripe
-  Stripe.publishableKey = stripePublishableKey;
-  // Stripe.merchantIdentifier =
-  //     'merchant.com.furrpal'; // Replace with your merchant identifier if using Apple Pay
-  // await Stripe.instance.applySettings();
+    // Initialize Firebase
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // Run app
-  runApp(MyApp());
+    // Run app
+    runApp(MyApp());
+  } catch (e) {
+    print('Error during initialization: $e');
+    // Still try to run the app even if there was an error
+    runApp(MyApp());
+  }
 }

@@ -122,7 +122,9 @@ class OrderHistoryPage extends StatelessWidget {
         subtitle: Row(
           children: [
             Text(
-              '${totalPrice.toStringAsFixed(2)} USD',
+
+              'USD ${totalPrice.toStringAsFixed(2)}',
+
               style: TextStyle(
                 fontWeight: FontWeight.w500,
                 color: Colors.green[700],
@@ -218,7 +220,9 @@ class OrderHistoryPage extends StatelessWidget {
                 ),
                 SizedBox(height: 4.h),
                 Text(
-                  '${price.toStringAsFixed(2)} × $quantity USD',
+
+                  'USD ${price.toStringAsFixed(2)} × $quantity',
+
                   style: TextStyle(
                     color: Colors.grey[600],
                   ),
@@ -228,7 +232,9 @@ class OrderHistoryPage extends StatelessWidget {
           ),
           // Item total
           Text(
-            ' ${itemTotal.toStringAsFixed(2)} USD',
+
+            'USD ${itemTotal.toStringAsFixed(2)}',
+
             style: const TextStyle(
               fontWeight: FontWeight.w500,
             ),

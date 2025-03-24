@@ -135,7 +135,9 @@ class CheckoutPage extends StatelessWidget {
                       ),
                       SizedBox(height: 4.h),
                       Text(
-                        '${price.toStringAsFixed(2)} USD',
+
+                        'USD ${price.toStringAsFixed(2)}',
+
                         style: TextStyle(
                           fontSize: 15.sp,
                           fontWeight: FontWeight.w500,
@@ -247,7 +249,9 @@ class CheckoutPage extends StatelessWidget {
                 ),
               ),
               Text(
-                '${totalPrice.toStringAsFixed(2)} USD',
+
+                'USD ${totalPrice.toStringAsFixed(2)}',
+
                 style: TextStyle(
                   fontSize: 20.sp,
                   fontWeight: FontWeight.bold,
