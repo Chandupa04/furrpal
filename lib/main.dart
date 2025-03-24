@@ -9,14 +9,16 @@ void main() async {
   try {
     // Ensure Flutter is initialized
     WidgetsFlutterBinding.ensureInitialized();
+    // Initialize Firebase
+    await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform);
 
     // Initialize Stripe - this must be done before Firebase
     Stripe.publishableKey = stripePublishableKey;
-    Stripe.merchantIdentifier = 'merchant.com.furrpal.furrpal'; // Add this for Apple Pay support
-    await Stripe.instance.applySettings(); // Uncomment this line - it's critical!
-
-    // Initialize Firebase
-    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    Stripe.merchantIdentifier =
+        'merchant.com.furrpal.furrpal'; // Add this for Apple Pay support
+    await Stripe.instance
+        .applySettings(); // Uncomment this line - it's critical!
 
     // Run app
     runApp(MyApp());
