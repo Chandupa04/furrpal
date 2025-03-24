@@ -28,9 +28,6 @@ class MyApp extends StatelessWidget {
   // dog Profile repo
   final dogProfileRepo = DogProfileRepoImpl();
 
-  // post repo
-  final postRepo = PostRepoImpl();
-
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
@@ -54,13 +51,6 @@ class MyApp extends StatelessWidget {
           BlocProvider<DogProfileCubit>(
             create: (context) => DogProfileCubit(
               dogProfileRepo: dogProfileRepo,
-            ),
-          ),
-
-          // Post cubit
-          BlocProvider<PostCubit>(
-            create: (context) => PostCubit(
-              postRepo: postRepo,
             ),
           ),
 

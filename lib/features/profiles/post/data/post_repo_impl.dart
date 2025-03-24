@@ -8,20 +8,23 @@ class PostRepoImpl implements PostRepo {
   User? currentUser = FirebaseAuth.instance.currentUser;
 
   @override
-  Future<List<PostEntity>> fetchUserPost() async {
+  Stream<List<PostEntity>> fetchUserPost() {
     try {
-      final postDoc = await firebaseFirestore
+      return firebaseFirestore
           .collection('users')
           .doc(currentUser!.uid)
           .collection('community')
-          .get();
-
-      return postDoc.docs.map((doc) {
-        final postData = doc.data();
-        return PostEntity.fromJson(postData);
-      }).toList();
+          .orderBy('createdAt', descending: true)
+          .snapshots()
+          .map((snapshot) {
+        return snapshot.docs.map((doc) {
+          final postData = doc.data();
+          return PostEntity.fromJson(postData);
+        }).toList();
+      });
     } catch (e) {
-      return [];
+      print(e);
+      return Stream.empty();
     }
   }
 }
