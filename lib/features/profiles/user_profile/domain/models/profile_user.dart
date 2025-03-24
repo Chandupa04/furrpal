@@ -1,4 +1,4 @@
-import '../../../../auth/domain/models/user_entity.dart';
+import '../../../../../auth/domain/models/user_entity.dart';
 
 class ProfileUser extends UserEntity {
   final String profileImageUrl;

@@ -13,12 +13,15 @@ import 'package:furrpal/features/profiles/dog_profile/presentation/cubit/dog_pro
 import 'package:furrpal/features/profiles/dog_profile/presentation/cubit/dog_profile_state.dart';
 import 'package:furrpal/features/profiles/dog_profile/presentation/pages/add_new_dog_profile_page.dart';
 import 'package:furrpal/features/profiles/dog_profile/presentation/pages/dog_profile_page.dart';
-import 'package:furrpal/features/profiles/user_profile/domain/models/profile_user.dart';
-import 'package:furrpal/features/profiles/user_profile/presentation/cubit/profile_cubit.dart';
-import 'package:furrpal/features/profiles/user_profile/presentation/cubit/profile_state.dart';
-import 'package:furrpal/features/profiles/user_profile/presentation/pages/edit_user_profile.dart';
+import 'package:furrpal/features/profiles/user/post/presentation/cubit/post_cubit.dart';
+import 'package:furrpal/features/profiles/user/user_profile/domain/models/profile_user.dart';
+import 'package:furrpal/features/profiles/user/user_profile/presentation/cubit/profile_cubit.dart';
+import 'package:furrpal/features/profiles/user/user_profile/presentation/cubit/profile_state.dart';
+import 'package:furrpal/features/profiles/user/user_profile/presentation/pages/edit_user_profile.dart';
+import 'package:furrpal/features/profiles/user/user_profile/presentation/widgets/user_post_card.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../post/presentation/cubit/post_state.dart';
 import '../widgets/build_info_row.dart';
 
 class UserProfile extends StatefulWidget {
@@ -35,6 +38,7 @@ class _UserProfileState extends State<UserProfile> {
   late final authCubit = context.read<AuthCubit>();
   late final profileCubit = context.read<ProfileCubit>();
   late final dogProfileCubit = context.read<DogProfileCubit>();
+  late final postCubit = context.read<PostCubit>();
 
   //current user
   late UserEntity? currentUser = authCubit.currentUser;
@@ -46,7 +50,10 @@ class _UserProfileState extends State<UserProfile> {
 
     // load user profile data
     profileCubit.fetchUserProfile(widget.uid);
+    // load dog profile data
     dogProfileCubit.fetchDogProfiles();
+    // load user post data
+    postCubit.fetchUserPost();
   }
 
   void logout() {
@@ -66,6 +73,7 @@ class _UserProfileState extends State<UserProfile> {
           return SafeArea(
             child: Scaffold(
               appBar: AppBar(
+                surfaceTintColor: whiteColor,
                 automaticallyImplyLeading: false,
                 title: Text(
                   'My profile',
@@ -148,13 +156,15 @@ class _UserProfileState extends State<UserProfile> {
                         fontWeight: FontWeight.w400,
                         textColor: blackColor,
                       ),
-                      const Text(
-                        'My Paws',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
+
+                      // my paws section
+                      TextCustomWidget(
+                        text: 'My Paws',
+                        fontSize: 24.sp,
+                        fontWeight: FontWeight.bold,
+                        textColor: blackColor,
                       ),
+
                       const SizedBox(height: 16),
                       BlocBuilder<DogProfileCubit, DogProfileState>(
                           builder: (context, state) {
@@ -198,30 +208,35 @@ class _UserProfileState extends State<UserProfile> {
                         return const SizedBox();
                       }),
                       const SizedBox(height: 32),
-                      const TextCustomWidget(
+
+                      // gallery section
+                      TextCustomWidget(
                         text: 'Gallery',
-                        fontSize: 24,
+                        fontSize: 24.sp,
                         textColor: blackColor,
                         fontWeight: FontWeight.bold,
                       ),
                       const SizedBox(height: 16),
-                      // GridView.count(
-                      //   shrinkWrap: true,
-                      //   physics: const NeverScrollableScrollPhysics(),
-                      //   crossAxisCount: 3,
-                      //   mainAxisSpacing: 8,
-                      //   crossAxisSpacing: 8,
-                      //   children: List.generate(
-                      //     3,
-                      //     (index) => ClipRRect(
-                      //       borderRadius: BorderRadius.circular(8),
-                      //       child: Image.asset(
-                      //         'assets/images/puppy.jpeg',
-                      //         fit: BoxFit.cover,
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
+                      BlocBuilder<PostCubit, PostState>(
+                        builder: (context, state) {
+                          if (state is PostLoaded) {
+                            final posts = state.postEntity;
+                            return ListView.builder(
+                              itemCount: posts.length,
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemBuilder: (context, index) => UserPostCard(
+                                post: posts[index],
+                              ),
+                            );
+                          } else if (state is PostLoading) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                          return SizedBox();
+                        },
+                      ),
                     ],
                   ),
                 ),
