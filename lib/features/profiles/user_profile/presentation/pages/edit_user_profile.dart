@@ -9,9 +9,9 @@ import 'package:furrpal/custom/button_custom.dart';
 import 'package:furrpal/custom/container_custom.dart';
 import 'package:furrpal/custom/text_custom.dart';
 import 'package:furrpal/custom/textfield_custom.dart';
-import 'package:furrpal/features/profiles/user/user_profile/domain/models/profile_user.dart';
-import 'package:furrpal/features/profiles/user/user_profile/presentation/cubit/profile_cubit.dart';
-import 'package:furrpal/features/profiles/user/user_profile/presentation/cubit/profile_state.dart';
+import 'package:furrpal/features/profiles/user_profile/domain/models/profile_user.dart';
+import 'package:furrpal/features/profiles/user_profile/presentation/cubit/profile_cubit.dart';
+import 'package:furrpal/features/profiles/user_profile/presentation/cubit/profile_state.dart';
 import 'package:image_picker/image_picker.dart';
 
 class EditUserProfile extends StatefulWidget {

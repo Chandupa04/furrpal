@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
-import 'package:furrpal/features/profiles/user/post/domain/models/post_entity.dart';
-import 'package:furrpal/features/profiles/user/post/domain/repositories/post_repo.dart';
+import 'package:furrpal/features/profiles/post/domain/models/post_entity.dart';
+import 'package:furrpal/features/profiles/post/domain/repositories/post_repo.dart';
 import 'post_state.dart';
 
 class PostCubit extends Cubit<PostState> {

@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:furrpal/constant/constant.dart';
 import 'package:furrpal/custom/container_custom.dart';
 import 'package:furrpal/custom/text_custom.dart';
-import 'package:furrpal/features/profiles/user/post/domain/models/post_entity.dart';
+import 'package:furrpal/features/profiles/post/domain/models/post_entity.dart';
 import 'package:intl/intl.dart';
 
 class UserPostCard extends StatelessWidget {

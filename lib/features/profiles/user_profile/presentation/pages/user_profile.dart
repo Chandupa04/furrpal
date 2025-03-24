@@ -13,12 +13,12 @@ import 'package:furrpal/features/profiles/dog_profile/presentation/cubit/dog_pro
 import 'package:furrpal/features/profiles/dog_profile/presentation/cubit/dog_profile_state.dart';
 import 'package:furrpal/features/profiles/dog_profile/presentation/pages/add_new_dog_profile_page.dart';
 import 'package:furrpal/features/profiles/dog_profile/presentation/pages/dog_profile_page.dart';
-import 'package:furrpal/features/profiles/user/post/presentation/cubit/post_cubit.dart';
-import 'package:furrpal/features/profiles/user/user_profile/domain/models/profile_user.dart';
-import 'package:furrpal/features/profiles/user/user_profile/presentation/cubit/profile_cubit.dart';
-import 'package:furrpal/features/profiles/user/user_profile/presentation/cubit/profile_state.dart';
-import 'package:furrpal/features/profiles/user/user_profile/presentation/pages/edit_user_profile.dart';
-import 'package:furrpal/features/profiles/user/user_profile/presentation/widgets/user_post_card.dart';
+import 'package:furrpal/features/profiles/post/presentation/cubit/post_cubit.dart';
+import 'package:furrpal/features/profiles/user_profile/domain/models/profile_user.dart';
+import 'package:furrpal/features/profiles/user_profile/presentation/cubit/profile_cubit.dart';
+import 'package:furrpal/features/profiles/user_profile/presentation/cubit/profile_state.dart';
+import 'package:furrpal/features/profiles/user_profile/presentation/pages/edit_user_profile.dart';
+import 'package:furrpal/features/profiles/user_profile/presentation/widgets/user_post_card.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../post/presentation/cubit/post_state.dart';
@@ -190,7 +190,7 @@ class _UserProfileState extends State<UserProfile> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) =>
-                                            const AddNewDogProfilePage(),
+                                            AddNewDogProfilePage(),
                                       ),
                                     );
                                   },
