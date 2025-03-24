@@ -171,8 +171,8 @@ class _PricingPlansScreenState extends State<PricingPlansScreen> {
                 ),
                 const SizedBox(height: 16),
                 _buildFeatureItem('Unlimited likes'),
-                _buildFeatureItem('Priority matching'),
-                _buildFeatureItem('Advanced filters'),
+                // _buildFeatureItem('Priority matching'),
+                // _buildFeatureItem('Advanced filters'),
                 _buildFeatureItem('24/7 support'),
                 const SizedBox(height: 16),
                 SizedBox(
