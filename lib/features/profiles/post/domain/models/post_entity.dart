@@ -4,14 +4,14 @@ class PostEntity {
   final String postId;
   final String imageUrl;
   final String caption;
-  final int likesCount;
+  final List likes;
   final List comments;
   final Timestamp? timeStamp;
   PostEntity({
     required this.postId,
     required this.imageUrl,
     required this.caption,
-    required this.likesCount,
+    required this.likes,
     required this.comments,
     this.timeStamp,
   });
@@ -20,7 +20,7 @@ class PostEntity {
       postId: json['post_id'],
       imageUrl: json['imageUrl'],
       caption: json['caption'],
-      likesCount: json['likesCount'],
+      likes: json['likes'] ?? [],
       comments:
           json['comments'] != null ? List<String>.from(json['comments']) : [],
       timeStamp: json['createdAt'],
@@ -32,7 +32,7 @@ class PostEntity {
       'post_id': postId,
       'imageUrl': imageUrl,
       'caption': caption,
-      'likesCount': likesCount,
+      'likes': likes,
       'comments': comments,
       'createdAt': timeStamp,
     };

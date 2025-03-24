@@ -21,8 +21,8 @@ class UserPostCard extends StatelessWidget {
       paddingLeft: 5.w,
       paddingRight: 5.w,
       paddingTop: 5.h,
-      bgColor: postColor,
-      margin: EdgeInsets.symmetric(vertical: 5.h),
+      bgColor: whiteColor,
+      marginBottom: 10.h,
       shadow: [
         BoxShadow(
           color: Colors.black26,
@@ -68,6 +68,22 @@ class UserPostCard extends StatelessWidget {
             marginLeft: 10.w,
             marginTop: 4.h,
             textColor: blackColor,
+          ),
+          Row(
+            children: [
+              SizedBox(width: 8.w),
+              Icon(
+                Icons.favorite_rounded,
+                color: Colors.red,
+                size: 20.h,
+              ),
+              TextCustomWidget(
+                text: post.likes.length.toString(),
+                fontSize: 20.sp,
+                marginLeft: 5.w,
+                textColor: blackColor,
+              ),
+            ],
           ),
         ],
       ),
