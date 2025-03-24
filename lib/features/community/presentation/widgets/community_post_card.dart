@@ -53,6 +53,50 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
     isLiked = widget.likes.any((like) => like['userId'] == currentUserId);
   }
 
+  void _editPost(BuildContext context) {
+    TextEditingController _editController =
+        TextEditingController(text: widget.caption);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Post'),
+        content: TextField(
+          controller: _editController,
+          maxLines: 5,
+          decoration: const InputDecoration(
+            hintText: "Update your post...",
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (_editController.text.trim().isNotEmpty) {
+                await CommunityService().editPost(
+                  postId: widget.postId,
+                  newContent: _editController.text.trim(),
+                );
+
+                Navigator.pop(context);
+                widget.onPostDeleted();
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Post content cannot be empty")),
+                );
+              }
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ContainerCustom(
@@ -112,17 +156,33 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
                               leading: const Icon(Icons.edit),
                               title: const Text('Edit Post'),
                               onTap: () {
-                                // Handle Edit
+                                Navigator.pop(context);
+                                _editPost(context);
                               },
                             ),
                             ListTile(
-                              leading: const Icon(Icons.delete),
-                              title: const Text('Delete Post'),
+                              leading: const Icon(
+                                Icons.delete,
+                                color: Colors.red, // Red icon color
+                              ),
+                              title: const Text(
+                                'Delete Post',
+                                style: TextStyle(
+                                    color: Colors.red), // Red text color
+                              ),
                               onTap: () async {
                                 final confirmDelete = await showDialog<bool>(
                                   context: context,
                                   builder: (context) => AlertDialog(
-                                    title: const Text('Delete Post'),
+                                    title: const Text(
+                                      'Delete Post',
+                                      style: TextStyle(
+                                        color: Color.fromARGB(
+                                            255, 0, 0, 0), // Red text color
+                                        fontWeight: FontWeight
+                                            .bold, // Optional for emphasis
+                                      ),
+                                    ),
                                     content: const Text(
                                         'Are you sure you want to delete this post?'),
                                     actions: [
@@ -136,7 +196,12 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
                                           Navigator.pop(context,
                                               true); // Confirm deletion and close the dialog
                                         },
-                                        child: const Text('Delete'),
+                                        child: const Text(
+                                          'Delete',
+                                          style: TextStyle(
+                                              color:
+                                                  Colors.red), // Red text color
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -160,10 +225,64 @@ class _CommunityPostCardState extends State<CommunityPostCard> {
                           ],
                           if (currentUserId != widget.postOwnerId) ...[
                             ListTile(
-                              leading: const Icon(Icons.report),
-                              title: const Text('Report Post'),
-                              onTap: () {
-                                // Handle Report
+                              leading: const Icon(
+                                Icons.report,
+                                color: Colors.red,
+                              ),
+                              title: const Text(
+                                'Report Post',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                              onTap: () async {
+                                final confirmReport = await showDialog<bool>(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text(
+                                      'Report Post',
+                                      style: TextStyle(
+                                        color: Colors
+                                            .black, // Black color for title
+                                        fontWeight:
+                                            FontWeight.bold, // Bold title
+                                      ),
+                                    ),
+                                    content: const Text(
+                                        'Are you sure you want to report this post?'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.pop(context, false),
+                                        child: const Text('Cancel'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context, true);
+                                        },
+                                        child: const Text(
+                                          'Report',
+                                          style: TextStyle(
+                                            color: Colors.red,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+
+                                if (confirmReport == true) {
+                                  await CommunityService().reportPost(
+                                    postId: widget.postId,
+                                    postOwnerId: widget.postOwnerId,
+                                  );
+                                  Navigator.of(context).pop();
+
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content:
+                                          Text('Post reported successfully!'),
+                                    ),
+                                  );
+                                }
                               },
                             ),
                           ]
