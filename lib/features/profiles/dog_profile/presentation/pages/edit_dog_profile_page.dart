@@ -38,7 +38,6 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
   late TextEditingController nameTextController;
   late TextEditingController locationTextController;
   late TextEditingController weightKgcontroller;
-  late TextEditingController weightGcontroller;
   late TextEditingController bloodlineTextController;
 
   @override
@@ -66,7 +65,7 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
   Future<void> pickImage() async {
     final ImagePicker picker = ImagePicker();
     final XFile? pickedFile =
-        await picker.pickImage(source: ImageSource.gallery);
+    await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         selectedFile = File(pickedFile.path);
@@ -134,17 +133,40 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(10.r),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 5,
+                            spreadRadius: 1,
+                          ),
+                        ],
                       ),
                       child: DropdownButtonFormField<int>(
                         value: selectedYears,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10.r),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
                           ),
-                          contentPadding:
-                              EdgeInsets.symmetric(horizontal: 16.w),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.r),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.r),
+                            borderSide: BorderSide(color: const Color(0xFFFBA182)),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
+                          filled: true,
+                          fillColor: Colors.white,
                         ),
-                        hint: Text(selectedYears.toString()),
+                        hint: Text(
+                          'Years',
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 16.sp,
+                          ),
+                        ),
                         items: years.map((int year) {
                           return DropdownMenuItem<int>(
                             value: year,
@@ -156,6 +178,11 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                             selectedYears = value;
                           });
                         },
+                        icon: Icon(
+                          Icons.arrow_drop_down,
+                          color: Colors.grey.shade700,
+                        ),
+                        dropdownColor: Colors.white,
                       ),
                     ),
                   ],
@@ -171,17 +198,40 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(10.r),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 5,
+                            spreadRadius: 1,
+                          ),
+                        ],
                       ),
                       child: DropdownButtonFormField<int>(
                         value: selectedMonths,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10.r),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
                           ),
-                          contentPadding:
-                              EdgeInsets.symmetric(horizontal: 16.w),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.r),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.r),
+                            borderSide: BorderSide(color: const Color(0xFFFBA182)),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
+                          filled: true,
+                          fillColor: Colors.white,
                         ),
-                        hint: Text(selectedMonths.toString()),
+                        hint: Text(
+                          'Months',
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 16.sp,
+                          ),
+                        ),
                         items: months.map((int month) {
                           return DropdownMenuItem<int>(
                             value: month,
@@ -193,6 +243,11 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
                             selectedMonths = value;
                           });
                         },
+                        icon: Icon(
+                          Icons.arrow_drop_down,
+                          color: Colors.grey.shade700,
+                        ),
+                        dropdownColor: Colors.white,
                       ),
                     ),
                   ],
@@ -209,25 +264,25 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
   Widget build(BuildContext context) {
     return BlocConsumer<DogProfileCubit, DogProfileState>(
         builder: (context, state) {
-      if (state is DogProfileLoading) {
-        return Scaffold(
-          body: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Center(child: CircularProgressIndicator()),
-              TextCustomWidget(
-                text: 'Uploading...',
-                fontSize: 18.sp,
-                textColor: blackColor,
-                containerAlignment: Alignment.center,
+          if (state is DogProfileLoading) {
+            return Scaffold(
+              body: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Center(child: CircularProgressIndicator()),
+                  TextCustomWidget(
+                    text: 'Uploading...',
+                    fontSize: 18.sp,
+                    textColor: blackColor,
+                    containerAlignment: Alignment.center,
+                  ),
+                ],
               ),
-            ],
-          ),
-        );
-      } else {
-        return buildEditPage();
-      }
-    }, listener: (context, state) {
+            );
+          } else {
+            return buildEditPage();
+          }
+        }, listener: (context, state) {
       if (state is DogProfileLoaded) {
         Navigator.pop(context);
         Navigator.pop(context);
@@ -237,56 +292,93 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
 
   Widget deletePopupCard() {
     return Dialog(
-      shape:
-          ContinuousRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
-      child: ContainerCustom(
-        padding:
-            EdgeInsets.only(top: 10.w, bottom: 15.h, left: 10.w, right: 10.w),
-        height: 100.h,
-        bgColor: whiteColor,
-        borderRadius: BorderRadius.circular(20.r),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            TextCustomWidget(
-              text: 'Are you sure you want to delete this dog profile?',
-              fontSize: 18.sp,
-              textColor: blackColor,
-              textAlign: TextAlign.center,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
+      child: Container(
+        padding: EdgeInsets.all(20.w),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              spreadRadius: 1,
             ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.warning_amber_rounded,
+              color: Colors.red,
+              size: 50.sp,
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              'Delete Profile',
+              style: TextStyle(
+                fontSize: 20.sp,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+            SizedBox(height: 8.h),
+            Text(
+              'Are you sure you want to delete this dog profile? This action cannot be undone.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16.sp,
+                color: Colors.grey.shade700,
+              ),
+            ),
+            SizedBox(height: 24.h),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                ButtonCustom(
-                  text: 'No',
-                  dontApplyMargin: true,
-                  btnColor: Colors.red,
-                  textStyle: TextStyle(
-                    fontSize: 18.sp,
-                    color: whiteColor,
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey.shade200,
+                      foregroundColor: Colors.black87,
+                      padding: EdgeInsets.symmetric(vertical: 12.h),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.r),
+                      ),
+                    ),
+                    child: Text(
+                      'Cancel',
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ),
-                  btnHeight: 30.h,
-                  btnWidth: 110.w,
-                  borderRadius: BorderRadius.circular(10.r),
-                  callback: () {
-                    Navigator.pop(context);
-                  },
                 ),
-                ButtonCustom(
-                  text: 'Yes',
-                  dontApplyMargin: true,
-                  btnColor: Colors.greenAccent,
-                  textStyle: TextStyle(
-                    fontSize: 18.sp,
-                    color: whiteColor,
+                SizedBox(width: 16.w),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: deleteProfile,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(vertical: 12.h),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.r),
+                      ),
+                    ),
+                    child: Text(
+                      'Delete',
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ),
-                  btnHeight: 30.h,
-                  btnWidth: 110.w,
-                  borderRadius: BorderRadius.circular(10.r),
-                  callback: deleteProfile,
                 ),
               ],
-            )
+            ),
           ],
         ),
       ),
@@ -295,204 +387,480 @@ class _EditDogProfilePageState extends State<EditDogProfilePage> {
 
   Widget buildEditPage() {
     return Scaffold(
+      backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
         title: Text(
           'Edit Dog Profile',
-          style: appBarStyle,
+          style: TextStyle(
+            fontSize: 22.sp,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
         ),
         centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
         actions: [
-          IconButton(
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => deletePopupCard(),
-              );
-            },
-            icon: const Icon(LucideIcons.trash2),
-            iconSize: 22.h,
+          Container(
+            margin: EdgeInsets.only(right: 8.w),
+            decoration: BoxDecoration(
+              color: Colors.red.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: IconButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => deletePopupCard(),
+                );
+              },
+              icon: Icon(
+                LucideIcons.trash2,
+                color: Colors.red,
+                size: 22.sp,
+              ),
+            ),
           ),
         ],
       ),
       body: SingleChildScrollView(
-        child: ContainerCustom(
-          marginLeft: 24.w,
-          marginRight: 24.w,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 24.w),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ContainerCustom(
-                callback: pickImage,
-                height: 200.h,
-                width: 200.h,
-                shape: BoxShape.circle,
-                bgColor: Colors.grey.shade500,
-                clipBehavior: Clip.hardEdge,
-                child: (selectedFile != null)
-                    ? Image.file(
-                        selectedFile!,
-                        fit: BoxFit.cover,
-                      )
-                    : CachedNetworkImage(
-                        imageUrl: widget.dog.imageURL,
-                        placeholder: (context, url) =>
-                            const CircularProgressIndicator(),
-                        errorWidget: (context, url, error) => Icon(
-                          Icons.person,
-                          size: 72.h,
-                          color: Colors.black,
-                        ),
-                        imageBuilder: (context, imageProvider) => Image(
-                          image: imageProvider,
-                          fit: BoxFit.cover,
+              // Profile Image Section
+              Padding(
+                padding: EdgeInsets.only(top: 20.h, bottom: 30.h),
+                child: Center(
+                  child: Column(
+                    children: [
+                      // Profile Image with Picker
+                      GestureDetector(
+                        onTap: pickImage,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.white,
+                              width: 4.w,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                blurRadius: 10,
+                                spreadRadius: 2,
+                              ),
+                            ],
+                          ),
+                          child: selectedFile != null
+                              ? ClipOval(
+                            child: Image.file(
+                              selectedFile!,
+                              width: 120.w,
+                              height: 120.h,
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                              : CachedNetworkImage(
+                            imageUrl: widget.dog.imageURL,
+                            placeholder: (context, url) => ContainerCustom(
+                              width: 120.w,
+                              height: 120.h,
+                              shape: BoxShape.circle,
+                              bgColor: Colors.white.withOpacity(0.3),
+                              child: const CircularProgressIndicator(
+                                color: Colors.white,
+                              ),
+                            ),
+                            errorWidget: (context, url, error) => ContainerCustom(
+                              width: 120.w,
+                              height: 120.h,
+                              shape: BoxShape.circle,
+                              bgColor: Colors.grey.shade200,
+                              child: Icon(
+                                LucideIcons.dog,
+                                size: 72.h,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                            imageBuilder: (context, imageProvider) =>
+                                ContainerCustom(
+                                  width: 120.w,
+                                  height: 120.h,
+                                  shape: BoxShape.circle,
+                                  decorationImage: DecorationImage(
+                                    image: imageProvider,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                          ),
                         ),
                       ),
-              ),
-              if (selectedFile != null)
-                ButtonCustom(
-                  text: 'upload',
-                  btnHeight: 40.h,
-                  borderRadius: BorderRadius.circular(8.r),
-                  margin:
-                      EdgeInsets.symmetric(horizontal: 55.h, vertical: 10.h),
-                  inProgress: isProcessing,
-                  isDisabled: isProcessing,
-                  callback: () {
-                    setState(() {
-                      isProcessing = true;
-                    });
-                    context
-                        .read<DogProfileCubit>()
-                        .updateDogProfileImage(selectedFile!, widget.dog.dogId);
-                    //     .then((res) {
-                    //   setState(() {
-                    //     isProcessing = false;
-                    //   });
-                    //   if (res == true) {
-                    //     Navigator.pop(context);
-                    //     Navigator.pop(context);
-                    //   }
-                    // })
-                  },
-                ),
-              TextCustomWidget(
-                text: 'Name',
-                textStyle: textFieldLableStyle,
-                marginLeft: 10.w,
-                marginTop: 10.h,
-                marginBottom: 4.h,
-              ),
-              TextFieldCustom(
-                controller: nameTextController,
-                hintText: widget.dog.name,
-                borderColor: blackColor,
-                marginBottom: 15.h,
-              ),
-              TextCustomWidget(
-                text: 'Age',
-                textStyle: textFieldLableStyle,
-                marginLeft: 10.w,
-                marginBottom: 4.h,
-              ),
-              buildAgeDropdowns(),
-              TextCustomWidget(
-                text: 'weight (Kg)',
-                textStyle: textFieldLableStyle,
-                marginLeft: 10.w,
-                marginBottom: 4.h,
-              ),
-              TextFieldCustom(
-                controller: weightKgcontroller,
-                hintText: widget.dog.weightKg,
-                borderColor: blackColor,
-                marginBottom: 15.h,
-              ),
-              TextCustomWidget(
-                text: 'Gender',
-                textStyle: textFieldLableStyle,
-                marginLeft: 10.w,
-                marginBottom: 4.h,
-              ),
-              DropdownButtonFormField<String>(
-                padding: EdgeInsets.only(bottom: 15.h),
-                dropdownColor: whiteColor,
-                value: selectedGender,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.r),
+                      SizedBox(height: 8.h),
+                      // Tap to change text
+                      Text(
+                        'Tap to change photo',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                      // Upload button if image is selected
+                      if (selectedFile != null)
+                        Padding(
+                          padding: EdgeInsets.only(top: 16.h),
+                          child: ElevatedButton(
+                            onPressed: isProcessing
+                                ? null
+                                : () {
+                              setState(() {
+                                isProcessing = true;
+                              });
+                              context
+                                  .read<DogProfileCubit>()
+                                  .updateDogProfileImage(selectedFile!, widget.dog.dogId)
+                                  .then((res) {
+                                setState(() {
+                                  isProcessing = false;
+                                });
+                              });
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFFBA182),
+                              foregroundColor: Colors.white,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 20.w, vertical: 10.h),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
+                            ),
+                            child: isProcessing
+                                ? SizedBox(
+                              width: 20.w,
+                              height: 20.h,
+                              child: const CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                                : const Text('Upload Image'),
+                          ),
+                        ),
+                    ],
                   ),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
                 ),
-                items: genders.map((String gender) {
-                  return DropdownMenuItem<String>(
-                    value: gender,
-                    child: Text(gender),
-                  );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    selectedGender = newValue!;
-                  });
-                },
               ),
-              TextCustomWidget(
-                text: 'Breed',
-                textStyle: textFieldLableStyle,
-                marginLeft: 10.w,
-                marginBottom: 4.h,
-              ),
-              DropdownButtonFormField<String>(
-                padding: EdgeInsets.only(bottom: 15.h),
-                value: selectedBreed,
-                dropdownColor: whiteColor,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    // borderSide: BorderSide(color: blackColor),
-                    borderRadius: BorderRadius.circular(10.r),
-                  ),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
+
+              // Form Fields in Cards
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(20.w),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20.r),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      spreadRadius: 1,
+                    ),
+                  ],
                 ),
-                items: breeds.map((String breed) {
-                  return DropdownMenuItem<String>(
-                    value: breed,
-                    child: Text(breed),
-                  );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    selectedBreed = newValue!;
-                  });
-                },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          LucideIcons.dog,
+                          color: const Color(0xFFFBA182),
+                          size: 22.sp,
+                        ),
+                        SizedBox(width: 10.w),
+                        Text(
+                          'Basic Information',
+                          style: TextStyle(
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Divider(height: 24.h, thickness: 1),
+                    SizedBox(height: 8.h),
+
+                    // Name
+                    Text(
+                      'Name',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                    TextFieldCustom(
+                      controller: nameTextController,
+                      hintText: widget.dog.name,
+                      borderColor: Colors.grey.shade300,
+                      marginBottom: 15.h,
+                    ),
+
+                    // Age
+                    Text(
+                      'Age',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                    buildAgeDropdowns(),
+
+                    // Weight
+                    Text(
+                      'Weight (Kg)',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                    TextFieldCustom(
+                      controller: weightKgcontroller,
+                      hintText: widget.dog.weightKg,
+                      keyboardType: TextInputType.number,
+                      borderColor: Colors.grey.shade300,
+                      marginBottom: 15.h,
+                    ),
+
+                    // Gender
+                    Text(
+                      'Gender',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10.r),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 5,
+                            spreadRadius: 1,
+                          ),
+                        ],
+                      ),
+                      child: DropdownButtonFormField<String>(
+                        value: selectedGender,
+                        padding: EdgeInsets.only(bottom: 15.h),
+                        dropdownColor: whiteColor,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.r),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.r),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.r),
+                            borderSide: BorderSide(color: const Color(0xFFFBA182)),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
+                          filled: true,
+                          fillColor: Colors.white,
+                        ),
+                        items: genders.map((String gender) {
+                          return DropdownMenuItem<String>(
+                            value: gender,
+                            child: Text(gender),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedGender = newValue!;
+                          });
+                        },
+                        icon: Icon(
+                          Icons.arrow_drop_down,
+                          color: Colors.grey.shade700,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 15.h),
+
+                    // Breed
+                    Text(
+                      'Breed',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10.r),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 5,
+                            spreadRadius: 1,
+                          ),
+                        ],
+                      ),
+                      child: DropdownButtonFormField<String>(
+                        value: selectedBreed,
+                        padding: EdgeInsets.only(bottom: 15.h),
+                        dropdownColor: whiteColor,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.r),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.r),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.r),
+                            borderSide: BorderSide(color: const Color(0xFFFBA182)),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
+                          filled: true,
+                          fillColor: Colors.white,
+                        ),
+                        items: breeds.map((String breed) {
+                          return DropdownMenuItem<String>(
+                            value: breed,
+                            child: Text(breed),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedBreed = newValue!;
+                          });
+                        },
+                        icon: Icon(
+                          Icons.arrow_drop_down,
+                          color: Colors.grey.shade700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              TextCustomWidget(
-                text: 'Blood Line',
-                textStyle: textFieldLableStyle,
-                marginLeft: 10.w,
-                marginBottom: 4.h,
+
+              SizedBox(height: 20.h),
+
+              // Additional Information Card
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(20.w),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20.r),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      spreadRadius: 1,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          color: const Color(0xFFFBA182),
+                          size: 22.sp,
+                        ),
+                        SizedBox(width: 10.w),
+                        Text(
+                          'Additional Information',
+                          style: TextStyle(
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Divider(height: 24.h, thickness: 1),
+                    SizedBox(height: 8.h),
+
+                    // Blood Line
+                    Text(
+                      'Blood Line',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                    TextFieldCustom(
+                      controller: bloodlineTextController,
+                      hintText: widget.dog.bloodline,
+                      borderColor: Colors.grey.shade300,
+                      marginBottom: 15.h,
+                    ),
+
+                    // Location
+                    Text(
+                      'Location',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                    TextFieldCustom(
+                      controller: locationTextController,
+                      hintText: widget.dog.location,
+                      borderColor: Colors.grey.shade300,
+                      marginBottom: 15.h,
+                    ),
+                  ],
+                ),
               ),
-              TextFieldCustom(
-                controller: bloodlineTextController,
-                hintText: widget.dog.bloodline,
-                borderColor: blackColor,
-                marginBottom: 15.h,
+
+              // Save Button
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 30.h),
+                child: ButtonCustom(
+                  text: 'Save Changes',
+                  callback: updateProfile,
+                  btnColor: const Color(0xFFFBA182),
+                  textColor: Colors.white,
+                  btnHeight: 50.h,
+                  borderRadius: BorderRadius.circular(12.r),
+                  elevation: 5,
+                  dontApplyMargin: true,
+                ),
               ),
-              TextCustomWidget(
-                text: 'Location',
-                textStyle: textFieldLableStyle,
-                marginLeft: 10.w,
-                marginBottom: 4.h,
-              ),
-              TextFieldCustom(
-                controller: locationTextController,
-                hintText: widget.dog.location,
-                borderColor: blackColor,
-                marginBottom: 30.h,
-              ),
-              ButtonCustom(
-                text: 'Save Edit',
-                callback: updateProfile,
-                dontApplyMargin: true,
-                elevation: 5,
-              )
             ],
           ),
         ),
