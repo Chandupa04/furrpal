@@ -5,7 +5,9 @@ import 'package:furrpal/constant/constant.dart';
 import 'package:furrpal/custom/container_custom.dart';
 import 'package:furrpal/custom/text_custom.dart';
 import 'package:furrpal/features/profiles/post/domain/models/post_entity.dart';
+import 'package:furrpal/features/profiles/post/presentation/pages/profile_comment_page.dart';
 import 'package:intl/intl.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class UserPostCard extends StatelessWidget {
   final PostEntity post;
@@ -55,13 +57,14 @@ class UserPostCard extends StatelessWidget {
               ),
             ),
           ),
-          TextCustomWidget(
-            text: DateFormat('dd/MM/yyyy').format(post.timeStamp!.toDate()),
-            textColor: blackColor,
-            fontSize: 14.sp,
-            marginLeft: 10.w,
-            marginTop: 4.h,
-          ),
+          if (post.createdAt != null)
+            TextCustomWidget(
+              text: DateFormat('dd/MM/yyyy').format(post.createdAt!.toDate()),
+              textColor: blackColor,
+              fontSize: 14.sp,
+              marginLeft: 10.w,
+              marginTop: 4.h,
+            ),
           TextCustomWidget(
             text: post.caption,
             fontSize: 16.sp,
@@ -80,9 +83,30 @@ class UserPostCard extends StatelessWidget {
               TextCustomWidget(
                 text: post.likes.length.toString(),
                 fontSize: 20.sp,
-                marginLeft: 5.w,
+                fontWeight: FontWeight.w600,
+                marginLeft: 10.w,
                 textColor: blackColor,
               ),
+              IconButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProfileCommentPage(
+                        comments: post.comments,
+                      ),
+                    ),
+                  );
+                },
+                color: Colors.lightBlueAccent.shade700,
+                icon: const Icon(LucideIcons.messageCircle),
+              ),
+              TextCustomWidget(
+                text: post.comments.length.toString(),
+                fontSize: 20.sp,
+                fontWeight: FontWeight.w600,
+                textColor: blackColor,
+              )
             ],
           ),
         ],

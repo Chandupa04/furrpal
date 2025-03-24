@@ -1,19 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:furrpal/features/profiles/post/domain/models/comment_entity.dart';
 
 class PostEntity {
   final String postId;
   final String imageUrl;
   final String caption;
   final List likes;
-  final List comments;
-  final Timestamp? timeStamp;
+  final List<CommentEntity> comments;
+  final Timestamp? createdAt;
   PostEntity({
     required this.postId,
     required this.imageUrl,
     required this.caption,
     required this.likes,
     required this.comments,
-    this.timeStamp,
+    this.createdAt,
   });
   factory PostEntity.fromJson(Map<String, dynamic> json) {
     return PostEntity(
@@ -21,9 +22,12 @@ class PostEntity {
       imageUrl: json['imageUrl'],
       caption: json['caption'],
       likes: json['likes'] ?? [],
-      comments:
-          json['comments'] != null ? List<String>.from(json['comments']) : [],
-      timeStamp: json['createdAt'],
+      comments: json['comments'] != null
+          ? (json['comments'] as List)
+              .map((comment) => CommentEntity.fromJson(comment))
+              .toList()
+          : [],
+      createdAt: json['createdAt'],
     );
   }
 
@@ -34,7 +38,7 @@ class PostEntity {
       'caption': caption,
       'likes': likes,
       'comments': comments,
-      'createdAt': timeStamp,
+      'createdAt': createdAt,
     };
   }
 }
